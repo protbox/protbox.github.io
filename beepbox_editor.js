@@ -34407,8 +34407,10 @@ You should be redirected to the song at:<br /><br />
 
     class Preferences {
         constructor() {
+            this.showLetters = true;
             this.showChannels = true;
             this.showScrollBar = true;
+            this.layout = "wide";
             this.volume = 75;
             this.visibleOctaves = Preferences.defaultVisibleOctaves;
             this.reload();
@@ -34419,13 +34421,13 @@ You should be redirected to the song at:<br /><br />
             this.enableNotePreview = window.localStorage.getItem("enableNotePreview") != "false";
             this.showFifth = window.localStorage.getItem("showFifth") == "true";
             this.notesOutsideScale = window.localStorage.getItem("notesOutsideScale") == "true";
-            this.showLetters = true;
-            this.showChannels = true;
-            this.showScrollBar = true;
+            this.showLetters = window.localStorage.getItem("showLetters") != "false";
+            this.showChannels = window.localStorage.getItem("showChannels") != "false";
+            this.showScrollBar = window.localStorage.getItem("showScrollBar") != "false";
             this.alwaysFineNoteVol = window.localStorage.getItem("alwaysFineNoteVol") == "true";
             this.displayVolumeBar = window.localStorage.getItem("displayVolumeBar") == "true";
             this.instrumentCopyPaste = window.localStorage.getItem("instrumentCopyPaste") == "true";
-            this.enableChannelMuting = window.localStorage.getItem("enableChannelMuting") == "true";
+            this.enableChannelMuting = window.localStorage.getItem("enableChannelMuting") != "false";
             this.displayBrowserUrl = window.localStorage.getItem("displayBrowserUrl") != "false";
             this.pressControlForShortcuts = window.localStorage.getItem("pressControlForShortcuts") == "true";
             this.enableMidi = window.localStorage.getItem("enableMidi") != "false";
