@@ -4851,7 +4851,7 @@ var beepbox = (function (exports) {
 	font-size: 13px;
 	overflow: hidden;
 	color: ${ColorConfig.primaryText};
-	background: ${ColorConfig.editorBackground};
+	/* background: ${ColorConfig.editorBackground}; */
     opacity: 0;
     -webkit-transition: opacity 0.2s ease-in;
     -moz-transition: opacity 0.2s ease-in;
@@ -4959,7 +4959,6 @@ var beepbox = (function (exports) {
 	display: flex;
 	flex-direction: row;
 	position: relative;
-	opacity: 0.7;
 }
 
 .beepboxEditor .track-area {
@@ -4982,6 +4981,7 @@ var beepbox = (function (exports) {
     grid-template-rows: min-content min-content min-content min-content min-content;
     grid-template-areas: "version-area" "play-pause-area" "menu-area" "song-settings-area" "instrument-settings-area";
 	grid-column-gap: 6px;
+	opacity: 0.7;
 }
 
 .beepboxEditor .version-area{ grid-area: version-area; }
