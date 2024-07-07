@@ -5134,9 +5134,9 @@ var beepbox = (function (exports) {
 	mask-position: center;
 }
 
-svg path {
-	-webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
-  	filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+svg svg path {
+	-webkit-filter: drop-shadow( 3px 3px 2px rgba(36, 14, 28, .7));
+  	filter: drop-shadow( 3px 3px 2px rgba(36, 14, 28, 0.73));
 }
 
 .beepboxEditor .paste-instrument {
@@ -22761,12 +22761,7 @@ You should be redirected to the song at:<br /><br />
 				#beepboxEditorContainer {
 					max-width: initial;
 					height: 100vh;
-					background:
-						linear-gradient(
-				          rgba(0, 0, 0, 0.7), 
-				          rgba(0, 0, 0, 0.7)
-				        ),
-				        url(backgrounds/loneygirl.jpg) repeat 0 0 !important;
+					background: url(backgrounds/hood.jpg) repeat 0 0 !important;
     				background-size: cover;
 				}
 				.beepboxEditor {
