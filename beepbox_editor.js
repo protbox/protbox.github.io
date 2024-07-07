@@ -4959,11 +4959,13 @@ var beepbox = (function (exports) {
 	display: flex;
 	flex-direction: row;
 	position: relative;
+	opacity: 0.8;
 }
 
 .beepboxEditor .track-area {
 	grid-area: track-area;
 	opacity: 0.7;
+	background: #000;
 }
 
 .beepboxEditor .loopEditor {
@@ -4982,6 +4984,7 @@ var beepbox = (function (exports) {
     grid-template-areas: "version-area" "play-pause-area" "menu-area" "song-settings-area" "instrument-settings-area";
 	grid-column-gap: 6px;
 	opacity: 0.7;
+	background: #000;
 }
 
 .beepboxEditor .version-area{ grid-area: version-area; }
