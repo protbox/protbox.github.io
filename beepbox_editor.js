@@ -34420,8 +34420,8 @@ You should be redirected to the song at:<br /><br />
             this.showFifth = window.localStorage.getItem("showFifth") == "true";
             this.notesOutsideScale = window.localStorage.getItem("notesOutsideScale") == "true";
             this.showLetters = window.localStorage.getItem("showLetters") == "true";
-            this.showChannels = window.localStorage.getItem("showChannels") == "true";
-            this.showScrollBar = window.localStorage.getItem("showScrollBar") == "true";
+            this.showChannels = true;
+            this.showScrollBar = true;
             this.alwaysFineNoteVol = window.localStorage.getItem("alwaysFineNoteVol") == "true";
             this.displayVolumeBar = window.localStorage.getItem("displayVolumeBar") == "true";
             this.instrumentCopyPaste = window.localStorage.getItem("instrumentCopyPaste") == "true";
