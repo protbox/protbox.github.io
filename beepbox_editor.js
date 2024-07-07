@@ -34124,10 +34124,7 @@ You should be redirected to the song at:<br /><br />
         erasePatternInBar(group, channelIndex, bar) {
             const removedPattern = this._doc.song.channels[channelIndex].bars[bar];
             if (removedPattern != 0) {
-                group.append(new ChangePatternNumbers(this._doc, 0, bar, channelIndex, 1, 1));
-                if (this._patternIndexIsUnused(channelIndex, removedPattern)) {
-                    this._doc.song.channels[channelIndex].patterns[removedPattern - 1].reset();
-                }
+                this._doc.song.channels[channelIndex].patterns[removedPattern - 1].reset();
             }
         }
         pasteNumbers() {
