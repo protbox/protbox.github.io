@@ -34434,7 +34434,7 @@ You should be redirected to the song at:<br /><br />
             this.metronomeWhileRecording = window.localStorage.getItem("metronomeWhileRecording") != "false";
             this.keyboardLayout = window.localStorage.getItem("keyboardLayout") || "wickiHayden";
             this.bassOffset = (+window.localStorage.getItem("bassOffset")) || 0;
-            this.layout = window.localStorage.getItem("layout") || "small";
+            this.layout = window.localStorage.getItem("layout") || "wide";
             this.colorTheme = window.localStorage.getItem("colorTheme") || "jummbox classic";
             this.visibleOctaves = (window.localStorage.getItem("visibleOctaves") >>> 0) || Preferences.defaultVisibleOctaves;
             const defaultScale = Config.scales.dictionary[window.localStorage.getItem("defaultScale")];
