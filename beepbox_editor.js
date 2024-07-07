@@ -22756,7 +22756,12 @@ You should be redirected to the song at:<br /><br />
 				#beepboxEditorContainer {
 					max-width: initial;
 					height: 100vh;
-					background: url('backgrounds/loneygirl.jpg') no-repeat 0 0;
+					background:
+						linear-gradient(
+				          rgba(0, 0, 0, 0.7), 
+				          rgba(0, 0, 0, 0.7)
+				        ),
+				        url(backgrounds/loneygirl.jpg) repeat 0 0 !important;
     				background-size: cover;
 				}
 				.beepboxEditor {
