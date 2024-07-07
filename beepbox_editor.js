@@ -34407,6 +34407,8 @@ You should be redirected to the song at:<br /><br />
 
     class Preferences {
         constructor() {
+            this.showChannels = true;
+            this.showScrollBar = true;
             this.volume = 75;
             this.visibleOctaves = Preferences.defaultVisibleOctaves;
             this.reload();
