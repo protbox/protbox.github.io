@@ -4959,10 +4959,12 @@ var beepbox = (function (exports) {
 	display: flex;
 	flex-direction: row;
 	position: relative;
+	opacity: 0.7;
 }
 
 .beepboxEditor .track-area {
 	grid-area: track-area;
+	opacity: 0.7;
 }
 
 .beepboxEditor .loopEditor {
@@ -22754,6 +22756,8 @@ You should be redirected to the song at:<br /><br />
 				#beepboxEditorContainer {
 					max-width: initial;
 					height: 100vh;
+					background: url('backgrounds/loneygirl.jpg') no-repeat 0 0;
+    				background-size: cover;
 				}
 				.beepboxEditor {
 					width: 100%;
@@ -34124,7 +34128,10 @@ You should be redirected to the song at:<br /><br />
         erasePatternInBar(group, channelIndex, bar) {
             const removedPattern = this._doc.song.channels[channelIndex].bars[bar];
             if (removedPattern != 0) {
-                this._doc.song.channels[channelIndex].patterns[removedPattern - 1].reset();
+                group.append(new ChangePatternNumbers(this._doc, 0, bar, channelIndex, 1, 1));
+                if (this._patternIndexIsUnused(channelIndex, removedPattern)) {
+                    this._doc.song.channels[channelIndex].patterns[removedPattern - 1].notes.length = 0;
+                }
             }
         }
         pasteNumbers() {
