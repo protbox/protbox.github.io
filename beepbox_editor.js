@@ -5134,6 +5134,11 @@ var beepbox = (function (exports) {
 	mask-position: center;
 }
 
+svg path {
+	-webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+  	filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+}
+
 .beepboxEditor .paste-instrument {
 	margin: 2px 0;
 	flex-grow: 1;
