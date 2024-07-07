@@ -34419,7 +34419,7 @@ You should be redirected to the song at:<br /><br />
             this.enableNotePreview = window.localStorage.getItem("enableNotePreview") != "false";
             this.showFifth = window.localStorage.getItem("showFifth") == "true";
             this.notesOutsideScale = window.localStorage.getItem("notesOutsideScale") == "true";
-            this.showLetters = window.localStorage.getItem("showLetters") == "true";
+            this.showLetters = true;
             this.showChannels = true;
             this.showScrollBar = true;
             this.alwaysFineNoteVol = window.localStorage.getItem("alwaysFineNoteVol") == "true";
