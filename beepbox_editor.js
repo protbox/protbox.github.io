@@ -50,7 +50,7 @@ var beepbox = (function (exports) {
         { name: "Whole Tone", realName: "whole tone", flags: [true, false, true, false, true, false, true, false, true, false, true, false] },
         { name: "Octatonic", realName: "octatonic", flags: [true, false, true, true, false, true, true, false, true, true, false, true] },
         { name: "Hexatonic", realName: "hexatonic", flags: [true, false, false, true, true, false, false, true, true, false, false, true] },
-        { name: "Arabic", realName: "arabic", flags: [true, true, false, false, true, true, false, true, true, false, true, false] },
+        { name: "Jacked Toad", realName: "jacked toad", flags: [true, false, true, true, false, true, true, true, true, false, true, true] },
     ]);
     Config.keys = toNameMap([
         { name: "C", isWhiteKey: true, basePitch: 12 },
@@ -34126,7 +34126,7 @@ You should be redirected to the song at:<br /><br />
             if (removedPattern != 0) {
                 group.append(new ChangePatternNumbers(this._doc, 0, bar, channelIndex, 1, 1));
                 if (this._patternIndexIsUnused(channelIndex, removedPattern)) {
-                    this._doc.song.channels[channelIndex].patterns[removedPattern - 1].notes.length = 0;
+                    this._doc.song.channels[channelIndex].patterns[removedPattern - 1].reset();
                 }
             }
         }
