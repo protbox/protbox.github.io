@@ -50,7 +50,7 @@ var beepbox = (function (exports) {
         { name: "Whole Tone", realName: "whole tone", flags: [true, false, true, false, true, false, true, false, true, false, true, false] },
         { name: "Octatonic", realName: "octatonic", flags: [true, false, true, true, false, true, true, false, true, true, false, true] },
         { name: "Hexatonic", realName: "hexatonic", flags: [true, false, false, true, true, false, false, true, true, false, false, true] },
-        { name: "Arabic", realName: "arabic", flags: [true, true, false, false, true, true, false, true, true, false, true, false] },
+        { name: "Jacked Toad", realName: "jacked toad", flags: [true, false, true, true, false, true, true, true, true, false, true, true] },
     ]);
     Config.keys = toNameMap([
         { name: "C", isWhiteKey: true, basePitch: 12 },
@@ -14786,7 +14786,10 @@ var beepbox = (function (exports) {
     document.head.appendChild(HTML.style({ type: "text/css" }, `
 	body {
 		color: ${ColorConfig.primaryText};
-		background: ${ColorConfig.editorBackground};
+		background:
+			linear-gradient( rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7) ),
+			url(../backgrounds/hood.jpg) no-repeat 0 0 !important;
+		background-size: cover !important;
 	}
 	h1 {
 		font-weight: bold;
