@@ -93,8 +93,11 @@ Equal power -> **Draw** (no change).
 After a flip, the newly flipped card can immediately check **its** neighbours, causing an **echo**. It continues to ripple out until no more matches can be found, or it has hopped a maximum of 3 times.
 
 No more matches are found when:
+
 - The touching sides are **not** identical types, ie: water+water, melee+melee
+
 - The power level is lower
+
 - It has successfully hopped **3** times
 
 ---
@@ -114,3 +117,5 @@ If equal, it's a **draw**.
 - **Poke with melee and lose**: defender **−1 power** (Armor Break), setting up your next play.
 
 ---
+
+ ​:contentReference[oaicite:0]{index=0}​
