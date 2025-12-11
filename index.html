@@ -11,7 +11,6 @@
             src: url("CourierPrime-Regular.ttf") format("truetype");
             font-weight: normal;
         }
-
         @font-face {
             font-family: "CourierPrime";
             src: url("CourierPrime-Bold.ttf") format("truetype");
@@ -22,23 +21,153 @@
             margin: 0;
             background: #e6dfdc;
             color: #1d111d;
+            font-size:18px;
             font-family: "CourierPrime", monospace;
             display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
         }
 
-        img {
+        #sidebar {
+            width: 250px;
+            padding: 20px;
+            border-right: 1px solid #1d111d33;
+            overflow-y: auto;
+        }
+
+        #sidebar a {
+            display: block;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: #1d111d;
+        }
+
+        #sidebar a.home-link {
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #content {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        pre {
+            padding: 10px;
+            overflow-x: auto;
+            border-radius: 4px;
+        }
+
+        img#logo {
             image-rendering: pixelated;
-            max-width: 300px;
-            width: 80%;
-	    height: auto;
+            max-width: 480px;
+            width: 120%;
+            height: auto;
         }
     </style>
+
+    <!-- markdown parser -->
+    <script src="marked.min.js"></script>
+
+    <!-- highlight.js -->
+    <link rel="stylesheet" href="grayscale-light.min.css">
+    <script src="highlight.min.js"></script>
+
+    <style>
+        .hljs-title {
+            font-weight: bold;
+        }
+        .hljs-keyword,
+        .hljs-selector-tag,
+        .hljs-literal {
+            font-weight: bold;
+        }
+    </style>
+
 </head>
 <body>
-    <img src="sadhat.png" alt="Logo" />
-    <p>Nothing to see here yet.</p>
+    <div id="sidebar">Loading posts...</div>
+    <div id="content">Select an amazing post from the left.</div>
+    <div id="homeContent" style="display:none;">
+        <img id="logo" src="sadhat.png" />
+    </div>
+
+    <script>
+        async function loadPostsList() {
+            const res = await fetch("posts/posts.json");
+            return res.json();
+        }
+
+        async function loadMarkdown(path) {
+            const res = await fetch(path);
+            return res.text();
+        }
+
+        function extractTitle(md) {
+            const match = md.match(/^#\s+(.*)/m);
+            return match ? match[1].trim() : "Untitled";
+        }
+
+        function renderContent(md) {
+            const html = marked.parse(md);
+            const container = document.getElementById("content");
+            container.innerHTML = html;
+
+            // highlight code blocks
+            container.querySelectorAll("pre code").forEach(block => {
+                hljs.highlightElement(block);
+            });
+        }
+
+        async function init() {
+            const posts = await loadPostsList();
+            const sidebar = document.getElementById("sidebar");
+            sidebar.innerHTML = ""; // clear loading text
+
+            // home link
+            const home = document.createElement("a");
+            home.href = "#";
+            home.textContent = "sadhat.org";
+            home.classList.add("home-link");
+            home.onclick = () => {
+                const homeHTML = document.getElementById("homeContent").innerHTML;
+                document.getElementById("content").innerHTML = homeHTML;
+            };
+
+            sidebar.appendChild(home);
+            home.onclick();
+
+            // post links
+            for (const file of posts) {
+                const md = await loadMarkdown("posts/" + file);
+                const title = extractTitle(md);
+
+                const link = document.createElement("a");
+                link.href = "#";
+                link.textContent = title;
+                link.onclick = () => renderContent(md);
+
+                sidebar.appendChild(link);
+            }
+        }
+
+        init();
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+        const ruby = hljs.getLanguage("ruby");
+
+        hljs.registerLanguage("ruby", function(hljs) {
+            return {
+                ...ruby,
+                keywords: {
+                    ...ruby.keywords,
+                    keyword: (ruby.keywords.keyword || "") + " let end* extend as each_pair" 
+                }
+            };
+        });
+
+    });
+    </script>
 </body>
 </html>
