@@ -1,8 +1,10 @@
-# Welcome to my tiny blog
+# Welcome to sadhat
 
-Not much here. Just testing the blob system and code highlighting mmmmkay.
+Not much here. Just testing the blog system and code highlighting mmmmkay.
 
 ## Code example
+
+Here's some <b>garnet lang</b>
 
 ```rb
 extend Array as T
