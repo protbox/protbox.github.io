@@ -82,3 +82,66 @@ local foo = Foo() -- or Foo:initialize()
 ```
 
 This doesn't look bad by any means, but Garnet cleans things up a little with a nicer structure and not needing to supply the class name in every method.
+
+### String interpolation just got sexier
+
+One thing I LOVE about Ruby is its interpolation. In lua, you can use `string.format()` or concatenate stuff together with `..`
+But in Garnet, you can keep the string flowing and throw any code you want to execute inside `#{}`.
+Let's take a look at some examples.
+
+```rb
+def foo (a b c)
+    print("#{a} #{b} #{c}")
+end
+
+foo("hello", "there", "world!") # prints hello there world!
+```
+
+Now let's take a gander at Lua
+
+```lua
+function foo(a, b, c)
+    print(a .. " " .. b .. " " .. c)
+    -- alternatively, the potentially more optimized option
+    -- print(string.format("%s %s %s", a, b, c))
+end
+
+foo("hello", "there", "world!")
+```
+
+In Garnet, it's nice not having to think about variable placement. You just throw them in wherever you want and make sure they are wrapped in `#{}`. You'll also notice the commas in function signatures are optional - you can just use spaces if you prefer.
+
+### case/when - the switch statement I wish Lua had
+
+Lua has no switch/case implementation whatsoever. Instead you rely on a series of `if/elseif` statements. Garnet employs `case/when` similar to Ruby. As a bonus, it has some neat magic patterns it can parse.
+
+```rb
+def love.keypressed(key)
+    case key
+    when "a|d|w|s|up|left|right|up|down"
+        move(key)
+    when "m"
+        show_map()
+    else
+        print("Unknown key!")
+    end
+end
+```
+
+Let's take a look at that in Lua
+
+```lua
+function love.keypressed(key)
+    if key == "a" or key == "d" or key == "w" or key == "s" or key == "up" or key == "left" or key == "right" or key == "up" or key == "down" then
+        move(key)
+    elseif key == "m" then
+        show_map()
+    else
+        print("Unknown key")
+    end
+end
+```
+
+Obviously a cleaner way of performing that monstrous `if or` statement would be to throw them in a table and look it up from that, but even then, Garnet's is objectively simpler and more readable. Totally biased opinion, of course.
+
+
