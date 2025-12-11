@@ -144,4 +144,9 @@ end
 
 Obviously a cleaner way of performing that monstrous `if or` statement would be to throw them in a table and look it up from that, but even then, Garnet's is objectively simpler and more readable. Totally biased opinion, of course.
 
+## Conclusion
+
+I made garnet because I love lua, but I wanted it to behave in the way I always wanted it to. Now I have the best of both worlds - a disgustingly fast and optimized language with a fresh coat of paint. At its heart, Garnet will always be Lua, and this project would simply not exist without it.
+
+Peace!
 
