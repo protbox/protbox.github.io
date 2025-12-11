@@ -10,9 +10,9 @@ Here's some <b>garnet lang</b>
 extend Array as T
 
 let t = { :foo => "bar", :baz => "faz", :nested => { :inside => true } }
-let final_a = T{}
+let final_a = T{} # create an extended table/array
 t.each_pair do |key,val|
-    if type(val) != "table"
+    if not val.array?
         final_a->add(val)
     else
         # contains a nested table
@@ -24,10 +24,8 @@ final_a->sort()
 
 final_a.each {|val| print(val)}
 let faz_idx = final_a->find("faz") # find the index of "faz"
-if faz_idx
-    # if index found, remove it from final_a table
-    final_a->del(faz_idx)
-end
+final_a->del(faz_idx) if faz_idx # if index found, remove it from final_a table
+
 let str = final_a->join(",") # create a string of fine_a elements using a comma as seperator
 print(str) # print the final table as the new string
 ```
