@@ -29,16 +29,28 @@
 
         #sidebar {
             width: 250px;
+            min-width: 250px;
+            max-width: 250px;
+            flex-shrink: 0;
             padding: 20px;
             border-right: 1px solid #1d111d33;
             overflow-y: auto;
         }
+
 
         #sidebar a {
             display: block;
             margin-bottom: 10px;
             text-decoration: none;
             color: #1d111d;
+        }
+
+        #sidebar a:hover {
+            display: block;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: #1d111d;
+            font-weight:bold;
         }
 
         #sidebar a.home-link {
@@ -70,7 +82,7 @@
     <script src="marked.min.js"></script>
 
     <!-- highlight.js -->
-    <link rel="stylesheet" href="github.min.css">
+    <link rel="stylesheet" href="grayscale-light.min.css">
     <script src="highlight.min.js"></script>
 
     <style>
@@ -151,21 +163,9 @@
             }
         }
 
-        init();
+        init();  
+</script>
 
-        document.addEventListener("DOMContentLoaded", () => {
-
-        const ruby = hljs.getLanguage("ruby");
-
-        hljs.registerLanguage("ruby", function(hljs) {
-            return {
-                ...ruby,
-                keywords: {
-                    ...ruby.keywords,
-                    keyword: (ruby.keywords.keyword || "") + " let end* extend as each_pair" 
-                }
-            };
-        });
 
     });
     </script>
