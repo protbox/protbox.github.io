@@ -2,7 +2,7 @@
 
 There's not a lot of reasons why you should bother writing a language in all honesty. It's time consuming, mentally draining, and with very little pay-off. Of course I'm not saying you *shouldn't*, but it's one of those things where you need to ask yourself "Why am I actually doing this?".
 The number one reason, for me at least, was "I love Lua, but it does a number of things wrong, and doesn't have every feature I want".
-I use Lua for a lot of things, mostly for building games using the LÖVE framework. Lua is a pretty neat language, but it compromises utility for speed. It can still do a lot of things, but in the grand scheme of things, it's a very small and simple language.
+I use Lua for a lot of things, mostly for building games using the [LÖVE](http://love2d.org) framework. Lua is a pretty neat language, but it compromises utility for speed. It can still do a lot of things, but in the grand scheme of things, it's a very small and simple language.
 
 ### Enter Garnet
 
