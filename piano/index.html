@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scale Keyboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="top_bar">
+            <div class="current_scale" id="current_scale">C Ionian</div>
+
+            <div class="selectors">
+                <select id="root_select"></select>
+                <select id="scale_select"></select>
+            </div>
+        </div>
+
+        <div class="display_note" id="display_note">–</div>
+
+        <div class="keys">
+            <div class="row accidentals" id="keys_acc"></div>
+            <div class="row naturals" id="keys_nat"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
