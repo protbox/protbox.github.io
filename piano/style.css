@@ -44,27 +44,40 @@ body {
 }
 
 .keys {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
+    position: relative;
+    width: 520px;     /* can tweak */
+    height: 140px;
+    margin: 0 auto;
 }
 
 .row {
-    display: flex;
-    gap: 10px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 60px;
 }
 
-.accidentals {
-    margin-left: 26px; /* offset like black keys. still needs tweaking */
+.row.naturals {
+    bottom: 10px;
+}
+
+.row.accidentals {
+    top: 10px;
 }
 
 .key {
-    width: 48px;
-    height: 48px;
+    position: absolute;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     background: #444;
     cursor: pointer;
+    transition: transform 0.05s, box-shadow 0.05s;
+}
+
+.key.active {
+    transform: scale(1.15);
+    box-shadow: 0 0 12px currentColor;
 }
 
 .spacer {
@@ -78,9 +91,4 @@ body {
     width: 32px;
     height: 32px;
     opacity: 0.85;
-}
-
-.key.active {
-    transform: scale(1.15);
-    box-shadow: 0 0 12px currentColor;
 }

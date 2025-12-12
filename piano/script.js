@@ -216,14 +216,16 @@ function init_selects() {
         root = ROOTS.find(r => r.name === e.target.value) || ROOTS[0]
         build_key_map()
         refresh_ui()
-        // visuals DO NOT change / move — that’s intentional
+        e.target.blur()
     })
 
     scale_select.addEventListener("change", e => {
         scale_name = e.target.value
         build_key_map()
         refresh_ui()
+        e.target.blur()
     })
+
 }
 
 /* ------------------ INPUT ------------------ */
