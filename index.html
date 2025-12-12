@@ -105,6 +105,17 @@
     </div>
 
     <script>
+        function renderContent(md) {
+            const container = document.getElementById("content");
+
+            container.scrollTop = 0; // reset scroll to top
+            container.innerHTML = marked.parse(md);
+
+            container.querySelectorAll("pre code").forEach(block => {
+                hljs.highlightElement(block);
+            });
+        }
+
         function slugFromFilename(filename) {
             return filename.replace(/\.md$/, "");
         }
@@ -122,17 +133,6 @@
         function extractTitle(md) {
             const match = md.match(/^#\s+(.*)/m);
             return match ? match[1].trim() : "Untitled";
-        }
-
-        function renderContent(md) {
-            const html = marked.parse(md);
-            const container = document.getElementById("content");
-            container.innerHTML = html;
-
-            // highlight code blocks
-            container.querySelectorAll("pre code").forEach(block => {
-                hljs.highlightElement(block);
-            });
         }
 
         async function loadPostBySlug(slug) {
@@ -162,8 +162,9 @@
             home.textContent = "sadhat.org";
             home.classList.add("home-link");
             home.onclick = () => {
-                const homeHTML = document.getElementById("homeContent").innerHTML;
-                document.getElementById("content").innerHTML = homeHTML;
+                const content = document.getElementById("content");
+                content.scrollTop = 0;
+                content.innerHTML = document.getElementById("homeContent").innerHTML;
             };
 
             sidebar.appendChild(home);
