@@ -105,6 +105,10 @@
     </div>
 
     <script>
+        function slugFromFilename(filename) {
+            return filename.replace(/\.md$/, "");
+        }
+
         async function loadPostsList() {
             const res = await fetch("posts/posts.json");
             return res.json();
@@ -130,6 +134,22 @@
                 hljs.highlightElement(block);
             });
         }
+
+        async function loadPostBySlug(slug) {
+            const posts = await loadPostsList();
+            const match = posts.find(p => slugFromFilename(p) === slug);
+
+            if (!match) {
+                // fallback to home
+                document.getElementById("content").innerHTML =
+                    document.getElementById("homeContent").innerHTML;
+                return;
+            }
+
+            const md = await loadMarkdown("posts/" + match);
+            renderContent(md);
+        }
+
 
         async function init() {
             const posts = await loadPostsList();
@@ -157,13 +177,32 @@
                 const link = document.createElement("a");
                 link.href = "#";
                 link.textContent = title;
-                link.onclick = () => renderContent(md);
+                const slug = slugFromFilename(file);
+
+                link.href = `#${slug}`;
+                link.onclick = () => {
+                    location.hash = slug;
+                };
 
                 sidebar.appendChild(link);
             }
         }
 
-        init();  
+        init();
+
+        window.addEventListener("hashchange", () => {
+            const slug = location.hash.slice(1);
+            if (slug) {
+                loadPostBySlug(slug);
+            }
+        });
+
+        const initialSlug = location.hash.slice(1);
+        if (initialSlug) {
+            loadPostBySlug(initialSlug);
+        } else {
+            home.onclick();
+        }
 </script>
 </body>
 </html>
