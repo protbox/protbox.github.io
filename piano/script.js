@@ -16,6 +16,17 @@ const ROOTS = NOTE_NAMES.map((n, i) => ({
     midi: 36 + i
 }))
 
+async function preload_octave(base_midi = 36) {
+    const promises = []
+
+    for (let i = 0; i < 12; i++) {
+        promises.push(get_buffer(base_midi + i))
+    }
+
+    await Promise.all(promises)
+}
+
+
 const SCALES = {
     Ionian:        [2,2,1,2,2,2,1],
     Dorian:        [2,1,2,2,2,1,2],
@@ -158,7 +169,7 @@ function rebuild_visual_keyboard() {
     NATURALS.forEach(n => {
         const center_x = n.pos * SPACING
         const el = make_circle(n.step, center_x)
-        el.addEventListener("mousedown", () => play_note(60 + n.step))
+        el.addEventListener("mousedown", () => play_note(36 + n.step))
         keys_nat.appendChild(el)
     })
 
@@ -166,7 +177,7 @@ function rebuild_visual_keyboard() {
     ACCIDENTALS.forEach(a => {
         const center_x = a.pos * SPACING
         const el = make_circle(a.step, center_x)
-        el.addEventListener("mousedown", () => play_note(60 + a.step))
+        el.addEventListener("mousedown", () => play_note(36 + a.step))
         keys_acc.appendChild(el)
     })
 }
@@ -182,11 +193,20 @@ function flash_pc(midi) {
 
 /* ------------------ PLAY ------------------ */
 
+async function prime_audio() {
+    if (audio_ctx.state !== "running") {
+        await audio_ctx.resume()
+    }
+    await preload_octave(36)
+}
+
 async function play_note(midi) {
+    await ensure_audio_ready()
     display_note.textContent = midi_to_name(midi)
     flash_pc(midi)
     await play_buffer(midi)
 }
+
 
 /* ------------------ UI ------------------ */
 
@@ -230,14 +250,35 @@ function init_selects() {
 
 /* ------------------ INPUT ------------------ */
 
-document.addEventListener("keydown", e => {
+let audio_primed = false
+
+async function ensure_audio_ready() {
+    if (audio_primed) return
+    audio_primed = true
+
+    if (audio_ctx.state !== "running") {
+        await audio_ctx.resume()
+    }
+
+    // preload one octave (C–B)
+    const promises = []
+    for (let i = 0; i < 12; i++) {
+        promises.push(get_buffer(60 + i))
+    }
+    await Promise.all(promises)
+}
+
+document.addEventListener("keydown", async e => {
     const k = e.key
     if (held_keys.has(k)) return
     if (!key_map[k]) return
 
+    await ensure_audio_ready()
+
     held_keys.add(k)
     play_note(key_map[k])
 })
+
 
 document.addEventListener("keyup", e => {
     held_keys.delete(e.key)
