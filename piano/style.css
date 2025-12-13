@@ -20,13 +20,13 @@ body {
 
 .top_bar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    gap: 16px;
 }
 
 .current_scale {
     font-size: 20px;
+    white-space: nowrap;
 }
 
 .selectors select {
@@ -37,10 +37,25 @@ body {
     padding: 6px 10px;
 }
 
+.selectors {
+    display: flex;
+    align-items: center;
+    background: #222;
+    color: white;
+    gap: 8px;
+    margin-left: auto;
+}
+
 .display_note {
     text-align: center;
     font-size: 48px;
-    margin: 20px 0;
+}
+
+.display_note .octave {
+    font-size: 0.55em;
+    margin-left: 4px;
+    color: #7aa7ff; /* soft blue */
+    opacity: 0.85;
 }
 
 .keys {
@@ -92,3 +107,70 @@ body {
     height: 32px;
     opacity: 0.85;
 }
+
+.checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+    cursor: pointer;
+    color: #ccc;
+}
+
+.checkbox input {
+    accent-color: #7aa7ff;
+    cursor: pointer;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.playback {
+    display: flex;
+    gap: 8px;
+    padding-left: 15px;
+}
+
+.btn {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    letter-spacing: 0.5px;
+    transition: transform 0.05s ease, box-shadow 0.05s ease, opacity 0.05s ease;
+}
+
+.btn:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+.btn.rec {
+    background: #c33;
+    box-shadow: 0 2px 0 #922;
+}
+
+.btn.rec.recording {
+    background: #ff5555;
+}
+
+.btn.play {
+    background: #3c9a4a;
+    box-shadow: 0 2px 0 #2e7439;
+}
+
+.btn.midi {
+    background: #3a6fdc;
+    box-shadow: 0 2px 0 #2b54a6;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+

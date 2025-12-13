@@ -10,9 +10,20 @@
         <div class="top_bar">
             <div class="current_scale" id="current_scale">C Ionian</div>
 
+            <div class="playback">
+                <button id="record_btn" class="btn rec">● REC</button>
+                <button id="play_btn" class="btn play">▶ PLAY</button>
+                <button id="midi_btn" class="btn midi">⬇ MIDI</button>
+            </div>
+
             <div class="selectors">
                 <select id="root_select"></select>
                 <select id="scale_select"></select>
+
+                <label class="checkbox">
+                    <input type="checkbox" id="velocity_toggle">
+                    <span>Velocity</span>
+                </label>
             </div>
         </div>
 

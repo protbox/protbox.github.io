@@ -69,16 +69,63 @@ const ACCIDENTALS = [
 const KEY_SIZE = 52
 const SPACING = 74   // distance between natural centers
 
+function format_note_with_octave(midi) {
+    const name = NOTE_NAMES[midi % 12]
+    const octave = Math.floor(midi / 12) - 1
+
+    return `${name}<span class="octave">${octave}</span>`
+}
+
 /* ------------------ STATE ------------------ */
 
 let root = ROOTS[0]
 let scale_name = "Ionian"
 let key_map = {}
+let velocity_enabled = false
+// recording stuff
+let recording = false
+let record_start = 0
+let events = []
+// playback stuff
+let is_playing = false
+let playback_timeouts = []
+let active_sources = new Set()
 
 const held_keys = new Set()
 const visual_by_pc = new Map()
 
+document.getElementById("velocity_toggle").addEventListener("change", e => {
+    velocity_enabled = e.target.checked
+    e.target.blur()
+})
+
+function velocity_from_key(key) {
+    if (!velocity_enabled) return 1.0
+
+    if ("zxcvb".includes(key)) return 1.15
+    if ("nm,./".includes(key)) return 1.0
+
+    if ("asdfgh".includes(key)) return 0.9
+    if ("jkl;'#".includes(key)) return 0.75
+
+    if ("qwerty".includes(key)) return 0.65
+    if ("uiop[]".includes(key)) return 0.55
+
+    if ("12345".includes(key)) return 0.5
+    if ("67890-=".includes(key)) return 0.4
+
+    return 0.7
+}
+
 /* ------------------ AUDIO ------------------ */
+
+function get_root_base_midi() {
+    const pc = root.midi % 12
+
+    let base = 36 + pc
+    return base
+}
+
 
 const audio_ctx = new (window.AudioContext || window.webkitAudioContext)()
 const master_gain = audio_ctx.createGain()
@@ -97,16 +144,39 @@ async function get_buffer(midi) {
     return buf
 }
 
-async function play_buffer(midi) {
-    if (audio_ctx.state !== "running") {
-        await audio_ctx.resume()
-    }
-
-    const buf = await get_buffer(midi)
+async function play_buffer(midi, velocity = 1.0) {
     const src = audio_ctx.createBufferSource()
-    src.buffer = buf
-    src.connect(master_gain)
+    src.buffer = buffer_cache[midi]
+
+    const gain = audio_ctx.createGain()
+    gain.gain.value = velocity
+
+    src.connect(gain)
+    gain.connect(master_gain)
+
     src.start()
+    active_sources.add(src)
+
+    src.onended = () => {
+        active_sources.delete(src)
+    }
+}
+
+function stop_playback() {
+    playback_timeouts.forEach(clearTimeout)
+    playback_timeouts = []
+
+    active_sources.forEach(src => {
+        try { src.stop() } catch {}
+    })
+    active_sources.clear()
+
+    document
+        .querySelectorAll(".key.active")
+        .forEach(el => el.classList.remove("active"))
+
+    is_playing = false
+    play_btn.textContent = "▶ PLAY"
 }
 
 /* ------------------ MUSIC / MAPPING ------------------ */
@@ -119,7 +189,8 @@ function midi_to_name(midi) {
 function build_key_map() {
     key_map = {}
 
-    const r = root.midi
+    const r = get_root_base_midi()
+
     let note = r
     let scale_ct = 0
     const pattern = SCALES[scale_name]
@@ -200,10 +271,11 @@ async function prime_audio() {
     await preload_octave(36)
 }
 
-function play_note(midi) {
-    display_note.textContent = midi_to_name(midi)
+function play_note(midi, velocity = 1.0) {
+    display_note.textContent = ""
+    display_note.innerHTML = format_note_with_octave(midi)
     flash_pc(midi)
-    play_buffer(midi)
+    play_buffer(midi, velocity)
 }
 
 /* ------------------ UI ------------------ */
@@ -288,13 +360,180 @@ document.addEventListener("keydown", async e => {
     if (!key_map[k]) return
 
     held_keys.add(k)
-    play_note(key_map[k])
+    const vel = velocity_from_key(k)
+    play_note(key_map[k], vel)
+
+    if (recording) {
+        events.push({
+            type: "on",
+            midi: key_map[k],
+            time: performance.now() - record_start
+        })
+    }
 })
 
 
 document.addEventListener("keyup", e => {
     held_keys.delete(e.key)
+
+    if (recording && key_map[e.key]) {
+        events.push({
+            type: "off",
+            midi: key_map[e.key],
+            time: performance.now() - record_start
+        })
+    }
 })
+
+record_btn.onclick = () => {
+    recording = !recording
+    record_btn.textContent = recording ? "■ STOP" : "● REC"
+    record_btn.classList.toggle("recording", recording)
+
+    if (recording) {
+        events = []
+        record_start = performance.now()
+    }
+}
+
+
+play_btn.onclick = () => {
+    if (is_playing) {
+        stop_playback()
+        return
+    }
+
+    if (!events.length) return
+
+    is_playing = true
+    play_btn.textContent = "■ STOP"
+
+    events.forEach(ev => {
+        const id = setTimeout(() => {
+            if (!is_playing) return
+            if (ev.type === "on") {
+                play_note(ev.midi)
+            }
+        }, ev.time)
+
+        playback_timeouts.push(id)
+    })
+
+    // auto-reset when playback ends
+    const last_time = events[events.length - 1].time
+    const end_id = setTimeout(() => {
+        if (is_playing) stop_playback()
+    }, last_time + 50)
+
+    playback_timeouts.push(end_id)
+}
+
+// variable length quality helper
+function write_vlq(value) {
+    value = Math.max(0, Math.floor(value))
+
+    const bytes = [value & 0x7f]
+    value >>= 7
+
+    while (value > 0) {
+        bytes.unshift((value & 0x7f) | 0x80)
+        value >>= 7
+    }
+
+    return bytes
+}
+
+function _download_midi_internal() {
+    if (!events.length) return
+
+    const PPQ = 480
+    const BPM = 120
+    const MS_PER_TICK = (60000 / BPM) / PPQ
+
+    // Pair notes
+    const active = new Map()
+    const notes = []
+
+    events.forEach(ev => {
+        if (ev.type === "on") {
+            active.set(ev.midi, ev.time)
+        } else if (ev.type === "off" && active.has(ev.midi)) {
+            notes.push({
+                midi: ev.midi,
+                start: active.get(ev.midi),
+                end: ev.time
+            })
+            active.delete(ev.midi)
+        }
+    })
+
+    // close any hanging notes at the end
+    const end_time = events[events.length - 1]?.time ?? 0
+
+    active.forEach((start, midi) => {
+        notes.push({
+            midi,
+            start,
+            end: end_time
+        })
+    })
+
+    let track = []
+    let last_tick = 0
+
+    notes.sort((a, b) => a.start - b.start)
+
+    notes.forEach(n => {
+        const on_tick = Math.floor(n.start / MS_PER_TICK)
+        const off_tick = Math.floor(n.end / MS_PER_TICK)
+        const delta_on  = Math.max(0, on_tick - last_tick)
+        const delta_off = Math.max(0, off_tick - on_tick)
+
+        track.push(...write_vlq(delta_on), 0x90, n.midi, 100)
+        last_tick = on_tick
+
+        track.push(...write_vlq(delta_off), 0x80, n.midi, 0)
+        last_tick = off_tick
+    })
+
+    // End of track
+    track.push(0x00, 0xff, 0x2f, 0x00)
+
+    const header = [
+        0x4d,0x54,0x68,0x64,
+        0x00,0x00,0x00,0x06,
+        0x00,0x00, // type 0
+        0x00,0x01, // one track
+        0x01,0xe0  // 480 PPQ
+    ]
+
+    const track_header = [
+        0x4d,0x54,0x72,0x6b,
+        (track.length >> 24) & 0xff,
+        (track.length >> 16) & 0xff,
+        (track.length >> 8) & 0xff,
+        track.length & 0xff
+    ]
+
+    const midi = new Uint8Array([
+        ...header,
+        ...track_header,
+        ...track
+    ])
+
+    const blob = new Blob([midi], { type: "audio/midi" })
+    const a = document.createElement("a")
+    a.href = URL.createObjectURL(blob)
+    a.download = "sketch.mid"
+    a.click()
+}
+
+function download_midi() {
+    // defer heavy work so UI doesn't freeze
+    setTimeout(_download_midi_internal, 0)
+}
+
+midi_btn.onclick = download_midi
 
 /* ------------------ INIT ------------------ */
 
