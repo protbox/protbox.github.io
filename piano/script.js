@@ -200,13 +200,11 @@ async function prime_audio() {
     await preload_octave(36)
 }
 
-async function play_note(midi) {
-    await ensure_audio_ready()
+function play_note(midi) {
     display_note.textContent = midi_to_name(midi)
     flash_pc(midi)
-    await play_buffer(midi)
+    play_buffer(midi)
 }
-
 
 /* ------------------ UI ------------------ */
 
@@ -250,30 +248,44 @@ function init_selects() {
 
 /* ------------------ INPUT ------------------ */
 
-let audio_primed = false
+let audio_ready = false
 
-async function ensure_audio_ready() {
-    if (audio_primed) return
-    audio_primed = true
+async function preload_all_samples() {
+    if (audio_ready) return
+    audio_ready = true
 
     if (audio_ctx.state !== "running") {
         await audio_ctx.resume()
     }
 
-    // preload one octave (C–B)
     const promises = []
-    for (let i = 0; i < 12; i++) {
-        promises.push(get_buffer(60 + i))
+
+    for (let midi = 36; midi <= 96; midi++) {
+        promises.push(get_buffer(midi))
     }
+
     await Promise.all(promises)
 }
+
+function attach_audio_unlock() {
+    const unlock = async () => {
+        await preload_all_samples()
+        document.removeEventListener("mousedown", unlock)
+        document.removeEventListener("keydown", unlock)
+        document.removeEventListener("touchstart", unlock)
+    }
+
+    document.addEventListener("mousedown", unlock)
+    document.addEventListener("keydown", unlock)
+    document.addEventListener("touchstart", unlock)
+}
+
+attach_audio_unlock()
 
 document.addEventListener("keydown", async e => {
     const k = e.key
     if (held_keys.has(k)) return
     if (!key_map[k]) return
-
-    await ensure_audio_ready()
 
     held_keys.add(k)
     play_note(key_map[k])
