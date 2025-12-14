@@ -15,7 +15,7 @@ body {
 }
 
 #app {
-    width: 700px;
+    width: 900px;
 }
 
 .top_bar {
@@ -170,7 +170,43 @@ body {
     box-shadow: 0 2px 0 #2b54a6;
 }
 
+.btn.chord {
+    background: transparent;
+    color: #aaa;
+    border: 1px solid #444;
+    box-shadow: none;
+    margin-left:30px;
+}
+
+.btn.chord:hover {
+    color: #ddd;
+    border-color: #666;
+}
+
+.btn.chord.active {
+    background: #2f5fd7;
+    color: white;
+    border-color: #2f5fd7;
+    box-shadow: 0 0 0 1px rgba(122,167,255,0.4);
+}
+
 .btn:hover {
     opacity: 0.9;
 }
 
+.chord_hint {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 14px;
+    color: #aaa;
+}
+
+.chord_hint .name {
+    color: #fff;
+    margin-right: 8px;
+}
+
+.chord_hint .pattern {
+    font-family: monospace;
+    color: #7aa7ff;
+}

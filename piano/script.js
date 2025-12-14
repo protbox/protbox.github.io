@@ -9,6 +9,7 @@ const scale_select = document.getElementById("scale_select")
 
 /* ------------------ CONSTANTS ------------------ */
 
+const MIN_NOTE_DURATION_MS = 40
 const NOTE_NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
 
 const ROOTS = NOTE_NAMES.map((n, i) => ({
@@ -26,7 +27,6 @@ async function preload_octave(base_midi = 36) {
     await Promise.all(promises)
 }
 
-
 const SCALES = {
     Ionian:        [2,2,1,2,2,2,1],
     Dorian:        [2,1,2,2,2,1,2],
@@ -34,10 +34,15 @@ const SCALES = {
     Lydian:        [2,2,2,1,2,2,1],
     Mixolydian:    [2,2,1,2,2,1,2],
     Aeolian:       [2,1,2,2,1,2,2],
+    Locrian:       [1,2,2,1,2,2,2], 
     HarmonicMinor: [2,1,2,2,1,3,1],
     MelodicMinor:  [2,1,2,2,2,2,1],
     PhrygianDom:   [1,3,1,2,1,2,2],
-    MinorBlues:    [3,2,1,1,3,2]
+    MinorBlues:    [3,2,1,1,3,2],
+    Chinese:       [4,2,1,4,1],
+    Romanian:      [2,1,3,1,2,1,2],
+    MajorBeBop:    [2,2,1,2,1,1,2,1],
+    MinorBebop:    [2,1,1,1,2,2,1,2]
 }
 
 /* FL-style layout */
@@ -66,6 +71,29 @@ const ACCIDENTALS = [
     { name: "A#", step: 10, pos: 5.5 }
 ]
 
+const CHORD_TYPES = [
+    {
+        name: "Triad",
+        degrees: [0, 2, 4],   // 1 3 5 (9 maybe idk)
+        pattern: "[X][ ][X][ ][X]"
+    },
+    {
+        name: "7th",
+        degrees: [0, 2, 4, 6],
+        pattern: "[X][ ][X][ ][ ][X]"
+    },
+    {
+        name: "Sus2",
+        degrees: [0, 1, 4],
+        pattern: "[X][X][ ][ ][X]"
+    },
+    {
+        name: "Sus4",
+        degrees: [0, 3, 4],
+        pattern: "[X][ ][ ][X][X]"
+    }
+]
+
 const KEY_SIZE = 52
 const SPACING = 74   // distance between natural centers
 
@@ -90,6 +118,10 @@ let events = []
 let is_playing = false
 let playback_timeouts = []
 let active_sources = new Set()
+
+// chord assist stuff
+let chord_assist = false
+let chord_index = 0
 
 const held_keys = new Set()
 const visual_by_pc = new Map()
@@ -118,6 +150,20 @@ function velocity_from_key(key) {
     if ("67890-=".includes(key)) return 0.4
 
     return 0.7
+}
+
+function update_chord_hint() {
+    const hint = document.getElementById("chord_hint")
+
+    if (!chord_assist) {
+        hint.textContent = ""
+        return
+    }
+
+    const chord = CHORD_TYPES[chord_index]
+    hint.innerHTML =
+        `<span class="name">${chord.name}</span>` +
+        `<span class="pattern">${chord.pattern}</span>`
 }
 
 /* ------------------ AUDIO ------------------ */
@@ -281,6 +327,26 @@ function play_note(midi, velocity = 1.0) {
     play_buffer(midi, velocity)
 }
 
+function get_scale_degree_midi(root_midi, degree) {
+    const pattern = SCALES[scale_name]
+    let midi = root_midi
+
+    for (let i = 0; i < degree; i++) {
+        midi += pattern[i % pattern.length]
+    }
+
+    return midi
+}
+
+function play_scale_chord(root_midi, velocity) {
+    const chord = CHORD_TYPES[chord_index]
+
+    chord.degrees.forEach(d => {
+        const midi = get_scale_degree_midi(root_midi, d)
+        play_note(midi, velocity)
+    })
+}
+
 /* ------------------ UI ------------------ */
 
 function refresh_ui() {
@@ -358,13 +424,33 @@ function attach_audio_unlock() {
 attach_audio_unlock()
 
 document.addEventListener("keydown", async e => {
+    // check for tab (chord assist stuff)
+    if (e.key === "Tab") {
+        e.preventDefault()
+
+        if (e.shiftKey) {
+            chord_index =
+                (chord_index - 1 + CHORD_TYPES.length) % CHORD_TYPES.length
+        } else {
+            chord_index =
+                (chord_index + 1) % CHORD_TYPES.length
+        }
+
+        update_chord_hint()
+        return
+    }
+
     const k = e.key
     if (held_keys.has(k)) return
     if (!key_map[k]) return
 
     held_keys.add(k)
     const vel = velocity_from_key(k)
-    play_note(key_map[k], vel)
+    if (chord_assist) {
+        play_scale_chord(key_map[k], vel)
+    } else {
+        play_note(key_map[k], vel)
+    }
 
     if (recording) {
         events.push({
@@ -387,6 +473,15 @@ document.addEventListener("keyup", e => {
         })
     }
 })
+
+const chord_btn = document.getElementById("chord_btn")
+
+chord_btn.onclick = () => {
+    chord_assist = !chord_assist
+    chord_btn.classList.toggle("active", chord_assist)
+    chord_btn.blur()
+    update_chord_hint()
+}
 
 record_btn.onclick = () => {
     recording = !recording
@@ -446,68 +541,100 @@ function write_vlq(value) {
     return bytes
 }
 
+function tempo_meta_event(bpm) {
+    const mpqn = Math.floor(60000000 / bpm)
+    return [
+        0x00,
+        0xFF, 0x51, 0x03,
+        (mpqn >> 16) & 0xFF,
+        (mpqn >> 8) & 0xFF,
+        mpqn & 0xFF
+    ]
+}
+
 function _download_midi_internal() {
     if (!events.length) return
 
     const PPQ = 480
-    const BPM = 120
+    const BPM = 140
     const MS_PER_TICK = (60000 / BPM) / PPQ
 
-    // Pair notes
-    const active = new Map()
-    const notes = []
+    // build a flat event list
+    const midi_events = events
+        .filter(e => e.midi !== undefined)
+        .map(e => ({
+            tick: Math.floor(e.time / MS_PER_TICK),
+            type: e.type, // "on" | "off"
+            midi: e.midi
+        }))
 
-    events.forEach(ev => {
+    midi_events.sort((a, b) => {
+        if (a.tick !== b.tick) return a.tick - b.tick
+        if (a.type === b.type) return 0
+        return a.type === "off" ? -1 : 1
+    })
+
+    // Collapse ultra-short notes
+    const note_on_times = new Map()
+
+    const filtered = []
+
+    midi_events.forEach(ev => {
+        const key = ev.midi
+
         if (ev.type === "on") {
-            active.set(ev.midi, ev.time)
-        } else if (ev.type === "off" && active.has(ev.midi)) {
-            notes.push({
-                midi: ev.midi,
-                start: active.get(ev.midi),
-                end: ev.time
-            })
-            active.delete(ev.midi)
+            note_on_times.set(key, ev.tick)
+            filtered.push(ev)
+        } else if (ev.type === "off") {
+            const on_tick = note_on_times.get(key)
+            if (on_tick !== undefined) {
+                const duration = ev.tick - on_tick
+                const min_ticks = Math.floor(
+                    MIN_NOTE_DURATION_MS / ((60000 / BPM) / PPQ)
+                )
+
+                // Clamp tiny notes
+                if (duration < min_ticks) {
+                    ev.tick = on_tick + min_ticks
+                }
+
+                filtered.push(ev)
+                note_on_times.delete(key)
+            }
         }
     })
 
-    // close any hanging notes at the end
-    const end_time = events[events.length - 1]?.time ?? 0
-
-    active.forEach((start, midi) => {
-        notes.push({
-            midi,
-            start,
-            end: end_time
-        })
-    })
-
+    // emit MIDI track
     let track = []
+
+    // Set tempo at start of track
+    track.push(...tempo_meta_event(BPM))
+
     let last_tick = 0
 
-    notes.sort((a, b) => a.start - b.start)
+    midi_events.forEach(ev => {
+        const delta = Math.max(0, ev.tick - last_tick)
+        last_tick = ev.tick
 
-    notes.forEach(n => {
-        const on_tick = Math.floor(n.start / MS_PER_TICK)
-        const off_tick = Math.floor(n.end / MS_PER_TICK)
-        const delta_on  = Math.max(0, on_tick - last_tick)
-        const delta_off = Math.max(0, off_tick - on_tick)
+        track.push(...write_vlq(delta))
 
-        track.push(...write_vlq(delta_on), 0x90, n.midi, 100)
-        last_tick = on_tick
-
-        track.push(...write_vlq(delta_off), 0x80, n.midi, 0)
-        last_tick = off_tick
+        if (ev.type === "on") {
+            track.push(0x90, ev.midi, 100)
+        } else {
+            track.push(0x80, ev.midi, 0)
+        }
     })
 
     // end of track
     track.push(0x00, 0xff, 0x2f, 0x00)
 
+    // header
     const header = [
         0x4d,0x54,0x68,0x64,
         0x00,0x00,0x00,0x06,
-        0x00,0x00, // type 0
-        0x00,0x01, // one track
-        0x01,0xe0  // 480 PPQ
+        0x00,0x00,
+        0x00,0x01,
+        0x01,0xe0 // 480 PPQ
     ]
 
     const track_header = [
@@ -544,4 +671,5 @@ midi_btn.onclick = download_midi
 init_selects()
 rebuild_visual_keyboard()
 build_key_map()
+update_chord_hint()
 refresh_ui()
