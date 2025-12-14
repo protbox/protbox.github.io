@@ -40,7 +40,7 @@ const SCALES = {
     MinorBlues:    [3,2,1,1,3,2]
 }
 
-/* Your FL-style keyboard layout */
+/* FL-style layout */
 const KEYBOARD_LAYOUT = [
     'z','x','c','v','b','n','m',',','.','/',
     'a','s','d','f','g','h','j','k','l',';',"'",'#',
@@ -99,6 +99,9 @@ document.getElementById("velocity_toggle").addEventListener("change", e => {
     e.target.blur()
 })
 
+// so, this gives notes a more "natural" feel by gradually
+// lowering the velocity the higher the frequency
+// to the point where you get those light taps at the end of the piano
 function velocity_from_key(key) {
     if (!velocity_enabled) return 1.0
 
@@ -185,7 +188,7 @@ function midi_to_name(midi) {
     return NOTE_NAMES[midi % 12]
 }
 
-/* Keyboard mapping: */
+/* keyboard mapping: */
 function build_key_map() {
     key_map = {}
 
@@ -224,7 +227,7 @@ function make_circle(pc_step, x_px) {
     const left = Math.round(x_px - KEY_SIZE / 2)
     el.style.left = `${left}px`
 
-    // color stable by pitch class (won’t change when root changes)
+    // color stable by pitch class
     el.style.color = `hsl(${pc_step * 30}, 80%, 60%)`
 
     visual_by_pc.set(pc_step, el)
@@ -236,7 +239,7 @@ function rebuild_visual_keyboard() {
     keys_acc.innerHTML = ""
     visual_by_pc.clear()
 
-    // Naturals
+    // naturals c-b
     NATURALS.forEach(n => {
         const center_x = n.pos * SPACING
         const el = make_circle(n.step, center_x)
@@ -244,7 +247,7 @@ function rebuild_visual_keyboard() {
         keys_nat.appendChild(el)
     })
 
-    // Accidentals (between naturals)
+    // accidentals, ie: flats and sharps
     ACCIDENTALS.forEach(a => {
         const center_x = a.pos * SPACING
         const el = make_circle(a.step, center_x)
@@ -496,7 +499,7 @@ function _download_midi_internal() {
         last_tick = off_tick
     })
 
-    // End of track
+    // end of track
     track.push(0x00, 0xff, 0x2f, 0x00)
 
     const header = [
@@ -530,6 +533,7 @@ function _download_midi_internal() {
 
 function download_midi() {
     // defer heavy work so UI doesn't freeze
+    // having said that, I think this problem is resolved without needing to do this
     setTimeout(_download_midi_internal, 0)
 }
 

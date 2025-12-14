@@ -54,13 +54,13 @@ body {
 .display_note .octave {
     font-size: 0.55em;
     margin-left: 4px;
-    color: #7aa7ff; /* soft blue */
+    color: #7aa7ff;
     opacity: 0.85;
 }
 
 .keys {
     position: relative;
-    width: 520px;     /* can tweak */
+    width: 520px;
     height: 140px;
     margin: 0 auto;
 }
