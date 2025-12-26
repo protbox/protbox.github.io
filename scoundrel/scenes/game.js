@@ -15,6 +15,11 @@ let opts = {
         x: 270,
         y: 12
     },
+    item: {
+        x: 138,
+        y: 103,
+        card: null
+    },
     cardSize: { x: 36, y: 44 }
 }
 
@@ -132,6 +137,29 @@ export class GameScene extends BaseScene {
         const x = opts.roomStart.x + slot * (opts.cardSize.x + opts.roomPad);
         const y = opts.roomStart.y;
         return { x, y };
+    }
+
+    spawnItem(type) {
+        if (opts.item.card) {
+            this.discardCard(opts.item.card);
+            opts.item.card = null;
+        }
+
+        let frame;
+
+        if (type === "fairy") frame = 26;
+        if (type === "shield") frame = 53;
+
+        const card = new Card(0, 0, opts.deck.x, opts.deck.y, true);
+        card.obj.frame = frame;
+        card.type = type;
+
+        const [x, y] = card.getRealPos(opts.item.x, opts.item.y);
+
+        card.bringToFront();
+        card.moveTo(x, y, 0.3);
+
+        opts.item.card = card;
     }
 
     drawIntoRoom(n) {
@@ -377,6 +405,30 @@ export class GameScene extends BaseScene {
         }
     }
 
+    applyDamage(dmg) {
+        if (dmg <= 0) return;
+
+        // shield absorbs first
+        if (opts.item.card && opts.item.card.type === "shield") {
+            console.log("Shield absorbed damage!");
+            this.discardCard(opts.item.card);
+            opts.item.card = null;
+            return;
+        }
+
+        this.health -= dmg;
+
+        // fairy will bring you back to life with 10HP
+        if (this.health <= 0 && opts.item.card && opts.item.card.type === "fairy") {
+            console.log("Fairy saved you!");
+            this.health = 10;
+            this.discardCard(opts.item.card);
+            opts.item.card = null;
+        }
+
+        if (this.health < 0) this.health = 0;
+    }
+
     resolveMonster(card, mode) {
         const mVal = this.monsterValue(card);
 
@@ -412,11 +464,16 @@ export class GameScene extends BaseScene {
             }
         }
 
-        this.health -= dmg;
+        this.applyDamage(dmg);
+
         if (this.health < 0) {
             this.health = 0;
         } else {
             play("enemy_hit")
+            if (mVal === 14) {
+                const type = rand() < 0.5 ? "fairy" : "shield";
+                this.spawnItem(type);
+            }
         }
 
         this.healthText.text = this.health;
@@ -430,20 +487,16 @@ export class GameScene extends BaseScene {
     }
 
     takeWeapon(card) {
-        // discard old weapon if any
         if (this.weaponCard) {
             this.discardCard(this.weaponCard);
         }
 
         this.weaponCard = card;
+        this.weaponCard.lastSlain = Infinity;
 
-        const [x, y] = card.getRealPos(
-            opts.wpnCard.x,
-            opts.wpnCard.y
-        );
-
+        const [x, y] = card.getRealPos(opts.wpnCard.x, opts.wpnCard.y);
         card.moveTo(x, y, 0.25);
-        play("new_weapon")
+        play("new_weapon");
     }
 
     takePotion(card) {
@@ -453,6 +506,13 @@ export class GameScene extends BaseScene {
             this.usedPotion = true;
             this.healthText.text = this.health;
             console.log("Healed to", this.health);
+
+            // remove fairy from inventory if it exists
+            if (opts.item.card && opts.item.card.type === "fairy") {
+                console.log("Fairy consumed by potion use");
+                this.discardCard(opts.item.card);
+                opts.item.card = null;
+            }
         }
 
         this.discardCard(card);

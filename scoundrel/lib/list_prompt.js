@@ -21,7 +21,7 @@ export class ListPrompt {
         ]);
 
         this.title = add([
-            text(title),
+            text(title.toUpperCase()),
             pos(x, y - h / 2 + 10),
             anchor("center"),
             z(2001),
@@ -29,7 +29,7 @@ export class ListPrompt {
 
         this.labels = items.map((it, i) => {
             const label = add([
-                text(it.label),
+                text(it.label.toUpperCase()),
                 pos(x - w / 2 + 10, y - h / 2 + 24 + i * 14),
                 anchor("left"),
                 area(),
