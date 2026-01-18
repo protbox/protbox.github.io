@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>s a d h a t . o r g</title>
+
+    <style>
+        @font-face {
+            font-family: "Roboto";
+            src: url("Roboto-Regular.ttf") format("truetype");
+            font-weight: normal;
+        }
+        @font-face {
+            font-family: "Roboto";
+            src: url("Roboto-Bold.ttf") format("truetype");
+            font-weight: bold;
+        }
+
+        body {
+            margin: 0;
+            background: rgb(20, 20, 20);
+            color: #fafff8;
+            font-size:18px;
+            font-family: "Roboto", monospace;
+            display: flex;
+            height: 100vh;
+        }
+
+        #sidebar {
+            width: 250px;
+            min-width: 250px;
+            max-width: 250px;
+            flex-shrink: 0;
+            padding: 20px;
+            border-right: 1px solid #1d111d33;
+            overflow-y: auto;
+        }
+
+
+        #sidebar a {
+            display: block;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: #f8fff6;
+            position:relative;
+            padding-left: 10px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        #sidebar a:hover {
+            display: block;
+            margin-bottom: 10px;
+            text-decoration: none;
+            font-weight:bold;
+            color: #febbff;
+        }
+
+        a {
+            position: relative;
+            text-decoration: underline;
+            color: #4df5ff;
+        }
+
+        a:hover {
+            background: #1d111d;
+            color: #e6dfdc;
+        }
+
+        #sidebar a.home-link {
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #content {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        pre {
+            padding: 10px;
+            overflow-x: auto;
+            border-radius: 4px;
+        }
+
+        img#logo {
+            max-width: 480px;
+            height: auto;
+        }
+
+        #search {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            padding: 6px 8px;
+            font-family: inherit;
+            font-size: 14px;
+            color: #1d111d;
+            background: #e6dfdc;
+            border: 1px solid #1d111d33;
+        }
+
+    </style>
+
+    <!-- markdown parser -->
+    <script src="marked.min.js"></script>
+
+    <!-- highlight.js -->
+    <link rel="stylesheet" href="github.min.css">
+    <script src="highlight.min.js"></script>
+
+    <style>
+        .hljs-title {
+            font-weight: bold;
+        }
+        .hljs-keyword,
+        .hljs-selector-tag,
+        .hljs-literal {
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+<body>
+    <div id="sidebar">Loading posts...</div>
+    <div id="content">Select an amazing post from the left.</div>
+    <div id="homeContent" style="display:none;">
+        <img id="logo" src="sadhat.png" />
+    </div>
+
+    <script>
+        let postIndex = [];
+
+        function renderSidebarPosts(filter = "") {
+            const sidebar = document.getElementById("sidebar");
+
+            // remove old post links
+            sidebar.querySelectorAll(".post-link").forEach(e => e.remove());
+
+            const query = filter.toLowerCase();
+
+            postIndex
+                .filter(p => p.title.toLowerCase().includes(query))
+                .forEach(p => {
+                    const link = document.createElement("a");
+                    link.href = `#${p.slug}`;
+                    link.textContent = p.title;
+                    link.className = "post-link";
+                    link.onclick = () => {
+                        location.hash = p.slug;
+                    };
+                    sidebar.appendChild(link);
+                });
+        }
+
+        function renderContent(md) {
+            const container = document.getElementById("content");
+
+            container.scrollTop = 0; // reset scroll to top
+            container.innerHTML = marked.parse(md);
+
+            container.querySelectorAll("pre code").forEach(block => {
+                hljs.highlightElement(block);
+            });
+        }
+
+        function slugFromFilename(filename) {
+            return filename.replace(/\.md$/, "");
+        }
+
+        async function loadPostsList() {
+            const res = await fetch("posts/posts.json");
+            return res.json();
+        }
+
+        async function loadMarkdown(path) {
+            const res = await fetch(path);
+            return res.text();
+        }
+
+        function extractTitle(md) {
+            const match = md.match(/^#\s+(.*)/m);
+            return match ? match[1].trim() : "Untitled";
+        }
+
+        function showHome() {
+            const content = document.getElementById("content");
+            content.scrollTop = 0;
+            content.innerHTML = document.getElementById("homeContent").innerHTML;
+        }
+
+        async function loadPostBySlug(slug) {
+            const posts = await loadPostsList();
+            const match = posts.find(p => slugFromFilename(p) === slug);
+
+            if (!match) {
+                // fallback to home
+                document.getElementById("content").innerHTML =
+                    document.getElementById("homeContent").innerHTML;
+                return;
+            }
+
+            const md = await loadMarkdown("posts/" + match);
+            renderContent(md);
+        }
+
+
+        async function init() {
+            const posts = await loadPostsList();
+            const sidebar = document.getElementById("sidebar");
+            sidebar.innerHTML = ""; // clear loading text
+
+            // home link
+            const home = document.createElement("a");
+            home.href = "#";
+            home.textContent = "sadhat.org";
+            home.classList.add("home-link");
+            home.onclick = () => {
+                location.hash = "";
+                showHome();
+            };
+
+            sidebar.appendChild(home);
+            home.onclick();
+
+            const search = document.createElement("input");
+            search.type = "text";
+            search.placeholder = "Search…";
+            search.id = "search";
+            sidebar.appendChild(search);
+
+            search.addEventListener("input", e => {
+                renderSidebarPosts(e.target.value);
+            });
+
+            // post links
+            postIndex = [];
+
+            for (const file of posts) {
+                const md = await loadMarkdown("posts/" + file);
+                const title = extractTitle(md);
+                const slug = slugFromFilename(file);
+
+                postIndex.push({ title, slug, md });
+            }
+
+            renderSidebarPosts();
+        }
+
+        init();
+
+        window.addEventListener("hashchange", () => {
+            const slug = location.hash.slice(1);
+            if (slug) {
+                loadPostBySlug(slug);
+            } else {
+                showHome();
+            }
+        });
+
+        const initialSlug = location.hash.slice(1);
+        if (initialSlug) {
+            loadPostBySlug(initialSlug);
+        } else {
+            showHome();
+        }
+
+</script>
+</body>
+</html>

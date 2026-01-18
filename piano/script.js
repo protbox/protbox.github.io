@@ -187,7 +187,7 @@ const buffer_cache = {}
 async function get_buffer(midi) {
     if (buffer_cache[midi]) return buffer_cache[midi]
 
-    const res = await fetch(`felt/${midi}.ogg`)
+    const res = await fetch(`res/${midi}.ogg`)
     const arr = await res.arrayBuffer()
     const buf = await audio_ctx.decodeAudioData(arr)
     buffer_cache[midi] = buf
