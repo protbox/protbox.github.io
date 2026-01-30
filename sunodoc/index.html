@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>s a d h a t . o r g</title>
+    <title>SUNODOC</title>
 
     <style>
         @font-face {
@@ -19,8 +19,8 @@
 
         body {
             margin: 0;
-            background: rgb(20, 20, 20);
-            color: #fafff8;
+            background: #fffdfd;
+            color: #1b1b1b;
             font-size:18px;
             font-family: "Roboto", monospace;
             display: flex;
@@ -42,7 +42,7 @@
             display: block;
             margin-bottom: 10px;
             text-decoration: none;
-            color: #f8fff6;
+            color: #0098dc;
             position:relative;
             padding-left: 10px;
             padding-top: 5px;
@@ -54,18 +54,18 @@
             margin-bottom: 10px;
             text-decoration: none;
             font-weight:bold;
-            color: #febbff;
+            color: #0069aa;
         }
 
         a {
             position: relative;
             text-decoration: underline;
-            color: #4df5ff;
+            color: #0098dc;
         }
 
         a:hover {
-            background: #1d111d;
-            color: #e6dfdc;
+            background: #94fdff;
+            color: #0069aa;
         }
 
         #sidebar a.home-link {
@@ -97,8 +97,8 @@
             padding: 6px 8px;
             font-family: inherit;
             font-size: 14px;
-            color: #1d111d;
-            background: #e6dfdc;
+            color: #272727;
+            background: #c7cfdd;
             border: 1px solid #1d111d33;
         }
 
@@ -215,10 +215,15 @@
             // home link
             const home = document.createElement("a");
             home.href = "#";
-            home.textContent = "sadhat.org";
+            home.textContent = "SUNODOC";
             home.classList.add("home-link");
             home.onclick = () => {
                 location.hash = "";
+                const search_field = document.getElementById("search");
+                if (search_field !== null) {
+                    search_field.value = "";
+                    renderSidebarPosts();
+                }
                 showHome();
             };
 
