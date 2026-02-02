@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Chord Arranger (WIP)</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="app">
+        <header class="top_bar">
+            <div class="title_block">
+                <div class="title">Chord Arranger</div>
+                <div class="subtitle">Grid-first prototype</div>
+            </div>
+
+            <div class="controls">
+                <label class="control">
+                    <span>Root</span>
+                    <select id="root_select"></select>
+                </label>
+
+                <label class="control">
+                    <span>Scale</span>
+                    <select id="scale_select"></select>
+                </label>
+
+                <div class="now_playing" id="now_playing">—</div>
+            </div>
+        </header>
+
+        <main class="grid_wrap">
+            <div id="chord_grid" class="chord_grid"></div>
+        </main>
+
+        <section class="tracks">
+            <div class="track track_chords">
+                <div class="track_title">Chord Track (later)</div>
+                <div class="track_body">Coming soon…</div>
+            </div>
+
+            <div class="track track_melody">
+                <div class="track_title">Melody Track (later)</div>
+                <div class="track_body">Coming soon…</div>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
