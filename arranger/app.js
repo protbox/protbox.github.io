@@ -302,17 +302,25 @@ function build_chord_pcs_for_type(type_id, root_pc, scale_pcs, degree_index) {
     }
 
     if (type_id === "add2add9") {
-        const triad = diatonic_stack(scale_pcs, degree_index, [0,2,4])
-        const pcs = triad.map(n => n.pc)
-        pcs.push((root_pc + 2) % 12)
-        return { pcs: normalize_pc_list(pcs), stack: triad }
+        const stack = diatonic_stack(scale_pcs, degree_index, [0,2,4])
+        const added_pc = (root_pc + 2) % 12
+
+        return {
+            pcs: normalize_pc_list([...stack.map(n => n.pc), added_pc]),
+            stack,
+            extra_pcs: [added_pc]
+        }
     }
 
     if (type_id === "add4add11") {
-        const triad = diatonic_stack(scale_pcs, degree_index, [0,2,4])
-        const pcs = triad.map(n => n.pc)
-        pcs.push((root_pc + 5) % 12)
-        return { pcs: normalize_pc_list(pcs), stack: triad }
+        const stack = diatonic_stack(scale_pcs, degree_index, [0,2,4])
+        const added_pc = (root_pc + 5) % 12
+
+        return {
+            pcs: normalize_pc_list([...stack.map(n => n.pc), added_pc]),
+            stack,
+            extra_pcs: [added_pc]
+        }
     }
 
     return { pcs: [], stack: null }
@@ -399,7 +407,7 @@ function make_cell(text, extra_class, color) {
     return el
 }
 
-function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, scale_set) {
+function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, extra_pcs) {
     const cell = document.createElement("div")
     cell.className = "cell"
 
@@ -419,7 +427,8 @@ function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, s
         // ensure buffers for needed notes (don’t preload 61 files if you don't want to)
         await unlock_audio()
 
-        const midis = build_playback_midis(root_pc, chord_pcs, stack_hint, scale_set)
+        const midis = build_playback_midis(root_pc, chord_pcs)
+
         for (const m of midis) await ensure_sample_loaded(m)
 
         const bass_midi = bass_midi_from_pc(root_pc)
@@ -461,31 +470,57 @@ function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, s
    PLAYBACK VOICING (SIMPLE, MUSICAL)
 ========================================================= */
 
-function build_playback_midis(root_pc, chord_pcs, stack_hint, scale_set) {
-    // target voicing: root is in bass already.
-    // For RH: prefer a "close-ish" voicing around base 48..84.
-    // If we have a diatonic stack hint, use its octaves.
-    if (stack_hint && stack_hint.length) {
-        const tones = stack_hint.slice().map(n => midi_from_pc_octave(n.pc, n.octave))
-        // Drop the root from RH if present (bass already)
-        const filtered = tones.filter(m => ((m % 12) + 12) % 12 !== root_pc)
-        filtered.sort((a,b) => b - a)
-        return filtered
-    }
+function build_playback_midis(root_pc, chord_pcs) {
+    const BASE = 48
+    const midis = []
 
-    // For fixed-interval chords: put tones above root base
-    const base_root = midi_from_pc_octave(root_pc, 0)
-    const mids = []
+    const intervals = chord_pcs.map(pc => (pc - root_pc + 12) % 12)
+
+    const has_3rd = intervals.includes(3) || intervals.includes(4)
+    const is_sus2 = intervals.includes(2) && !has_3rd
+    const is_sus4 = intervals.includes(5) && !has_3rd
 
     for (const pc of chord_pcs) {
-        let m = midi_from_pc_octave(pc, 0)
-        while (m <= base_root) m += 12
+        const interval = (pc - root_pc + 12) % 12
+
+        // Drop RH root only for tertian chords
+        if (pc === root_pc && has_3rd) continue
+
+        let m = BASE + ((pc - (BASE % 12) + 12) % 12)
+
+        // ---- VOICING RULES ----
+
+        // Sus tones live INSIDE the chord body
+        if (interval === 2 && is_sus2) {
+            // keep close
+        }
+        else if (interval === 5 && is_sus4) {
+            // keep close
+        }
+
+        // Add tones live in the body
+        else if (interval === 2 || interval === 5) {
+            // add2/add4: body
+        }
+
+        // True extensions float slightly upward
+        else if (interval === 9 || interval === 2 + 12) {
+            m += 12
+        }
+        else if (interval === 11 || interval === 5 + 12) {
+            m += 12
+        }
+
+        // Clamp gently (never fold back down into bass range)
+        while (m < 52) m += 12
         while (m > 84) m -= 12
-        mids.push(m)
+
+        midis.push(m)
     }
 
-    mids.sort((a,b) => b - a)
-    return mids
+    // Highest notes first feels best
+    midis.sort((a, b) => b - a)
+    return midis
 }
 
 /* =========================================================
@@ -568,7 +603,14 @@ function build_grid() {
                 : `${root_spelled} ${row.label}`
 
             chord_grid.appendChild(
-                make_chord_button_cell(label, letter, root_pc, built.pcs, built.stack, scale_set)
+                make_chord_button_cell(
+                    label,
+                    letter,
+                    root_pc,
+                    built.pcs,
+                    built.stack,
+                    built.extra_pcs || null
+                )
             )
         }
     }
