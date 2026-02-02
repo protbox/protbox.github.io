@@ -6,6 +6,7 @@ const root_select = document.getElementById("root_select")
 const scale_select = document.getElementById("scale_select")
 const chord_grid = document.getElementById("chord_grid")
 const now_playing = document.getElementById("now_playing")
+const groove_select = document.getElementById("groove_select")
 
 /* =========================================================
    CONSTANTS
@@ -48,12 +49,59 @@ const CHORD_ROWS = [
     { id:"add4add11",  label:"add4/add11" }
 ]
 
+const GROOVES = [
+    {
+        name: "Once",
+        steps: 1,
+        tempo: 120,
+
+        chord: {
+            pattern: [
+                { step: 0, notes: "all" }
+            ]
+        },
+
+        bass: {
+            pattern: [
+                { step: 0, note: "root" }
+            ]
+        }
+    },
+
+    {
+        name: "Dance 1",
+        steps: 8,
+        tempo: 120,
+
+        chord: {
+            pattern: [
+                { step: 0,  notes: [0, 1] },
+                { step: 2,  notes: [0, 1], accent: true },
+                { step: 4,  notes: [0, 1] },
+                { step: 6, notes: [0, 1], accent: true }
+
+            ]
+        },
+
+        bass: {
+            pattern: [
+                { step: 0, note: "root" },
+                { step: 4, note: "octave" }
+            ]
+        }
+    }
+]
+
 /* =========================================================
    STATE
 ========================================================= */
 
 let root_name = "C"
 let scale_name = "Ionian"
+let current_groove = GROOVES[0]
+let groove_timer = null
+let groove_step = 0
+let active = []
 
 /* =========================================================
    AUDIO
@@ -408,6 +456,12 @@ function make_cell(text, extra_class, color) {
 }
 
 function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, extra_pcs) {
+    const chord_data = {
+        root_pc: root_pc,
+        chord_pcs: chord_pcs,
+        chord_midis: build_playback_midis(root_pc, chord_pcs)
+    }
+
     const cell = document.createElement("div")
     cell.className = "cell"
 
@@ -419,15 +473,24 @@ function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, e
     btn.style.background = `${LETTER_COLORS[letter]}22`
     btn.style.borderColor = `${LETTER_COLORS[letter]}66`
 
-    let active = []
-
     btn.addEventListener("pointerdown", async e => {
         e.preventDefault()
 
         // ensure buffers for needed notes (don’t preload 61 files if you don't want to)
         await unlock_audio()
-
         const midis = build_playback_midis(root_pc, chord_pcs)
+
+        for (const m of midis) await ensure_sample_loaded(m)
+
+        const bass_midi = bass_midi_from_pc(root_pc)
+        await ensure_sample_loaded(bass_midi)
+
+        for (const m of midis) {
+            await ensure_sample_loaded(m)
+        }
+        active = []
+
+        /*const midis = build_playback_midis(root_pc, chord_pcs)
 
         for (const m of midis) await ensure_sample_loaded(m)
 
@@ -449,10 +512,16 @@ function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, e
             active.push(start_note(m, 0.95))
         }
 
+        btn.setPointerCapture(e.pointerId)*/
+        now_playing.textContent = label
+
+        start_groove(chord_data)
+
         btn.setPointerCapture(e.pointerId)
     })
 
     const release = () => {
+        stop_groove()
         release_notes(active, 0.15)
         active = []
         now_playing.textContent = "—"
@@ -617,6 +686,119 @@ function build_grid() {
 /* =========================================================
    INIT
 ========================================================= */
+function select_chord_notes(chord_data, mode) {
+    if (mode === "all") {
+        return chord_data.chord_midis
+    }
+
+    if (mode === "top") {
+        return [chord_data.chord_midis[0]]
+    }
+
+    if (mode === "bottom") {
+        return [chord_data.chord_midis[chord_data.chord_midis.length - 1]]
+    }
+
+    if (Array.isArray(mode)) {
+        return mode
+            .map(i => chord_data.chord_midis[i])
+            .filter(Boolean)
+    }
+
+    return []
+}
+
+function play_bass_track(chord_data, step) {
+    const pattern = current_groove.bass.pattern
+    const hits = pattern.filter(p => p.step === step)
+
+    if (!hits.length) return
+
+    hits.forEach(hit => {
+        let midi
+
+        if (hit.note === "root") {
+            midi = bass_midi_from_pc(chord_data.root_pc)
+        }
+        else if (hit.note === "octave") {
+            midi = bass_midi_from_pc(chord_data.root_pc) + 12
+        }
+        else {
+            return
+        }
+
+        const n = start_note(midi, 0.9)
+        active.push(n)
+    })
+}
+
+function play_chord_track(chord_data, step) {
+    const pattern = current_groove.chord.pattern
+    const hits = pattern.filter(p => p.step === step)
+
+    if (!hits.length) return
+
+    hits.forEach(hit => {
+        const midis = select_chord_notes(chord_data, hit.notes)
+        const velocity = hit.accent ? 1.1 : 0.95
+
+        midis.forEach(midi => {
+            const n = start_note(midi, velocity)
+            active.push(n)
+        })
+    })
+
+    console.log("Chord hit", step)
+
+}
+
+function play_groove_step(chord_data, step) {
+    play_chord_track(chord_data, step)
+    play_bass_track(chord_data, step)
+}
+
+function start_groove(chord_data) {
+    stop_groove()
+
+    groove_step = 0
+
+    // PLAY IMMEDIATELY
+    play_groove_step(chord_data, groove_step)
+
+    groove_step = (groove_step + 1) % current_groove.steps
+
+    const bpm = current_groove.tempo || 120
+    const step_ms = (60_000 / bpm) / (current_groove.steps / 4)
+
+    groove_timer = setInterval(() => {
+        play_groove_step(chord_data, groove_step)
+        groove_step = (groove_step + 1) % current_groove.steps
+    }, step_ms)
+}
+
+function stop_groove() {
+    if (groove_timer) {
+        clearInterval(groove_timer)
+        groove_timer = null
+    }
+}
+
+function init_grooves() {
+    groove_select.innerHTML = ""
+
+    GROOVES.forEach((g, i) => {
+        const opt = new Option(g.name, i)
+        groove_select.add(opt)
+    })
+
+    groove_select.value = "0"
+    current_groove = GROOVES[0]
+
+    groove_select.addEventListener("change", () => {
+        const idx = parseInt(groove_select.value, 10)
+        current_groove = GROOVES[idx]
+    })
+}
 
 function init_selects() {
     // roots
@@ -652,6 +834,7 @@ function init_selects() {
 function init() {
     attach_audio_unlock()
     init_selects()
+    init_grooves()
     build_grid()
 }
 
