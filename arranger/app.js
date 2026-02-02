@@ -49,56 +49,12 @@ const CHORD_ROWS = [
     { id:"add4add11",  label:"add4/add11" }
 ]
 
-const GROOVES = [
-    {
-        name: "Once",
-        steps: 1,
-        tempo: 120,
-
-        chord: {
-            pattern: [
-                { step: 0, notes: "all" }
-            ]
-        },
-
-        bass: {
-            pattern: [
-                { step: 0, note: "root" }
-            ]
-        }
-    },
-
-    {
-        name: "Dance 1",
-        steps: 8,
-        tempo: 120,
-
-        chord: {
-            pattern: [
-                { step: 0,  notes: [0, 1] },
-                { step: 2,  notes: [0, 1], accent: true },
-                { step: 4,  notes: [0, 1] },
-                { step: 6, notes: [0, 1], accent: true }
-
-            ]
-        },
-
-        bass: {
-            pattern: [
-                { step: 0, note: "root" },
-                { step: 4, note: "octave" }
-            ]
-        }
-    }
-]
-
 /* =========================================================
    STATE
 ========================================================= */
 
 let root_name = "C"
 let scale_name = "Ionian"
-let current_groove = GROOVES[0]
 let groove_timer = null
 let groove_step = 0
 let active = []
@@ -489,30 +445,6 @@ function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, e
             await ensure_sample_loaded(m)
         }
         active = []
-
-        /*const midis = build_playback_midis(root_pc, chord_pcs)
-
-        for (const m of midis) await ensure_sample_loaded(m)
-
-        const bass_midi = bass_midi_from_pc(root_pc)
-        await ensure_sample_loaded(bass_midi)
-
-        for (const m of midis) {
-            await ensure_sample_loaded(m)
-        }
-
-        now_playing.textContent = label
-        active = []
-
-        // bass first
-        active.push(start_note(bass_midi_from_pc(root_pc), 0.9))
-
-        // then RH tones
-        for (const m of midis) {
-            active.push(start_note(m, 0.95))
-        }
-
-        btn.setPointerCapture(e.pointerId)*/
         now_playing.textContent = label
 
         start_groove(chord_data)
@@ -536,7 +468,7 @@ function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, e
 }
 
 /* =========================================================
-   PLAYBACK VOICING (SIMPLE, MUSICAL)
+   PLAYBACK VOICING
 ========================================================= */
 
 function build_playback_midis(root_pc, chord_pcs) {
@@ -683,120 +615,259 @@ function build_grid() {
     }
 }
 
+
 /* =========================================================
-   INIT
+   GROOVE ENGINE (TICK / DURATION BASED)
 ========================================================= */
-function select_chord_notes(chord_data, mode) {
-    if (mode === "all") {
-        return chord_data.chord_midis
-    }
 
-    if (mode === "top") {
-        return [chord_data.chord_midis[0]]
-    }
+function ticks_per_32(ppq) {
+    return ppq / 8
+}
 
-    if (mode === "bottom") {
-        return [chord_data.chord_midis[chord_data.chord_midis.length - 1]]
-    }
+function bar_ticks(ppq) {
+    return ppq * 4
+}
 
-    if (Array.isArray(mode)) {
-        return mode
-            .map(i => chord_data.chord_midis[i])
-            .filter(Boolean)
-    }
+function ticks_to_seconds(ticks, bpm, ppq) {
+    return (ticks / ppq) * (60 / bpm)
+}
 
+const GROOVES = [
+    {
+        name: "Once",
+        tempo: 120,
+        ppq: 96,
+        bars: 1,
+        one_shot: true,
+
+        lh: {
+            seq_32: [
+                { len: 32, note: "root" }
+            ],
+            vel: 0.9,
+            gate: 1.0
+        },
+
+        rh: {
+            seq_32: [
+                { len: 32, hit: { notes: "all" } }
+            ],
+            vel: 0.95,
+            gate: 1.0
+        }
+    },
+
+    {
+        name: "Dance 1",
+        tempo: 120,
+        ppq: 96,
+        bars: 1,
+
+        lh: {
+            seq_32: [
+                { len: 8, note: "root" },
+                { len: 8, note: "octave" },
+                { len: 8, note: "root" },
+                { len: 8, note: "octave" }
+            ],
+            vel: 0.9,
+            gate: 0.85
+        },
+
+        rh: {
+            seq_32: [
+                { len: 6, hit: { notes: "all", strum: { dir: "down", spread_ticks: 4 } } },
+                { len: 6, hit: { notes: "all", strum: { dir: "up", spread_ticks: 4 } } },
+                { len: 4, hit: { notes: "all", strum: { dir: "down", spread_ticks: 3 }, accent: true } },
+                { len: 2 },
+                { len: 6, hit: { notes: "all", strum: { dir: "up", spread_ticks: 4 } } },
+                { len: 6, hit: { notes: "all", strum: { dir: "down", spread_ticks: 4 } } },
+                { len: 2, hit: { notes: "all", strum: { dir: "up", spread_ticks: 2 }, accent: true } }
+            ],
+            vel: 0.95,
+            gate: 0.72,
+            accent_vel_boost: 0.15
+        }
+    }
+]
+
+let current_groove = GROOVES[0]
+let groove_state = null
+
+function resolve_bass_midi(chord_data, spec) {
+    if (spec === "root") return bass_midi_from_pc(chord_data.root_pc)
+    if (spec === "octave") return bass_midi_from_pc(chord_data.root_pc) + 12
+    return null
+}
+
+function select_rh_midis(chord_data, notes_spec) {
+    if (notes_spec === "all") return chord_data.chord_midis
+    if (notes_spec === "top") return [chord_data.chord_midis[0]]
+    if (notes_spec === "bottom") return [chord_data.chord_midis[chord_data.chord_midis.length - 1]]
+    if (Array.isArray(notes_spec)) {
+        return notes_spec.map(i => chord_data.chord_midis[i]).filter(Boolean)
+    }
     return []
 }
 
-function play_bass_track(chord_data, step) {
-    const pattern = current_groove.bass.pattern
-    const hits = pattern.filter(p => p.step === step)
+function apply_strum(midis, strum) {
+    if (!strum) return midis.map(m => ({ midi: m, offset_ticks: 0 }))
 
-    if (!hits.length) return
+    const spread = Math.max(0, strum.spread_ticks | 0)
+    const ordered = midis.slice().sort((a, b) => a - b)
+    const played = strum.dir === "down" ? ordered.slice().reverse() : ordered
 
-    hits.forEach(hit => {
-        let midi
-
-        if (hit.note === "root") {
-            midi = bass_midi_from_pc(chord_data.root_pc)
-        }
-        else if (hit.note === "octave") {
-            midi = bass_midi_from_pc(chord_data.root_pc) + 12
-        }
-        else {
-            return
-        }
-
-        const n = start_note(midi, 0.9)
-        active.push(n)
-    })
+    return played.map((m, i) => ({
+        midi: m,
+        offset_ticks: i * spread
+    }))
 }
 
-function play_chord_track(chord_data, step) {
-    const pattern = current_groove.chord.pattern
-    const hits = pattern.filter(p => p.step === step)
+function compile_track(track, seq_32, chord_data, ppq, base_vel, gate, accent_boost) {
+    const t32 = ticks_per_32(ppq)
+    let cursor = 0
+    const events = []
 
-    if (!hits.length) return
+    for (const seg of seq_32) {
+        const seg_ticks = seg.len * t32
 
-    hits.forEach(hit => {
-        const midis = select_chord_notes(chord_data, hit.notes)
-        const velocity = hit.accent ? 1.1 : 0.95
+        if (track === "lh" && seg.note) {
+            const midi = resolve_bass_midi(chord_data, seg.note)
+            if (midi != null) {
+                events.push({
+                    midi,
+                    vel: base_vel,
+                    start_tick: cursor,
+                    dur_ticks: Math.floor(seg_ticks * gate)
+                })
+            }
+        }
 
-        midis.forEach(midi => {
-            const n = start_note(midi, velocity)
-            active.push(n)
-        })
-    })
+        if (track === "rh" && seg.hit) {
+            const vel = Math.min(1, base_vel + (seg.hit.accent ? accent_boost : 0))
+            const midis = select_rh_midis(chord_data, seg.hit.notes)
+            const strummed = apply_strum(midis, seg.hit.strum)
 
-    console.log("Chord hit", step)
+            for (const s of strummed) {
+                events.push({
+                    midi: s.midi,
+                    vel,
+                    start_tick: cursor + s.offset_ticks,
+                    dur_ticks: Math.max(1, Math.floor(seg_ticks * gate) - s.offset_ticks)
+                })
+            }
+        }
 
+        cursor += seg_ticks
+    }
+
+    return events
 }
 
-function play_groove_step(chord_data, step) {
-    play_chord_track(chord_data, step)
-    play_bass_track(chord_data, step)
+function compile_groove(groove, chord_data) {
+    const ppq = groove.ppq
+    const loop_ticks = bar_ticks(ppq) * groove.bars
+    const events = [
+        ...compile_track("lh", groove.lh.seq_32, chord_data, ppq, groove.lh.vel, groove.lh.gate, 0),
+        ...compile_track("rh", groove.rh.seq_32, chord_data, ppq, groove.rh.vel, groove.rh.gate, groove.rh.accent_vel_boost)
+    ]
+
+    const by_tick = new Map()
+    for (const e of events) {
+        const t = e.start_tick % loop_ticks
+        if (!by_tick.has(t)) by_tick.set(t, [])
+        by_tick.get(t).push(e)
+    }
+
+    return { bpm: groove.tempo, ppq, loop_ticks, by_tick }
+}
+
+function start_note_at(midi, vel, start_time, dur_time) {
+    const src = audio_ctx.createBufferSource()
+    src.buffer = buffers[midi]
+
+    const gain = audio_ctx.createGain()
+    gain.gain.setValueAtTime(0, start_time)
+    gain.gain.linearRampToValueAtTime(vel, start_time + 0.002)
+
+    const end = start_time + dur_time
+    gain.gain.setValueAtTime(vel, Math.max(start_time + 0.003, end - 0.02))
+    gain.gain.linearRampToValueAtTime(0, end)
+
+    src.connect(gain)
+    gain.connect(master_gain)
+
+    src.start(start_time)
+    src.stop(end + 0.03)
+
+    active.push({ src, gain })
 }
 
 function start_groove(chord_data) {
     stop_groove()
 
-    groove_step = 0
+    const compiled = compile_groove(current_groove, chord_data)
+    const { bpm, ppq, loop_ticks, by_tick } = compiled
 
-    // PLAY IMMEDIATELY
-    play_groove_step(chord_data, groove_step)
+    groove_state = {
+        start_time: audio_ctx.currentTime + 0.02,
+        next_tick: 0,
+        timer: null
+    }
 
-    groove_step = (groove_step + 1) % current_groove.steps
+    const lookahead = 0.025
+    const ahead = 0.2
 
-    const bpm = current_groove.tempo || 120
-    const step_ms = (60_000 / bpm) / (current_groove.steps / 4)
+    groove_state.timer = setInterval(() => {
+        const now = audio_ctx.currentTime
+        const target = now + ahead
 
-    groove_timer = setInterval(() => {
-        play_groove_step(chord_data, groove_step)
-        groove_step = (groove_step + 1) % current_groove.steps
-    }, step_ms)
+        while (true) {
+            // stop after one pass for one-shots
+            if (current_groove.one_shot && groove_state.next_tick >= loop_ticks) {
+                stop_groove()
+                break
+            }
+
+            const t = groove_state.start_time +
+                ticks_to_seconds(groove_state.next_tick, bpm, ppq)
+
+            if (t > target) break
+
+            const tick = groove_state.next_tick % loop_ticks
+            const events = by_tick.get(tick)
+            if (events) {
+                for (const e of events) {
+                    start_note_at(
+                        e.midi,
+                        e.vel,
+                        t,
+                        ticks_to_seconds(e.dur_ticks, bpm, ppq)
+                    )
+                }
+            }
+
+            groove_state.next_tick++
+        }
+    }, lookahead * 1000)
 }
 
 function stop_groove() {
-    if (groove_timer) {
-        clearInterval(groove_timer)
-        groove_timer = null
-    }
+    if (!groove_state) return
+    clearInterval(groove_state.timer)
+    groove_state = null
 }
+
+/* =========================================================
+   INIT
+========================================================= */
 
 function init_grooves() {
     groove_select.innerHTML = ""
-
-    GROOVES.forEach((g, i) => {
-        const opt = new Option(g.name, i)
-        groove_select.add(opt)
-    })
-
+    GROOVES.forEach((g, i) => groove_select.add(new Option(g.name, i)))
     groove_select.value = "0"
-    current_groove = GROOVES[0]
-
     groove_select.addEventListener("change", () => {
-        const idx = parseInt(groove_select.value, 10)
-        current_groove = GROOVES[idx]
+        current_groove = GROOVES[parseInt(groove_select.value, 10)]
     })
 }
 
