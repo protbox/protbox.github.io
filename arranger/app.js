@@ -503,11 +503,9 @@ function build_playback_midis(root_pc, chord_pcs) {
             // add2/add4: body
         }
 
-        // True extensions float slightly upward
-        else if (interval === 9 || interval === 2 + 12) {
-            m += 12
-        }
-        else if (interval === 11 || interval === 5 + 12) {
+        // True extensions float upward (9, 11)
+        // BUT 6 (interval 9) stays in the body
+        if (interval === 2 + 12 || interval === 5 + 12) {
             m += 12
         }
 
