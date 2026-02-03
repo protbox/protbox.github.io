@@ -225,26 +225,74 @@ select option {
 
 .chord_region {
     position: absolute;
+    contain: layout;
     top: 10px;
     height: 36px;
 
     border-radius: 6px;
-    padding: 4px 8px;
+    padding: 4px 10px 4px 8px;
 
     font-size: 12px;
     line-height: 16px;
 
-    background: #2a2a2a;
-    border: 1px solid #555;
-
     cursor: grab;
     user-select: none;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
+
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+
+.chord_region *:not(.resize_handle) {
+    pointer-events: none;
+}
+
+.chord_region .resize_handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    width: 10px;
+    height: 100%;
+
+    cursor: ew-resize;
+    z-index: 3;
+}
+
+.chord_region .resize_handle:hover {
+    background: rgba(255,255,255,0.08);
 }
 
 .chord_region.dragging {
     opacity: 0.7;
     cursor: grabbing;
+}
+
+.chord_tooltip {
+    position: absolute;
+    padding: 4px 8px;
+    font-size: 11px;
+    line-height: 14px;
+
+    background: #000;
+    color: #fff;
+    border-radius: 4px;
+
+    white-space: nowrap;
+    pointer-events: none;
+
+    opacity: 0;
+    transform: translate(-50%, -8px);
+    transition: opacity 0.08s ease;
+    z-index: 1000;
+}
+
+.chord_region:hover .chord_tooltip {
+    opacity: 1;
+    transform: translateY(-8px);
 }
 
 .insert_cursor {

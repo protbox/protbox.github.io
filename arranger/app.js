@@ -7,6 +7,9 @@ const scale_select = document.getElementById("scale_select")
 const chord_grid = document.getElementById("chord_grid")
 const now_playing = document.getElementById("now_playing")
 const groove_select = document.getElementById("groove_select")
+const chord_track_tooltip = document.createElement("div")
+chord_track_tooltip.className = "chord_tooltip"
+document.getElementById("chord_track_lane").appendChild(chord_track_tooltip)
 
 /* =========================================================
    CONSTANTS
@@ -474,13 +477,46 @@ function end_chord_drag(e) {
     drag_state = null
 }
 
+function position_tooltip(region, tooltip) {
+    const r = region.getBoundingClientRect()
+    const lane = region.parentElement.getBoundingClientRect()
+
+    const center_x = r.left + r.width / 2 - lane.left
+    const top_y = r.top - lane.top
+
+    tooltip.style.left = `${center_x}px`
+    tooltip.style.top = `${top_y - 24}px`
+}
+
 function render_chord_track() {
     const lane = document.getElementById("chord_track_lane")
     lane.querySelectorAll(".chord_region").forEach(n => n.remove())
 
     for (const c of chord_track) {
         const el = document.createElement("div")
+
+        el.addEventListener("mouseenter", () => {
+            const lane = document.getElementById("chord_track_lane")
+            const r = el.getBoundingClientRect()
+            const lane_r = lane.getBoundingClientRect()
+
+            chord_track_tooltip.textContent = `${c.label} · ${c.length_bars}`
+
+            chord_track_tooltip.style.left =
+                (r.left + r.width / 2 - lane_r.left) + "px"
+
+            chord_track_tooltip.style.top =
+                (r.top - lane_r.top - 28) + "px"   // 👈 clearly above
+
+            chord_track_tooltip.style.opacity = "1"
+        })
+
+        el.addEventListener("mouseleave", () => {
+            chord_track_tooltip.style.opacity = "0"
+        })
+
         el.className = "chord_region"
+
         el.textContent = c.label
 
         el.style.left = c.start_bar * PX_PER_BAR + "px"
@@ -493,8 +529,44 @@ function render_chord_track() {
             el.style.color = "#fff"
         }
 
+        // 🔴 RESIZE HANDLE — THIS MUST EXIST
+        const handle = document.createElement("div")
+        handle.className = "resize_handle"
+        el.appendChild(handle)
+
+        attach_resize_handler(handle, c)
+
         lane.appendChild(el)
     }
+}
+
+
+function attach_resize_handler(handle, chord) {
+    handle.addEventListener("pointerdown", e => {
+        e.stopPropagation()
+        e.preventDefault()
+
+        const lane = document.getElementById("chord_track_lane")
+        const start_x = e.clientX
+        const start_len = chord.length_bars
+
+        const move = ev => {
+            const dx = ev.clientX - start_x
+            const delta_bars = dx / PX_PER_BAR
+            const snapped = snap_bar(start_len + delta_bars)
+
+            chord.length_bars = Math.max(0.5, snapped)
+            render_chord_track()
+        }
+
+        const up = () => {
+            document.removeEventListener("pointermove", move)
+            document.removeEventListener("pointerup", up)
+        }
+
+        document.addEventListener("pointermove", move)
+        document.addEventListener("pointerup", up)
+    })
 }
 
 function insert_chord_region(region) {
