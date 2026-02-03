@@ -488,6 +488,42 @@ function position_tooltip(region, tooltip) {
     tooltip.style.top = `${top_y - 24}px`
 }
 
+function attach_move_handler(el, chord) {
+    el.addEventListener("pointerdown", e => {
+        if (e.target.classList.contains("resize_handle")) return
+
+        e.preventDefault()
+
+        const start_x = e.clientX
+        const original_start = chord.start_bar
+
+        el.classList.add("dragging")
+
+        const move = ev => {
+            const dx = ev.clientX - start_x
+            const delta_bars = dx / PX_PER_BAR
+            const snapped = snap_bar(original_start + delta_bars)
+
+            chord.start_bar = Math.max(0, snapped)
+            el.style.left = chord.start_bar * PX_PER_BAR + "px"
+        }
+
+        const up = () => {
+            document.removeEventListener("pointermove", move)
+            document.removeEventListener("pointerup", up)
+
+            el.classList.remove("dragging")
+
+            // Resolve collisions once
+            finalize_chord_move(chord)
+            render_chord_track()
+        }
+
+        document.addEventListener("pointermove", move)
+        document.addEventListener("pointerup", up)
+    })
+}
+
 function render_chord_track() {
     const lane = document.getElementById("chord_track_lane")
     lane.querySelectorAll(".chord_region").forEach(n => n.remove())
@@ -506,7 +542,7 @@ function render_chord_track() {
                 (r.left + r.width / 2 - lane_r.left) + "px"
 
             chord_track_tooltip.style.top =
-                (r.top - lane_r.top - 28) + "px"   // 👈 clearly above
+                (r.top - lane_r.top - 28) + "px"
 
             chord_track_tooltip.style.opacity = "1"
         })
@@ -522,6 +558,7 @@ function render_chord_track() {
         el.style.left = c.start_bar * PX_PER_BAR + "px"
         el.style.width = c.length_bars * PX_PER_BAR + "px"
 
+
         const color = LETTER_COLORS[c.letter]
         if (color) {
             el.style.background = `${color}33`
@@ -529,17 +566,28 @@ function render_chord_track() {
             el.style.color = "#fff"
         }
 
-        // 🔴 RESIZE HANDLE — THIS MUST EXIST
         const handle = document.createElement("div")
         handle.className = "resize_handle"
         el.appendChild(handle)
-
         attach_resize_handler(handle, c)
-
+        attach_move_handler(el, c)
         lane.appendChild(el)
     }
 }
 
+function finalize_chord_move(chord) {
+    const insert_at = chord.start_bar
+    const len = chord.length_bars
+
+    for (const c of chord_track) {
+        if (c === chord) continue
+        if (c.start_bar >= insert_at) {
+            c.start_bar += len
+        }
+    }
+
+    chord_track.sort((a, b) => a.start_bar - b.start_bar)
+}
 
 function attach_resize_handler(handle, chord) {
     handle.addEventListener("pointerdown", e => {

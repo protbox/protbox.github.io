@@ -295,6 +295,11 @@ select option {
     transform: translateY(-8px);
 }
 
+.chord_region.dragging {
+    opacity: 0.85;
+    cursor: grabbing;
+}
+
 .insert_cursor {
     position: absolute;
     top: 0;
