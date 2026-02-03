@@ -16,6 +16,10 @@ const NOTE_NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
 const LETTERS = ["C","D","E","F","G","A","B"]
 const NATURAL_PC = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 }
 
+const chord_track = []
+const PX_PER_BAR = 32
+const SNAP = 0.5
+
 const LETTER_COLORS = {
     A:"#ffa214", B:"#27d233", C:"#2993ff",
     D:"#5d4ff7", E:"#892ae2", F:"#e14bea", G:"#fb215b"
@@ -58,6 +62,8 @@ let scale_name = "Ionian"
 let groove_timer = null
 let groove_step = 0
 let active = []
+let drag_state = null
+let insert_cursor = null
 
 /* =========================================================
    AUDIO
@@ -399,6 +405,112 @@ function chord_button_label(root_spelled, type_id, chord_pcs) {
    UI HELPERS
 ========================================================= */
 
+function snap_bar(v) {
+    return Math.round(v / SNAP) * SNAP
+}
+
+function x_to_bar(x, lane) {
+    const r = lane.getBoundingClientRect()
+    return snap_bar((x - r.left) / PX_PER_BAR)
+}
+
+function begin_chord_drag(label, chord_data, letter, e) {
+    const ghost = document.createElement("div")
+    ghost.className = "chord_region dragging"
+    ghost.textContent = label
+    ghost.style.position = "fixed"
+    ghost.style.pointerEvents = "none"
+    ghost.style.zIndex = 9999
+    document.body.appendChild(ghost)
+
+    const lane = document.getElementById("chord_track_lane")
+
+    insert_cursor = document.createElement("div")
+    insert_cursor.className = "insert_cursor"
+    lane.appendChild(insert_cursor)
+
+    drag_state = { ghost, label, chord_data, letter }
+
+    const move = ev => {
+        ghost.style.left = ev.clientX + 6 + "px"
+        ghost.style.top = ev.clientY + 6 + "px"
+
+        if (ev.target.closest("#chord_track_lane")) {
+            const bar = x_to_bar(ev.clientX, lane)
+            insert_cursor.style.left = bar * PX_PER_BAR + "px"
+        }
+    }
+
+    const up = ev => {
+        end_chord_drag(ev)
+        document.removeEventListener("pointermove", move)
+        document.removeEventListener("pointerup", up)
+    }
+
+    document.addEventListener("pointermove", move)
+    document.addEventListener("pointerup", up)
+}
+
+function end_chord_drag(e) {
+    const lane = document.getElementById("chord_track_lane")
+
+    if (e.target.closest("#chord_track_lane")) {
+        const start_bar = x_to_bar(e.clientX, lane)
+
+        insert_chord_region({
+            id: crypto.randomUUID(),
+            label: drag_state.label,
+            chord_data: drag_state.chord_data,
+            letter: drag_state.letter,
+            start_bar,
+            length_bars: 4
+        })
+
+        render_chord_track()
+    }
+
+    drag_state.ghost.remove()
+    insert_cursor.remove()
+    drag_state = null
+}
+
+function render_chord_track() {
+    const lane = document.getElementById("chord_track_lane")
+    lane.querySelectorAll(".chord_region").forEach(n => n.remove())
+
+    for (const c of chord_track) {
+        const el = document.createElement("div")
+        el.className = "chord_region"
+        el.textContent = c.label
+
+        el.style.left = c.start_bar * PX_PER_BAR + "px"
+        el.style.width = c.length_bars * PX_PER_BAR + "px"
+
+        const color = LETTER_COLORS[c.letter]
+        if (color) {
+            el.style.background = `${color}33`
+            el.style.borderColor = `${color}aa`
+            el.style.color = "#fff"
+        }
+
+        lane.appendChild(el)
+    }
+}
+
+function insert_chord_region(region) {
+    const insert_at = region.start_bar
+    const shift = region.length_bars
+
+    for (const c of chord_track) {
+        if (c.start_bar >= insert_at) {
+            c.start_bar += shift
+        }
+    }
+
+    chord_track.push(region)
+    chord_track.sort((a, b) => a.start_bar - b.start_bar)
+}
+
 function clear_grid() {
     chord_grid.innerHTML = ""
 }
@@ -429,8 +541,41 @@ function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, e
     btn.style.background = `${LETTER_COLORS[letter]}22`
     btn.style.borderColor = `${LETTER_COLORS[letter]}66`
 
+    let dragging = false
+
     btn.addEventListener("pointerdown", async e => {
         e.preventDefault()
+
+        const start_x = e.clientX
+        const start_y = e.clientY
+        const grid_rect = chord_grid.getBoundingClientRect()
+
+        dragging = false
+
+        const move = ev => {
+            if (dragging) return
+
+            const outside =
+                ev.clientX < grid_rect.left ||
+                ev.clientX > grid_rect.right ||
+                ev.clientY < grid_rect.top ||
+                ev.clientY > grid_rect.bottom
+
+            if (!outside) return
+
+            dragging = true
+            stop_groove()
+
+            begin_chord_drag(label, chord_data, letter, ev)
+        }
+
+        const up = () => {
+            document.removeEventListener("pointermove", move)
+            document.removeEventListener("pointerup", up)
+        }
+
+        document.addEventListener("pointermove", move)
+        document.addEventListener("pointerup", up)
 
         // ensure buffers for needed notes (don’t preload 61 files if you don't want to)
         await unlock_audio()
@@ -449,10 +594,11 @@ function make_chord_button_cell(label, letter, root_pc, chord_pcs, stack_hint, e
 
         start_groove(chord_data)
 
-        btn.setPointerCapture(e.pointerId)
+        //btn.setPointerCapture(e.pointerId)
     })
 
     const release = () => {
+        if (dragging) return
         stop_groove()
         release_notes(active, 0.15)
         active = []

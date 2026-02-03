@@ -187,35 +187,73 @@ select option {
     font-weight: 600;
 }
 
-/* Tracks (placeholder) */
-.tracks{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+/* Arranger stuff */
+#arranger {
+    margin-top: 16px;
+    border-top: 1px solid #333;
 }
 
-.track{
-    border: 1px solid var(--grid_border);
-    border-radius: var(--radius);
-    padding: 12px;
-    background: rgba(253,255,253,0.02);
+.track {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid #222;
 }
 
-.track_title{
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    opacity: 0.95;
-}
-
-.track_body{
+.track_label {
+    width: 80px;
+    padding: 8px;
     font-size: 12px;
     opacity: 0.7;
-    min-height: 46px;
-    display: flex;
-    align-items: center;
+    border-right: 1px solid #222;
 }
 
-.track_melody{
-    background: color-mix(in srgb, var(--melody_bg) 55%, transparent);
+.track_lane {
+    position: relative;
+    flex: 1;
+    height: 64px;
+    background: #111;
 }
+
+.chord_track .track_lane {
+    height: 72px;
+}
+
+.melody_track .track_lane {
+    height: 48px;
+    opacity: 0.4;
+}
+
+.chord_region {
+    position: absolute;
+    top: 10px;
+    height: 36px;
+
+    border-radius: 6px;
+    padding: 4px 8px;
+
+    font-size: 12px;
+    line-height: 16px;
+
+    background: #2a2a2a;
+    border: 1px solid #555;
+
+    cursor: grab;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.chord_region.dragging {
+    opacity: 0.7;
+    cursor: grabbing;
+}
+
+.insert_cursor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #4af;
+    pointer-events: none;
+}
+
+
