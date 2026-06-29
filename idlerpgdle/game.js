@@ -68,7 +68,8 @@ const SOUNDS = {
     coin: "coin.mp3",
     win: "win.wav",
     lose: "lose.wav",
-    click: "click.wav"
+    click: "click.wav",
+    light: "light.mp3"
 };
 
 const CLASSES = [
@@ -402,7 +403,7 @@ function tryLightsEmbrace() {
     const heal = rollBetween(CONFIG.embraceRange.min, CONFIG.embraceRange.max);
     setHealth(Math.min(state.maxHealth, heal));
     logEntry("🕊️", `<b>Light's Embrace!</b> As you fall, holy light pulls you back with <b>${state.health}</b> health.`, "heal");
-    playSound("health");
+    playSound("light");
 }
 
 async function healOnUndeadDefeat(enemy) {
