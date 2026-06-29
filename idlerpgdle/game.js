@@ -495,6 +495,7 @@ function buildShareText() {
         outcome,
         `${state.playerClass.icon} Class: ${state.playerClass.name}`,
         `${state.weapon.icon} Weapon: ${state.weapon.name}`,
+        `❤️ Health: ${state.health}/${state.maxHealth}`,
         `🗺️ Encounters: ${state.completed}/${CONFIG.totalEncounters}`,
         `💰 Gold: ${state.gold}`,
         `🏅 Final score: ${state.score}`
