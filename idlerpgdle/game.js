@@ -50,9 +50,10 @@ const SOUNDS = {
     enemyDefeat: "enemy_defeat.mp3",
     health: "potion.wav",
     hone: "hone.wav",
-    coin: "coin.wav",
+    coin: "coin.mp3",
     win: "win.wav",
-    lose: "lose.wav"
+    lose: "lose.wav",
+    click: "click.wav"
 };
 
 const CLASSES = [
@@ -432,6 +433,7 @@ async function awardDrop(enemy) {
 async function runGame() {
     state.running = true;
     state.completed = 0;
+    playSound("click");
     playSound("begin");
     el.beginBtn.disabled = true;
     el.beginBtn.hidden = true;
@@ -503,6 +505,7 @@ function buildShareText() {
 }
 
 async function shareRun() {
+    playSound("click");
     const text = buildShareText();
     try {
         await navigator.clipboard.writeText(text);
