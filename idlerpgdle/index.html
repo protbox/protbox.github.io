@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>idlerpgdle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="vignette"></div>
+    <div class="layout">
+    <main class="game">
+        <header class="masthead">
+            <p class="eyebrow">a once-a-day idle dungeon</p>
+            <h1 class="wordmark">idlerpgdle</h1>
+            <div class="seed-row">
+                <span class="seed-label">run</span>
+                <span class="seed-value" id="seedValue">—</span>
+            </div>
+        </header>
+
+        <section class="hero" id="hero">
+            <div class="hero-glyph" id="heroGlyph">🎲</div>
+            <div class="hero-text">
+                <p class="hero-status" id="heroStatus">Press begin to roll your fate</p>
+                <p class="hero-sub" id="heroSub">Class, weapon, and ten encounters await</p>
+            </div>
+        </section>
+
+        <section class="stats" id="statsPanel">
+            <div class="stat">
+                <span class="stat-icon">❤️</span>
+                <span class="stat-label">health</span>
+                <span class="stat-value" id="statHealth">—</span>
+            </div>
+            <div class="stat">
+                <span class="stat-icon">⚔️</span>
+                <span class="stat-label">damage</span>
+                <span class="stat-value" id="statDamage">—</span>
+            </div>
+            <div class="stat">
+                <span class="stat-icon">💰</span>
+                <span class="stat-label">gold</span>
+                <span class="stat-value" id="statGold">—</span>
+            </div>
+            <div class="stat">
+                <span class="stat-icon">🏅</span>
+                <span class="stat-label">score</span>
+                <span class="stat-value" id="statScore">—</span>
+            </div>
+            <div class="stat">
+                <span class="stat-icon">🗺️</span>
+                <span class="stat-label">encounter</span>
+                <span class="stat-value" id="statEncounter">—</span>
+            </div>
+        </section>
+
+        <section class="log-wrap">
+            <div class="log-header">
+                <span class="log-title">adventure log</span>
+                <span class="log-pulse" id="logPulse"></span>
+            </div>
+            <ol class="log" id="log"></ol>
+        </section>
+
+        <footer class="controls">
+            <button class="begin" id="beginBtn">Begin the descent</button>
+            <button class="begin" id="shareBtn" hidden>📋 Share run</button>
+            <button class="begin ghost" id="resetBtn" hidden>New run</button>
+        </footer>
+    </main>
+
+    <aside class="character" id="characterPanel">
+        <div class="char-header">
+            <span class="char-eyebrow">character sheet</span>
+        </div>
+        <div class="char-portrait" id="charPortrait">❔</div>
+        <p class="char-name" id="charName">Unknown</p>
+        <p class="char-title" id="charTitle">awaiting the roll</p>
+
+        <div class="char-card">
+            <span class="char-card-icon" id="charClassIcon">🎭</span>
+            <div class="char-card-body">
+                <span class="char-card-label">class</span>
+                <span class="char-card-value" id="charClass">—</span>
+            </div>
+        </div>
+
+        <div class="char-card">
+            <span class="char-card-icon" id="charWeaponIcon">🗡️</span>
+            <div class="char-card-body">
+                <span class="char-card-label">equipped</span>
+                <span class="char-card-value" id="charWeapon">—</span>
+                <span class="char-card-meta" id="charWeaponMeta"></span>
+            </div>
+        </div>
+
+        <div class="char-affinity" id="charAffinity">
+            <span class="char-affinity-label">attunement</span>
+            <span class="char-affinity-value" id="charAffinityValue">None</span>
+        </div>
+    </aside>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
