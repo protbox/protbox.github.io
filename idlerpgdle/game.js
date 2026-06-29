@@ -22,11 +22,24 @@ const CONFIG = {
         min: 3,
         max: 6
     },
+    embraceRange: {
+        min: 5,
+        max: 7
+    },
     classBonuses: {
-        warriorDefense: 1,
+        warriorParryChance: 0.4,
         paladinHealing: 2,
+        paladinUndeadHealing: 2,
+        paladinSmiteMultiplier: 1.5,
         mageWeaponHone: 1,
-        hunterEvadeChance: 0.2
+        mageEvadeChance: 0.2,
+        hunterEvadeChance: 0.25,
+        hunterRapidFireShots: 2,
+        rogueCritChance: 0.25
+    },
+    attunementRangeStrong: {
+        min: 4,
+        max: 8
     },
     enemyDamageVariance: 3,
     ambushChance: 0.25,
@@ -48,6 +61,8 @@ const SOUNDS = {
     attackBow: "attack_bow.wav",
     monsterAttack: "hurt.wav",
     enemyDefeat: "enemy_defeat.mp3",
+    block: "parry.mp3",
+    evade: "evade.mp3",
     health: "potion.wav",
     hone: "hone.wav",
     coin: "coin.mp3",
@@ -57,10 +72,11 @@ const SOUNDS = {
 };
 
 const CLASSES = [
-    { name: "Warrior", icon: "🛡️", baseDamage: 4, baseHealthBonus: 6, perk: "defense", perkText: "+1 defense" },
-    { name: "Mage", icon: "🔮", baseDamage: 6, baseHealthBonus: 0, perk: "hone", perkText: "+1 weapon hone" },
-    { name: "Paladin", icon: "✨", baseDamage: 3, baseHealthBonus: 8, perk: "healing", perkText: "+2 healing" },
-    { name: "Hunter", icon: "🏹", baseDamage: 5, baseHealthBonus: 2, perk: "evade", perkText: "chance to evade" }
+    { name: "Warrior", icon: "🛡️", baseDamage: 4, baseHealthBonus: 6, perk: "defense", perkText: "chance to parry" },
+    { name: "Mage", icon: "🔮", baseDamage: 6, baseHealthBonus: 0, perk: "hone", perkText: "+1 hone, can blink" },
+    { name: "Paladin", icon: "✨", baseDamage: 3, baseHealthBonus: 8, perk: "healing", perkText: "+2 heal, smites undead" },
+    { name: "Hunter", icon: "🏹", baseDamage: 5, baseHealthBonus: 2, perk: "evade", perkText: "chance to evade" },
+    { name: "Rogue", icon: "🗡️", baseDamage: 5, baseHealthBonus: -2, perk: "crit", perkText: "crits, ambush-immune" }
 ];
 
 const WEAPONS = [
@@ -76,15 +92,16 @@ const CLASS_WEAPON_AFFINITY = {
     Warrior: ["War Hammer", "Rusted Sword"],
     Mage: ["Oak Staff", "Holy Mace"],
     Paladin: ["Holy Mace", "War Hammer"],
-    Hunter: ["Hunting Bow", "Twin Daggers"]
+    Hunter: ["Hunting Bow", "Twin Daggers"],
+    Rogue: ["Twin Daggers"]
 };
 
 const ENEMIES = [
-    { name: "Spider", icon: "🕷️", health: 5, damage: 2, lootMultiplier: 1.0, killScore: 10 },
-    { name: "Goblin", icon: "👺", health: 7, damage: 3, lootMultiplier: 1.2, killScore: 18 },
-    { name: "Bandit", icon: "🥷", health: 10, damage: 4, lootMultiplier: 1.5, killScore: 28 },
-    { name: "Skeleton", icon: "💀", health: 12, damage: 4, lootMultiplier: 1.6, killScore: 34 },
-    { name: "Ogre", icon: "👹", health: 18, damage: 6, lootMultiplier: 2.2, killScore: 55 }
+    { name: "Spider", icon: "🕷️", health: 5, damage: 2, lootMultiplier: 1.0, killScore: 10, undead: false },
+    { name: "Goblin", icon: "👺", health: 7, damage: 3, lootMultiplier: 1.2, killScore: 18, undead: false },
+    { name: "Bandit", icon: "🥷", health: 10, damage: 4, lootMultiplier: 1.5, killScore: 28, undead: false },
+    { name: "Skeleton", icon: "💀", health: 12, damage: 4, lootMultiplier: 1.6, killScore: 34, undead: true },
+    { name: "Ogre", icon: "👹", health: 18, damage: 6, lootMultiplier: 2.2, killScore: 55, undead: false }
 ];
 
 const state = {
@@ -97,6 +114,7 @@ const state = {
     encounter: 0,
     completed: 0,
     survived: false,
+    embraceUsed: false,
     seed: "-",
     weapon: null,
     weaponDamage: 0,
@@ -325,7 +343,8 @@ async function rollFate() {
     const hone = state.playerClass.perk === "hone" ? CONFIG.classBonuses.mageWeaponHone : 0;
     state.weaponDamage = state.weapon.damage + hone;
     const suited = CLASS_WEAPON_AFFINITY[state.playerClass.name].includes(state.weapon.name);
-    const attunementBonus = suited ? rollBetween(CONFIG.attunementRange.min, CONFIG.attunementRange.max) : 0;
+    const attuneRange = state.playerClass.perk === "crit" ? CONFIG.attunementRangeStrong : CONFIG.attunementRange;
+    const attunementBonus = suited ? rollBetween(attuneRange.min, attuneRange.max) : 0;
     setDamage(state.playerClass.baseDamage + state.weaponDamage + attunementBonus);
     setPanelWeapon();
     setPanelAffinity(suited ? `Attuned 🔥 +${attunementBonus}` : "None");
@@ -344,20 +363,65 @@ function playPlayerAttack() {
     playSound(state.weapon && state.weapon.ranged ? "attackBow" : "attackMelee");
 }
 
+function evadeChanceFor(playerClass) {
+    if (playerClass.perk === "evade") return CONFIG.classBonuses.hunterEvadeChance;
+    if (playerClass.perk === "hone") return CONFIG.classBonuses.mageEvadeChance;
+    return 0;
+}
+
 async function enemyAttack(enemy, context) {
     const evadeRoll = rng();
-    const evaded = state.playerClass.perk === "evade" && evadeRoll < CONFIG.classBonuses.hunterEvadeChance;
+    const evaded = evadeRoll < evadeChanceFor(state.playerClass);
     if (evaded) {
-        logEntry("💨", `You roll aside and <b>evade</b> the ${enemy.name}'s ${context}.`, "heal");
-        return;
+        const verb = state.playerClass.perk === "hone" ? "blink" : "roll";
+        logEntry("💨", `You ${verb} aside and <b>evade</b> the ${enemy.name}'s attack.`, "heal");
+        playSound("evade");
+        return { reflected: 0, tookHit: false, evaded: true };
     }
     const rolled = rollBetween(enemy.damage, enemy.damage + CONFIG.enemyDamageVariance);
-    const incoming = state.playerClass.perk === "defense"
-        ? Math.max(1, rolled - CONFIG.classBonuses.warriorDefense)
-        : rolled;
+    const parryRoll = rng();
+    const parried = state.playerClass.perk === "defense" && parryRoll < CONFIG.classBonuses.warriorParryChance;
+    const incoming = parried ? Math.ceil(rolled / 2) : rolled;
+    const reflected = parried ? Math.ceil(rolled / 2) : 0;
     setHealth(state.health - incoming);
-    logEntry("🩸", `The ${enemy.name} ${context} for <b>${incoming}</b>.`, "hit");
-    playSound("monsterAttack");
+    if (parried) {
+        logEntry("🛡️", `You parry! You take <b>${incoming}</b> and turn <b>${reflected}</b> back on the ${enemy.name}.`, "hit");
+        playSound("block");
+    } else {
+        logEntry("🩸", `The ${enemy.name} ${context} for <b>${incoming}</b>.`, "hit");
+        playSound("monsterAttack");
+    }
+    tryLightsEmbrace();
+    return { reflected, tookHit: !parried, evaded: false };
+}
+
+function tryLightsEmbrace() {
+    if (state.playerClass.perk !== "healing") return;
+    if (state.embraceUsed || state.health > 0) return;
+    state.embraceUsed = true;
+    const heal = rollBetween(CONFIG.embraceRange.min, CONFIG.embraceRange.max);
+    setHealth(Math.min(state.maxHealth, heal));
+    logEntry("🕊️", `<b>Light's Embrace!</b> As you fall, holy light pulls you back with <b>${state.health}</b> health.`, "heal");
+    playSound("health");
+}
+
+async function healOnUndeadDefeat(enemy) {
+    if (state.playerClass.perk !== "healing" || !enemy.undead) return;
+    if (state.health >= state.maxHealth) return;
+    const before = state.health;
+    setHealth(Math.min(state.maxHealth, state.health + CONFIG.classBonuses.paladinUndeadHealing));
+    const healed = state.health - before;
+    if (healed > 0) {
+        logEntry("✨", `Holy power surges as the undead falls: <b>+${healed}</b> health.`, "heal");
+        playSound("health");
+    }
+}
+
+async function defeatEnemy(enemy, icon, message) {
+    setScore(state.score + enemy.killScore);
+    logEntry(icon, message);
+    playSound("enemyDefeat");
+    await healOnUndeadDefeat(enemy);
 }
 
 async function fightEnemy(enemy) {
@@ -366,27 +430,84 @@ async function fightEnemy(enemy) {
     logEntry(enemy.icon, `A <b>${enemy.name}</b> blocks your path.`);
     await wait(CONFIG.stepDelay);
 
-    if (rng() < CONFIG.ambushChance) {
+    const ambushRoll = rng();
+    const ambushImmune = state.playerClass.perk === "crit";
+    if (ambushRoll < CONFIG.ambushChance && !ambushImmune) {
         logEntry("⚡", `The <b>${enemy.name}</b> ambushes you and strikes first!`, "hit");
         await wait(CONFIG.attackDelay);
-        await enemyAttack(enemy, "ambush");
+        const { reflected } = await enemyAttack(enemy, "ambush");
+        if (reflected > 0) {
+            enemyHealth -= reflected;
+            if (enemyHealth <= 0) {
+                playPlayerAttack();
+                await defeatEnemy(enemy, "🛡️", `You parry the ambush and fell the ${enemy.name} before it lands! <b>+${enemy.killScore}</b> score.`);
+                await wait(CONFIG.stepDelay);
+                return true;
+            }
+        }
         await wait(CONFIG.attackDelay);
         if (state.health <= 0) return false;
+    } else if (ambushRoll < CONFIG.ambushChance && ambushImmune) {
+        logEntry("🗡️", `The <b>${enemy.name}</b> lunges, but you slip the ambush entirely.`, "heal");
+        await wait(CONFIG.attackDelay);
     }
 
     while (enemyHealth > 0 && state.health > 0) {
-        enemyHealth -= state.damage;
+        const critRoll = rng();
+        const crit = state.playerClass.perk === "crit" && critRoll < CONFIG.classBonuses.rogueCritChance;
+        const smite = state.playerClass.perk === "healing" && enemy.undead;
+        let strike = crit ? state.damage * 2 : state.damage;
+        if (smite) strike = Math.round(strike * CONFIG.classBonuses.paladinSmiteMultiplier);
+        enemyHealth -= strike;
         if (enemyHealth > 0) {
-            logEntry("⚔️", `You strike for <b>${state.damage}</b>. The ${enemy.name} has ${enemyHealth} left.`);
+            if (crit) {
+                logEntry("🗡️", `<b>Critical strike!</b> You hit for <b>${strike}</b>. The ${enemy.name} has ${enemyHealth} left.`);
+            } else if (smite) {
+                logEntry("✨", `<b>Smite!</b> Holy fire sears the undead for <b>${strike}</b>. The ${enemy.name} has ${enemyHealth} left.`);
+            } else {
+                logEntry("⚔️", `You strike for <b>${strike}</b>. The ${enemy.name} has ${enemyHealth} left.`);
+            }
             playPlayerAttack();
             await wait(CONFIG.attackDelay);
-            await enemyAttack(enemy, "bites back");
+            const { reflected, evaded } = await enemyAttack(enemy, "bites back");
+            if (reflected > 0) {
+                enemyHealth -= reflected;
+                if (enemyHealth <= 0) {
+                    playPlayerAttack();
+                    await defeatEnemy(enemy, "🛡️", `Your parry turns the killing blow! The ${enemy.name} falls! <b>+${enemy.killScore}</b> score.`);
+                    await wait(CONFIG.stepDelay);
+                    break;
+                }
+            }
+            if (evaded && state.playerClass.perk === "evade" && enemyHealth > 0) {
+                logEntry("🏹", `<b>Rapid fire!</b> You punish the opening with a flurry of shots!`, "heal");
+                let slain = false;
+                for (let shot = 0; shot < CONFIG.classBonuses.hunterRapidFireShots; shot++) {
+                    if (enemyHealth <= 0) break;
+                    await wait(CONFIG.attackDelay);
+                    enemyHealth -= state.damage;
+                    if (enemyHealth > 0) {
+                        logEntry("🏹", `Shot ${shot + 1} hits for <b>${state.damage}</b>. The ${enemy.name} has ${enemyHealth} left.`);
+                        playPlayerAttack();
+                    } else {
+                        playPlayerAttack();
+                        await defeatEnemy(enemy, "🏹", `Shot ${shot + 1} fells the ${enemy.name}! <b>+${enemy.killScore}</b> score.`);
+                        await wait(CONFIG.stepDelay);
+                        slain = true;
+                    }
+                }
+                if (slain) break;
+            }
             await wait(CONFIG.attackDelay);
         } else {
-            setScore(state.score + enemy.killScore);
-            logEntry("💥", `You strike for <b>${state.damage}</b>. The ${enemy.name} falls! <b>+${enemy.killScore}</b> score.`);
             playPlayerAttack();
-            playSound("enemyDefeat");
+            if (crit) {
+                await defeatEnemy(enemy, "🗡️", `<b>Critical strike!</b> You hit for <b>${strike}</b>. The ${enemy.name} falls! <b>+${enemy.killScore}</b> score.`);
+            } else if (smite) {
+                await defeatEnemy(enemy, "✨", `<b>Smite!</b> Holy fire destroys the ${enemy.name}! <b>+${enemy.killScore}</b> score.`);
+            } else {
+                await defeatEnemy(enemy, "💥", `You strike for <b>${strike}</b>. The ${enemy.name} falls! <b>+${enemy.killScore}</b> score.`);
+            }
             await wait(CONFIG.stepDelay);
         }
     }
@@ -433,6 +554,7 @@ async function awardDrop(enemy) {
 async function runGame() {
     state.running = true;
     state.completed = 0;
+    state.embraceUsed = false;
     playSound("click");
     playSound("begin");
     el.beginBtn.disabled = true;
@@ -494,6 +616,7 @@ function buildShareText() {
     const outcome = state.survived ? "🏆 Cleared the dungeon!" : "⚰️ Fell in battle";
     return [
         `idlerpgdle ${state.seed}`,
+        `📅 ${todayKey()}`,
         outcome,
         `${state.playerClass.icon} Class: ${state.playerClass.name}`,
         `${state.weapon.icon} Weapon: ${state.weapon.name}`,
