@@ -276,7 +276,7 @@ function setPanelClass() {
     void el.charPortrait.offsetWidth;
     el.charPortrait.classList.add("summoned");
     el.charName.textContent = state.playerClass.name;
-    el.charTitle.textContent = "summoned by the dice";
+    el.charTitle.textContent = state.playerClass.perkText;
     el.charClassIcon.textContent = state.playerClass.icon;
     el.charClass.textContent = state.playerClass.name;
     el.charClassMeta.textContent = `+${state.playerClass.baseDamage} base damage`;
