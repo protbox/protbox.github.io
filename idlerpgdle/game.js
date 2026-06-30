@@ -41,6 +41,7 @@ const CONFIG = {
         min: 4,
         max: 8
     },
+    weaknessMultiplier: 1.5,
     enemyDamageVariance: 3,
     ambushChance: 0.25,
     daily: {
@@ -73,11 +74,11 @@ const SOUNDS = {
 };
 
 const CLASSES = [
-    { name: "Warrior", icon: "🛡️", baseDamage: 4, baseHealthBonus: 6, perk: "defense", perkText: "chance to parry" },
-    { name: "Mage", icon: "🔮", baseDamage: 6, baseHealthBonus: 0, perk: "hone", perkText: "+1 hone, can blink" },
-    { name: "Paladin", icon: "✨", baseDamage: 3, baseHealthBonus: 8, perk: "healing", perkText: "+2 heal, smites undead" },
-    { name: "Hunter", icon: "🏹", baseDamage: 5, baseHealthBonus: 2, perk: "evade", perkText: "chance to evade" },
-    { name: "Rogue", icon: "🗡️", baseDamage: 5, baseHealthBonus: -2, perk: "crit", perkText: "crits, ambush-immune" }
+    { name: "Warrior", icon: "🛡️", baseDamage: 4, baseHealthBonus: 6, perk: "defense", perkText: "chance to parry", attunement: "lightning", attunementIcon: "⚡" },
+    { name: "Mage", icon: "🔮", baseDamage: 6, baseHealthBonus: 0, perk: "hone", perkText: "+1 hone, can blink", attunement: "fire", attunementIcon: "🔥" },
+    { name: "Paladin", icon: "✨", baseDamage: 3, baseHealthBonus: 8, perk: "healing", perkText: "+2 heal, smites undead", attunement: "holy", attunementIcon: "🌟" },
+    { name: "Hunter", icon: "🏹", baseDamage: 5, baseHealthBonus: 2, perk: "evade", perkText: "chance to evade", attunement: "nature", attunementIcon: "🍃" },
+    { name: "Rogue", icon: "🗡️", baseDamage: 5, baseHealthBonus: -2, perk: "crit", perkText: "crits, ambush-immune", attunement: "shadow", attunementIcon: "🌑" }
 ];
 
 const WEAPONS = [
@@ -98,11 +99,11 @@ const CLASS_WEAPON_AFFINITY = {
 };
 
 const ENEMIES = [
-    { name: "Spider", icon: "🕷️", health: 5, damage: 2, lootMultiplier: 1.0, killScore: 10, undead: false },
-    { name: "Goblin", icon: "👺", health: 7, damage: 3, lootMultiplier: 1.2, killScore: 18, undead: false },
-    { name: "Bandit", icon: "🥷", health: 10, damage: 4, lootMultiplier: 1.5, killScore: 28, undead: false },
-    { name: "Skeleton", icon: "💀", health: 12, damage: 4, lootMultiplier: 1.6, killScore: 34, undead: true },
-    { name: "Ogre", icon: "👹", health: 18, damage: 6, lootMultiplier: 2.2, killScore: 55, undead: false }
+    { name: "Spider", icon: "🕷️", health: 5, damage: 2, lootMultiplier: 1.0, killScore: 10, undead: false, weakness: "nature" },
+    { name: "Goblin", icon: "👺", health: 7, damage: 3, lootMultiplier: 1.2, killScore: 18, undead: false, weakness: "lightning" },
+    { name: "Bandit", icon: "🥷", health: 10, damage: 4, lootMultiplier: 1.5, killScore: 28, undead: false, weakness: null },
+    { name: "Skeleton", icon: "💀", health: 12, damage: 4, lootMultiplier: 1.6, killScore: 34, undead: true, weakness: "nature" },
+    { name: "Ogre", icon: "👹", health: 18, damage: 6, lootMultiplier: 2.2, killScore: 55, undead: false, weakness: "lightning" }
 ];
 
 const state = {
@@ -116,6 +117,8 @@ const state = {
     completed: 0,
     survived: false,
     embraceUsed: false,
+    attuned: false,
+    encountered: [],
     seed: "-",
     weapon: null,
     weaponDamage: 0,
@@ -344,24 +347,42 @@ async function rollFate() {
     const hone = state.playerClass.perk === "hone" ? CONFIG.classBonuses.mageWeaponHone : 0;
     state.weaponDamage = state.weapon.damage + hone;
     const suited = CLASS_WEAPON_AFFINITY[state.playerClass.name].includes(state.weapon.name);
+    state.attuned = suited;
     const attuneRange = state.playerClass.perk === "crit" ? CONFIG.attunementRangeStrong : CONFIG.attunementRange;
     const attunementBonus = suited ? rollBetween(attuneRange.min, attuneRange.max) : 0;
     setDamage(state.playerClass.baseDamage + state.weaponDamage + attunementBonus);
     setPanelWeapon();
-    setPanelAffinity(suited ? `Attuned 🔥 +${attunementBonus}` : "None");
+    const atIcon = state.playerClass.attunementIcon;
+    const atName = state.playerClass.attunement;
+    setPanelAffinity(suited ? `${atIcon} ${capitalize(atName)} +${attunementBonus}` : "None");
     setHero(state.weapon.icon, `You wield the ${state.weapon.name}`, `${state.damage} total damage to start`);
     logEntry(state.weapon.icon, `You draw the <b>${state.weapon.name}</b> (+${state.weapon.damage} damage).`, "fate");
     if (hone) {
         logEntry("🔮", `Your arcane focus hones the blade: <b>+${hone}</b> damage.`, "fate");
     }
     if (suited) {
-        logEntry("🔥", `It resonates with your ${state.playerClass.name} soul: <b>+${attunementBonus}</b> attunement damage.`, "fate");
+        logEntry(atIcon, `Your weapon blazes with <b>${capitalize(atName)}</b> attunement: <b>+${attunementBonus}</b> damage, and bonus damage to the weak.`, "fate");
     }
     await wait(CONFIG.rollDelay);
 }
 
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 function playPlayerAttack() {
     playSound(state.weapon && state.weapon.ranged ? "attackBow" : "attackMelee");
+}
+
+function isWeakToAttunement(enemy) {
+    return state.attuned && enemy.weakness && enemy.weakness === state.playerClass.attunement;
+}
+
+function applyWeakness(enemy, baseDamage) {
+    if (isWeakToAttunement(enemy)) {
+        return Math.round(baseDamage * CONFIG.weaknessMultiplier);
+    }
+    return baseDamage;
 }
 
 function evadeChanceFor(playerClass) {
@@ -426,6 +447,7 @@ async function defeatEnemy(enemy, icon, message) {
 }
 
 async function fightEnemy(enemy) {
+    state.encountered.push(enemy.icon);
     let enemyHealth = enemy.health;
     setHero(enemy.icon, `A ${enemy.name} appears`, `${enemyHealth} health · ${enemy.damage}-${enemy.damage + CONFIG.enemyDamageVariance} damage`);
     logEntry(enemy.icon, `A <b>${enemy.name}</b> blocks your path.`);
@@ -457,14 +479,20 @@ async function fightEnemy(enemy) {
         const critRoll = rng();
         const crit = state.playerClass.perk === "crit" && critRoll < CONFIG.classBonuses.rogueCritChance;
         const smite = state.playerClass.perk === "healing" && enemy.undead;
+        const weak = isWeakToAttunement(enemy);
         let strike = crit ? state.damage * 2 : state.damage;
         if (smite) strike = Math.round(strike * CONFIG.classBonuses.paladinSmiteMultiplier);
+        strike = applyWeakness(enemy, strike);
         enemyHealth -= strike;
+        const atIcon = state.playerClass.attunementIcon;
+        const weakNote = weak ? ` - <b>${capitalize(state.playerClass.attunement)}</b> exploits its weakness!` : "";
         if (enemyHealth > 0) {
             if (crit) {
-                logEntry("🗡️", `<b>Critical strike!</b> You hit for <b>${strike}</b>. The ${enemy.name} has ${enemyHealth} left.`);
+                logEntry(weak ? atIcon : "🗡️", `<b>Critical strike!</b> You hit for <b>${strike}</b>${weakNote} The ${enemy.name} has ${enemyHealth} left.`);
             } else if (smite) {
                 logEntry("✨", `<b>Smite!</b> Holy fire sears the undead for <b>${strike}</b>. The ${enemy.name} has ${enemyHealth} left.`);
+            } else if (weak) {
+                logEntry(atIcon, `You hit for <b>${strike}</b>${weakNote} The ${enemy.name} has ${enemyHealth} left.`);
             } else {
                 logEntry("⚔️", `You strike for <b>${strike}</b>. The ${enemy.name} has ${enemyHealth} left.`);
             }
@@ -486,13 +514,14 @@ async function fightEnemy(enemy) {
                 for (let shot = 0; shot < CONFIG.classBonuses.hunterRapidFireShots; shot++) {
                     if (enemyHealth <= 0) break;
                     await wait(CONFIG.attackDelay);
-                    enemyHealth -= state.damage;
+                    const shotDmg = applyWeakness(enemy, state.damage);
+                    enemyHealth -= shotDmg;
                     if (enemyHealth > 0) {
-                        logEntry("🏹", `Shot ${shot + 1} hits for <b>${state.damage}</b>. The ${enemy.name} has ${enemyHealth} left.`);
+                        logEntry(weak ? atIcon : "🏹", `Shot ${shot + 1} hits for <b>${shotDmg}</b>. The ${enemy.name} has ${enemyHealth} left.`);
                         playPlayerAttack();
                     } else {
                         playPlayerAttack();
-                        await defeatEnemy(enemy, "🏹", `Shot ${shot + 1} fells the ${enemy.name}! <b>+${enemy.killScore}</b> score.`);
+                        await defeatEnemy(enemy, weak ? atIcon : "🏹", `Shot ${shot + 1} fells the ${enemy.name}! <b>+${enemy.killScore}</b> score.`);
                         await wait(CONFIG.stepDelay);
                         slain = true;
                     }
@@ -503,9 +532,11 @@ async function fightEnemy(enemy) {
         } else {
             playPlayerAttack();
             if (crit) {
-                await defeatEnemy(enemy, "🗡️", `<b>Critical strike!</b> You hit for <b>${strike}</b>. The ${enemy.name} falls! <b>+${enemy.killScore}</b> score.`);
+                await defeatEnemy(enemy, weak ? atIcon : "🗡️", `<b>Critical strike!</b> You hit for <b>${strike}</b>${weakNote} The ${enemy.name} falls! <b>+${enemy.killScore}</b> score.`);
             } else if (smite) {
                 await defeatEnemy(enemy, "✨", `<b>Smite!</b> Holy fire destroys the ${enemy.name}! <b>+${enemy.killScore}</b> score.`);
+            } else if (weak) {
+                await defeatEnemy(enemy, atIcon, `You hit for <b>${strike}</b>${weakNote} The ${enemy.name} falls! <b>+${enemy.killScore}</b> score.`);
             } else {
                 await defeatEnemy(enemy, "💥", `You strike for <b>${strike}</b>. The ${enemy.name} falls! <b>+${enemy.killScore}</b> score.`);
             }
@@ -556,6 +587,8 @@ async function runGame() {
     state.running = true;
     state.completed = 0;
     state.embraceUsed = false;
+    state.attuned = false;
+    state.encountered = [];
     playSound("click");
     playSound("begin");
     el.beginBtn.disabled = true;
@@ -623,6 +656,7 @@ function buildShareText() {
         `${state.weapon.icon} Weapon: ${state.weapon.name}`,
         `❤️ Health: ${state.health}/${state.maxHealth}`,
         `🗺️ Encounters: ${state.completed}/${CONFIG.totalEncounters}`,
+        `⚔️ Foes: ${state.encountered.join("")}`,
         `💰 Gold: ${state.gold}`,
         `🏅 Final score: ${state.score}`
     ].join("\n");
