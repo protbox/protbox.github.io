@@ -39931,6 +39931,7 @@ li.select2-results__option[role=group] > strong:hover {
     class ExportPrompt {
         constructor(_doc) {
             this._doc = _doc;
+            this._exportEngine = null;
             this.outputStarted = false;
             this._fileName = input$7({ type: "text", style: "width: 10em;", value: "BeepBox-Song", maxlength: 250, "autofocus": "autofocus" });
             this._computedSamplesLabel = div$b({ style: "width: 10em;" }, new Text("0:00"));
@@ -39951,6 +39952,7 @@ li.select2-results__option[role=group] > strong:hover {
                 this._doc.undo();
             };
             this.cleanUp = () => {
+                this._releaseExportEngine();
                 this._fileName.removeEventListener("input", ExportPrompt._validateFileName);
                 this._loopDropDown.removeEventListener("blur", ExportPrompt._validateNumber);
                 this._exportButton.removeEventListener("click", this._export);
@@ -40122,7 +40124,36 @@ li.select2-results__option[role=group] > strong:hover {
             this.totalChunks = Math.ceil(this.sampleFrames / (this.synth.samplesPerSecond * 5));
             this.recordedSamplesL = new Float32Array(this.sampleFrames);
             this.recordedSamplesR = new Float32Array(this.sampleFrames);
-            setTimeout(() => { this._synthesize(); });
+            this._prepareSoundFontEngineForExport().then(() => {
+                if (!this.outputStarted)
+                    return;
+                setTimeout(() => { this._synthesize(); });
+            }, (error) => {
+                this.outputStarted = false;
+                window.alert("Could not prepare the soundfonts for export: "
+                    + (error instanceof Error ? error.message : String(error)));
+            });
+        }
+        _prepareSoundFontEngineForExport() {
+            const source = this._doc.synth.soundFontEngine;
+            if (source == null)
+                return Promise.resolve();
+            const fonts = source.listFonts();
+            if (fonts.length == 0)
+                return Promise.resolve();
+            const engine = new SoundFontEngine(this.synth.samplesPerSecond, 2048);
+            this.synth.soundFontEngine = engine;
+            this._exportEngine = engine;
+            return engine.whenReady().then(() => {
+                return Promise.all(fonts.map((font) => engine.loadFont(font.data, font.fileName)));
+            }).then(() => undefined);
+        }
+        _releaseExportEngine() {
+            if (this._exportEngine == null)
+                return;
+            this._exportEngine.destroy();
+            this._exportEngine = null;
+            this.synth.soundFontEngine = null;
         }
         _exportToWavFinish() {
             const sampleFrames = this.recordedSamplesL.length;
@@ -40635,6 +40666,19 @@ li.select2-results__option[role=group] > strong:hover {
             this._close();
         }
         _exportToHtml() {
+            let usesSoundFonts = false;
+            for (const channel of this._doc.song.channels) {
+                for (const instrument of channel.instruments) {
+                    if (instrument.soundFontId != null)
+                        usesSoundFonts = true;
+                }
+            }
+            if (usesSoundFonts && !window.confirm("This song uses soundfonts, and the .html export stores the song in a URL,"
+                + " which cannot carry them. The exported link will open with silent channels."
+                + "\n\nUse the .jbsf export to share a song with its soundfonts."
+                + "\n\nExport the .html anyway?")) {
+                return;
+            }
             const fileContents = `\
 <!DOCTYPE html><meta charset="utf-8">
 
