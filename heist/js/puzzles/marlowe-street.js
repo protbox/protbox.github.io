@@ -3,7 +3,7 @@ CaseFiles.register({
     number: "07",
     title: "The Marlowe Street Job",
     subtitle: "Four categories · the long version",
-    brief: "Marlowe Street, half past two, and the Continental Trust is four floors of open doors. Everyone got in a different way, everyone had a different job, and everyone left with something — except the one who never got out of the car. Four grids won't be enough for this one.",
+    brief: "Marlowe Street, half past two, and the Continental Trust is four floors of open doors. Everyone got in a different way, everyone had a different job, and everyone left with something - except the one who never got out of the car. Four grids won't be enough for this one.",
     categories: [
         { id: "crew", label: "Crew", items: ["Aurelio", "Franny", "Dutch", "Mira"] },
         { id: "job", label: "Job", items: ["Wheel", "Lookout", "Cracksman", "Forger"] },
@@ -11,7 +11,7 @@ CaseFiles.register({
         { id: "take", label: "Take", items: ["Bearer Bonds", "Cash Drawer", "Vault Ledger", "Nothing At All"] }
     ],
     clues: [
-        "Whoever took the wheel never got out of the car — the loading dock was as close as they came.",
+        "Whoever took the wheel never got out of the car - the loading dock was as close as they came.",
         "The driver came away empty-handed. That was the arrangement.",
         "Aurelio hasn't driven a getaway since forty-eight.",
         "Mira spent the whole night up on the roof.",
@@ -27,7 +27,7 @@ CaseFiles.register({
         "Dutch": { job: "Wheel", entry: "Loading Dock", take: "Nothing At All" },
         "Mira": { job: "Lookout", entry: "Skylight", take: "Cash Drawer" }
     },
-    lockedHint: "Pin down every Crew grid above — the rest of the board fills itself in as you go.",
+    lockedHint: "Pin down every Crew grid above - the rest of the board fills itself in as you go.",
     verdict: {
         win: {
             tag: "Case Closed",

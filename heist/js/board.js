@@ -6,6 +6,7 @@ const Board = (function(){
     let model = null;
     let hold = null;
     let frame = 0;
+    let hovered = null;
 
     function pairKey(a, b){
         return a + ":" + b;
@@ -108,15 +109,16 @@ const Board = (function(){
     function paint(){
         Object.keys(model.cells).forEach(key => {
             const view = model.view[key];
+            const derived = Boolean(model.derived[key]);
             model.cells[key].forEach((row, r) => {
                 row.forEach((td, c) => {
                     const spot = view[r][c];
                     const mark = td.firstChild;
+                    td.classList.toggle("derived", derived);
                     mark.className = spot.auto ? "mark auto" : "mark";
                     mark.textContent = spot.value === 1 ? "❌" : spot.value === 2 ? "✅" : "";
                 });
             });
-            model.blocks[key].classList.toggle("locked", Boolean(model.derived[key]));
         });
     }
 
@@ -126,92 +128,114 @@ const Board = (function(){
         if(model.onChange) model.onChange();
     }
 
-    function buildBlock(i, j){
-        const rows = model.puzzle.categories[i];
-        const cols = model.puzzle.categories[j];
-        const key = pairKey(i, j);
+    function makeCell(key, r, c, bandStart, tr, tc){
+        const td = document.createElement("td");
+        td.className = bandStart ? "cell band-start" : "cell";
+        td.dataset.key = key;
+        td.dataset.r = r;
+        td.dataset.c = c;
+        td.dataset.tr = tr;
+        td.dataset.tc = tc;
+        (model.byRow[tr] = model.byRow[tr] || []).push(td);
+        (model.byCol[tc] = model.byCol[tc] || []).push(td);
 
-        const block = document.createElement("div");
-        block.className = "grid-block";
+        const mark = document.createElement("span");
+        mark.className = "mark";
+        const charge = document.createElement("span");
+        charge.className = "charge";
+        td.appendChild(mark);
+        td.appendChild(charge);
+        return td;
+    }
 
-        const title = document.createElement("div");
-        title.className = "grid-title";
-
-        const label = document.createElement("span");
-        label.innerHTML = `${rows.label} <b>×</b> ${cols.label}`;
-        title.appendChild(label);
-
-        const badge = document.createElement("span");
-        badge.className = "auto-badge";
-        badge.textContent = "✓ Deduced";
-        title.appendChild(badge);
-
-        const reset = document.createElement("button");
-        reset.type = "button";
-        reset.className = "reset-link";
-        reset.textContent = "Reset";
-        reset.addEventListener("click", () => {
-            model.marks[key] = emptyGrid(rows.items.length);
-            update();
-        });
-        title.appendChild(reset);
+    function buildBoard(){
+        const cats = model.puzzle.categories;
+        const count = cats.length;
+        const size = cats[0].items.length;
 
         const table = document.createElement("table");
-        table.className = "logic-grid";
+        table.className = "staircase";
 
         const head = document.createElement("thead");
-        const headRow = document.createElement("tr");
+        const bandRow = document.createElement("tr");
         const corner = document.createElement("th");
         corner.className = "corner";
-        headRow.appendChild(corner);
-        cols.items.forEach(name => {
+        corner.colSpan = 2;
+        corner.rowSpan = 2;
+        bandRow.appendChild(corner);
+
+        for(let j = 1; j < count; j++){
             const th = document.createElement("th");
-            th.scope = "col";
-            th.textContent = name;
-            headRow.appendChild(th);
-        });
-        head.appendChild(headRow);
+            th.className = "band band-start";
+            th.colSpan = size;
+            th.textContent = cats[j].label;
+            bandRow.appendChild(th);
+        }
+        head.appendChild(bandRow);
+
+        const itemRow = document.createElement("tr");
+        for(let j = 1; j < count; j++){
+            cats[j].items.forEach((name, index) => {
+                const th = document.createElement("th");
+                th.className = index === 0 ? "colhead band-start" : "colhead";
+                th.scope = "col";
+                th.textContent = name;
+                model.colHeads[(j - 1) * size + index] = th;
+                itemRow.appendChild(th);
+            });
+        }
+        head.appendChild(itemRow);
+        table.appendChild(head);
 
         const body = document.createElement("tbody");
+        for(let i = 0; i < count - 1; i++){
+            cats[i].items.forEach((rowName, r) => {
+                const tr = document.createElement("tr");
+                if(r === 0) tr.className = "band-start";
 
-        const cells = [];
-        rows.items.forEach((name, r) => {
-            const tr = document.createElement("tr");
-            const rowHead = document.createElement("td");
-            rowHead.className = "rowhead";
-            rowHead.textContent = name;
-            tr.appendChild(rowHead);
+                if(r === 0){
+                    const side = document.createElement("th");
+                    side.className = "band side";
+                    side.rowSpan = size;
+                    const label = document.createElement("span");
+                    label.textContent = cats[i].label;
+                    side.appendChild(label);
+                    tr.appendChild(side);
+                }
 
-            const line = [];
-            cols.items.forEach((_, c) => {
-                const td = document.createElement("td");
-                td.className = "cell";
-                td.dataset.key = key;
-                td.dataset.r = r;
-                td.dataset.c = c;
+                const rowHead = document.createElement("th");
+                rowHead.className = "rowhead";
+                rowHead.scope = "row";
+                rowHead.textContent = rowName;
+                model.rowHeads[i * size + r] = rowHead;
+                tr.appendChild(rowHead);
 
-                const mark = document.createElement("span");
-                mark.className = "mark";
-                const charge = document.createElement("span");
-                charge.className = "charge";
-                td.appendChild(mark);
-                td.appendChild(charge);
-
-                tr.appendChild(td);
-                line.push(td);
+                for(let j = 1; j < count; j++){
+                    if(j <= i){
+                        if(r !== 0) continue;
+                        const gap = document.createElement("td");
+                        gap.className = "void";
+                        gap.colSpan = size;
+                        gap.rowSpan = size;
+                        tr.appendChild(gap);
+                        continue;
+                    }
+                    const key = pairKey(i, j);
+                    if(!model.cells[key]) model.cells[key] = [];
+                    const line = [];
+                    for(let c = 0; c < size; c++){
+                        const td = makeCell(key, r, c, c === 0, i * size + r, (j - 1) * size + c);
+                        tr.appendChild(td);
+                        line.push(td);
+                    }
+                    model.cells[key][r] = line;
+                }
+                body.appendChild(tr);
             });
-            cells.push(line);
-            body.appendChild(tr);
-        });
+        }
 
-        table.appendChild(head);
         table.appendChild(body);
-        block.appendChild(title);
-        block.appendChild(table);
-
-        model.blocks[key] = block;
-        model.cells[key] = cells;
-        model.container.appendChild(block);
+        model.container.appendChild(table);
     }
 
     function locate(target){
@@ -220,6 +244,27 @@ const Board = (function(){
         const key = td.dataset.key;
         if(model.derived[key]) return null;
         return { td: td, key: key, r: Number(td.dataset.r), c: Number(td.dataset.c) };
+    }
+
+    function unlight(){
+        if(!model) return;
+        model.lit.forEach(node => node.classList.remove("lit"));
+        model.lit = [];
+        hovered = null;
+    }
+
+    function light(td){
+        if(td === hovered) return;
+        unlight();
+        if(!td || !model) return;
+        hovered = td;
+        const tr = Number(td.dataset.tr);
+        const tc = Number(td.dataset.tc);
+        model.lit = []
+            .concat(model.byRow[tr] || [], model.byCol[tc] || [])
+            .concat([model.rowHeads[tr], model.colHeads[tc]])
+            .filter(Boolean);
+        model.lit.forEach(node => node.classList.add("lit"));
     }
 
     function endHold(){
@@ -299,6 +344,10 @@ const Board = (function(){
         update();
     }
 
+    document.addEventListener("pointerover", event => {
+        if(!model) return;
+        light(event.target && event.target.closest ? event.target.closest(".cell") : null);
+    });
     document.addEventListener("pointerdown", onDown);
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
@@ -318,17 +367,28 @@ const Board = (function(){
                 view: {},
                 maps: {},
                 derived: {},
-                blocks: {},
-                cells: {}
+                cells: {},
+                byRow: {},
+                byCol: {},
+                rowHeads: {},
+                colHeads: {},
+                lit: []
             };
+            hovered = null;
             const count = puzzle.categories.length;
             const size = puzzle.categories[0].items.length;
             for(let i = 0; i < count; i++){
                 for(let j = i + 1; j < count; j++){
                     model.marks[pairKey(i, j)] = emptyGrid(size);
-                    buildBlock(i, j);
                 }
             }
+            buildBoard();
+            update();
+        },
+        clear(){
+            if(!model) return;
+            const size = model.puzzle.categories[0].items.length;
+            Object.keys(model.marks).forEach(key => { model.marks[key] = emptyGrid(size); });
             update();
         },
         link(a, b){

@@ -6,7 +6,7 @@
 <title>Case Files</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Libre+Baskerville:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Libre+Baskerville:ital@0;1&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -34,23 +34,30 @@
                 <span><b>Click</b> ❌ rule out</span>
                 <span><b>Hold</b> ✅ confirm</span>
                 <span><b>Right-click</b> clear the cell</span>
+                <span><b>Shaded</b> worked out for you</span>
             </div>
-            <div class="grids" id="grids"></div>
+            <div class="board-panel">
+                <div class="grids" id="grids"></div>
+            </div>
+            <div class="board-tools">
+                <button class="reset-link" type="button" id="clearBtn">Clear the board</button>
+            </div>
+
+            <div class="accusation">
+                <h2>Close the Case</h2>
+
+                <div class="accusation-locked" id="accusationLocked"></div>
+
+                <div class="accusation-panel" id="accusationPanel">
+                    <p class="help">Every name gets checked against the clues</p>
+                    <div class="results-list" id="resultsList"></div>
+                    <button class="close-case" id="closeBtn">Make the Call</button>
+                    <div class="verdict" id="verdict"></div>
+                </div>
+            </div>
+
         </div>
 
-    </div>
-
-    <div class="accusation">
-        <h2>Close the Case</h2>
-
-        <div class="accusation-locked" id="accusationLocked"></div>
-
-        <div class="accusation-panel" id="accusationPanel">
-            <p class="help">Every name gets checked against the clues</p>
-            <div class="results-list" id="resultsList"></div>
-            <button class="close-case" id="closeBtn">Make the Call</button>
-            <div class="verdict" id="verdict"></div>
-        </div>
     </div>
 
     <footer>Case files · four names, one story that holds up</footer>

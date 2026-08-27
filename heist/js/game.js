@@ -15,7 +15,8 @@
         panel: document.getElementById("accusationPanel"),
         results: document.getElementById("resultsList"),
         close: document.getElementById("closeBtn"),
-        verdict: document.getElementById("verdict")
+        verdict: document.getElementById("verdict"),
+        clear: document.getElementById("clearBtn")
     };
 
     let puzzle = null;
@@ -78,7 +79,7 @@
             row.className = "result-row";
             row.dataset.correct = String(correct);
             row.innerHTML = `<span><span class="who">${escape(name)}</span>` +
-                `<span class="what">— ${escape(picks.join(", "))}</span></span>` +
+                `<span class="what">- ${escape(picks.join(", "))}</span></span>` +
                 `<span class="result-icon"></span>`;
             el.results.appendChild(row);
         });
@@ -158,12 +159,12 @@
         puzzle = next;
         signature = "";
 
-        document.title = `Case File No. ${puzzle.number} — ${puzzle.title}`;
+        document.title = `Case File No. ${puzzle.number} - ${puzzle.title}`;
         el.stamp.textContent = `CONFIDENTIAL · CASE ${puzzle.number}`;
         el.title.textContent = puzzle.title;
         el.subhead.textContent = puzzle.subtitle || "";
         el.brief.textContent = puzzle.brief;
-        el.locked.textContent = puzzle.lockedHint || "Fill in the grids above — this panel writes itself once they hold together.";
+        el.locked.textContent = puzzle.lockedHint || "Fill in the grids above - this panel writes itself once they hold together.";
 
         el.head.classList.remove("swap");
         void el.head.offsetWidth;
@@ -176,6 +177,7 @@
     }
 
     el.close.addEventListener("click", makeCall);
+    el.clear.addEventListener("click", () => Board.clear());
     window.addEventListener("hashchange", () => openCase(location.hash.slice(1)));
 
     if(!CaseFiles.all().length){
