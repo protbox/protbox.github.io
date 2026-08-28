@@ -12,7 +12,18 @@
 <body>
 <div class="wrap">
 
-    <nav class="case-picker" id="casePicker" aria-label="Case files"></nav>
+    <div class="view" id="caseBoard">
+        <header class="board-head">
+            <span class="case-stamp">Confidential</span>
+            <h1>Case Files</h1>
+            <div class="subhead">Six open cases. Take your pick.</div>
+        </header>
+        <div class="corkboard" id="caseCards"></div>
+    </div>
+
+    <div class="view" id="caseView" hidden>
+
+    <a class="back-link" href="#board" id="backLink">Back to the board</a>
 
     <header class="case-head">
         <span class="case-stamp" id="caseStamp">CONFIDENTIAL</span>
@@ -60,6 +71,8 @@
 
     </div>
 
+    </div>
+
     <footer>Case files · four names, one story that holds up</footer>
 </div>
 
@@ -68,6 +81,8 @@
 <script src="js/puzzles/kessler-job.js"></script>
 <script src="js/puzzles/marlowe-street.js"></script>
 <script src="js/puzzles/meridian-count.js"></script>
+<script src="js/puzzles/nightjar-express.js"></script>
+<script src="js/puzzles/blue-coronet.js"></script>
 <script src="js/board.js"></script>
 <script src="js/game.js"></script>
 </body>
