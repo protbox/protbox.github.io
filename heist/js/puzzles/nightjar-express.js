@@ -27,7 +27,7 @@ CaseFiles.register({
         "Silas": { carriage: "Guard", boarded: "Calder" },
         "Rook": { carriage: "Diner", boarded: "Vane" }
     },
-    lockedHint: "Fill in the Crew grids above — this panel writes itself once they hold together.",
+    lockedHint: "Fill in the Crew grids above - this panel writes itself once they hold together.",
     verdict: {
         win: {
             tag: "Case Closed",
@@ -35,7 +35,7 @@ CaseFiles.register({
         },
         lose: {
             tag: "Doesn't Hold Up",
-            text: "Somebody's in the wrong carriage. The line runs Ashby, Ridge, Calder, Vane, Kell — walk the boarding order again and see who can't have been where you put them."
+            text: "Somebody's in the wrong carriage. The line runs Ashby, Ridge, Calder, Vane, Kell - walk the boarding order again and see who can't have been where you put them."
         }
     }
 });

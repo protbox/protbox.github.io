@@ -23,7 +23,7 @@ CaseFiles.register({
         "Renz": { table: "Wheel", exit: "Kitchen" },
         "Ivy": { table: "Slots", exit: "Lobby" }
     },
-    lockedHint: "Fill in the Crew grids above — this panel writes itself once they hold together.",
+    lockedHint: "Fill in the Crew grids above - this panel writes itself once they hold together.",
     verdict: {
         win: {
             tag: "Case Closed",

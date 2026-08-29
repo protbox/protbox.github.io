@@ -3,7 +3,7 @@ CaseFiles.register({
     number: "15",
     title: "The Blue Coronet",
     subtitle: "Four thieves · four covers · four cabins · one very long corridor",
-    brief: "The Blue Coronet runs Paris to Istanbul with eleven paying passengers and rather more staff than it needs. Four of ours were aboard under four different covers, in four different cabins — three, five, seven and nine, in that order down the corridor from the dining car. By Trieste, four things were missing. Nobody was searched, nobody was charged, and everybody got off smiling. Work out who was travelling as what, where they slept, and what they walked off with.",
+    brief: "The Blue Coronet runs Paris to Istanbul with eleven paying passengers and rather more staff than it needs. Four of ours were aboard under four different covers, in four different cabins - three, five, seven and nine, in that order down the corridor from the dining car. By Trieste, four things were missing. Nobody was searched, nobody was charged, and everybody got off smiling. Work out who was travelling as what, where they slept, and what they walked off with.",
     categories: [
         { id: "thief", label: "Thief", items: ["Vesna", "Bram", "Lucia", "Odile"] },
         { id: "cover", label: "Cover", items: ["Steward", "Doctor", "Widow", "Priest"] },
@@ -28,7 +28,7 @@ CaseFiles.register({
         "Lucia": { cover: "Doctor", cabin: "9", took: "Tiara" },
         "Odile": { cover: "Priest", cabin: "5", took: "Sable" }
     },
-    lockedHint: "Fill in the Thief grids above — this panel writes itself once they hold together.",
+    lockedHint: "Fill in the Thief grids above - this panel writes itself once they hold together.",
     verdict: {
         win: {
             tag: "Case Closed",
@@ -36,7 +36,7 @@ CaseFiles.register({
         },
         lose: {
             tag: "Doesn't Hold Up",
-            text: "One of those four is in the wrong cabin. Start at cabin three — two separate clues point straight at it — and work down the corridor from there."
+            text: "One of those four is in the wrong cabin. Start at cabin three - two separate clues point straight at it - and work down the corridor from there."
         }
     }
 });
