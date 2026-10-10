@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>fUGE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app">
+        <header class="topbar">
+            <div class="brand" title="subterfUGE: a Game Boy music maker"><span>f</span>UGE</div>
+            <div class="group">
+                <button class="btn" id="btnNew" type="button">New</button>
+                <button class="btn" id="btnOpen" type="button">Open</button>
+                <button class="btn" id="btnSave" type="button" title="Save project (Ctrl+S)">Save</button>
+                <button class="btn accent" id="btnExport" type="button" title="Export hUGETracker file (Ctrl+E)">Export .uge</button>
+                <input type="file" id="fileInput" accept=".json,application/json" hidden>
+            </div>
+            <div class="group">
+                <button class="btn icon" id="btnUndo" type="button" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
+                <button class="btn icon" id="btnRedo" type="button" title="Redo (Ctrl+Shift+Z)" aria-label="Redo">↷</button>
+            </div>
+            <div class="group">
+                <button class="btn icon" id="btnStop" type="button" title="Stop" aria-label="Stop">■</button>
+                <button class="btn icon" id="btnPlay" type="button" title="Play (Space)" aria-label="Play">▶</button>
+                <button class="btn small" id="btnLoop" type="button" aria-pressed="false" title="Loop the selected order">Loop order</button>
+                <div class="lcd" id="lcd">ORD 00 ROW 00</div>
+                <label class="vol" title="Output volume"><span aria-hidden="true">VOL</span><input type="range" id="volume" min="0" max="100" value="70" aria-label="Output volume"></label>
+            </div>
+            <div class="group tempo">
+                <label>Speed <select id="speed" title="Ticks per row. Lower is faster."></select></label>
+                <label>Rows/beat <select id="rpb"></select></label>
+                <span class="bpm" id="bpm"></span>
+            </div>
+            <div class="spacer"></div>
+            <div class="group">
+                <button class="btn icon" id="btnTheme" type="button" title="Switch light/dark" aria-label="Switch light or dark theme"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg></button>
+            </div>
+        </header>
+
+        <aside class="sidebar" aria-label="Instruments">
+            <div class="side-head">
+                <p class="label">Instruments</p>
+                <button class="btn small" id="btnPresets" type="button">Presets…</button>
+            </div>
+            <div class="inst-list" id="instList"></div>
+            <div class="editor" id="instEditor"></div>
+        </aside>
+
+        <main class="main" id="main">
+            <section class="arrange" aria-label="Arrangement">
+                <div class="bar">
+                    <p class="label">Arrangement</p>
+                    <button class="btn small" id="ordAdd" type="button" title="Insert an empty order after the selected one">+ Order</button>
+                    <button class="btn small" id="ordDup" type="button" title="Repeat the selected order">Repeat</button>
+                    <button class="btn small icon" id="ordLeft" type="button" title="Move order left" aria-label="Move order left">◀</button>
+                    <button class="btn small icon" id="ordRight" type="button" title="Move order right" aria-label="Move order right">▶</button>
+                    <button class="btn small" id="ordDel" type="button" title="Delete the selected order">Delete</button>
+                    <span class="hint" id="arrInfo"></span>
+                    <div class="spacer"></div>
+                    <div class="group meta">
+                        <input type="text" id="songName" maxlength="60" placeholder="Song name" aria-label="Song name">
+                        <input type="text" id="songArtist" maxlength="60" placeholder="Artist" aria-label="Artist">
+                    </div>
+                </div>
+                <div class="arr-body">
+                    <div class="track-heads" id="trackHeads"></div>
+                    <div class="lanes-scroll" id="lanesScroll">
+                        <div class="lanes" id="lanes"></div>
+                    </div>
+                </div>
+            </section>
+            <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize arrangement"></div>
+            <section class="pattern" aria-label="Pattern editor">
+                <div class="bar">
+                    <div class="pat-title" id="patTitle"></div>
+                    <select id="patSelect" aria-label="Pattern in this slot"></select>
+                    <button class="btn small" id="patUnique" type="button" title="Copy this pattern so edits only affect this slot">Make unique</button>
+                    <button class="btn small" id="patClear" type="button">Clear</button>
+                    <div class="spacer"></div>
+                    <div class="seg" role="group" aria-label="Tool">
+                        <button type="button" id="toolDraw" aria-pressed="true" title="Draw (D)">✎ Draw</button>
+                        <button type="button" id="toolSelect" aria-pressed="false" title="Select (S). Drag a box around notes.">⬚ Select</button>
+                        <button type="button" id="toolErase" aria-pressed="false" title="Erase (E)">⌫ Erase</button>
+                    </div>
+                    <button class="btn small" id="btnGhost" type="button" aria-pressed="true" title="Show the other channels faintly">Ghosts</button>
+                </div>
+                <div class="roll-wrap">
+                    <div class="roll-area">
+                        <div class="roll-scroll" id="rollScroll">
+                            <div class="roll-inner" id="rollInner">
+                                <div class="corner"></div>
+                                <canvas class="ruler" id="ruler" title="Click to set where playback starts"></canvas>
+                                <canvas class="keys" id="keys"></canvas>
+                                <canvas id="roll"></canvas>
+                            </div>
+                        </div>
+                        <div class="roll-empty" id="rollEmpty" hidden></div>
+                    </div>
+                    <aside class="inspector" id="inspector" aria-label="Note inspector"></aside>
+                </div>
+            </section>
+        </main>
+
+        <footer class="statusbar">
+            <span id="status" role="status"></span>
+            <span id="drawHint"></span>
+        </footer>
+    </div>
+
+    <div class="modal" id="presetModal" role="dialog" aria-modal="true" aria-labelledby="presetTitle">
+        <div class="dialog">
+            <div class="dialog-head">
+                <h2 id="presetTitle">Instrument presets</h2>
+                <button class="btn small" id="presetClose" type="button">Close</button>
+            </div>
+            <div class="dialog-tabs" id="presetTabs"></div>
+            <div class="preset-grid" id="presetGrid"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="alert"></div>
+
+    <script src="js/presets.js"></script>
+    <script src="js/uge.js"></script>
+    <script src="js/gbaudio.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
