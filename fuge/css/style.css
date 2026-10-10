@@ -263,6 +263,41 @@ input[type="range"] {
     color: var(--accent);
 }
 
+.mode-chip {
+    font-family: var(--f-display);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    margin-left: -6px;
+}
+
+.mode-chip[hidden],
+.sfx-ctl[hidden] {
+    display: none;
+}
+
+.sfx-ctl {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sfx-ctl input {
+    width: 140px;
+    font-weight: 700;
+}
+
+.ord-num.sfx {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--f-body);
+    font-size: 11.5px;
+}
+
 .group {
     display: flex;
     align-items: center;

@@ -12,14 +12,17 @@
         return cells;
     }
 
-    function buildCells(pattern, kind, instIndex) {
+    function buildCells(pattern, kind, instIndex, rows, sfx) {
+        const len = rows || ROWS;
         const cells = emptyCells();
         if (!pattern) {
-            cells[0].fx = 0xE;
-            cells[0].fp = 0;
+            if (!sfx) {
+                cells[0].fx = 0xE;
+                cells[0].fp = 0;
+            }
             return cells;
         }
-        const notes = pattern.notes.slice().sort((a, b) => a.row - b.row);
+        const notes = pattern.notes.filter(n => n.row < len).sort((a, b) => a.row - b.row);
         const starts = new Set(notes.map(n => n.row));
         for (const n of notes) {
             if (n.row < 0 || n.row >= ROWS) continue;
@@ -34,7 +37,7 @@
         if (kind !== "noise") {
             for (const n of notes) {
                 if (!n.fx || !SUSTAIN.has(n.fx.code)) continue;
-                for (let r = n.row + 1; r < Math.min(ROWS, n.row + n.len); r++) {
+                for (let r = n.row + 1; r < Math.min(len, n.row + n.len); r++) {
                     if (starts.has(r)) break;
                     if (cells[r].fx === 0 && cells[r].fp === 0) {
                         cells[r].fx = n.fx.code;
@@ -44,7 +47,7 @@
             }
             for (const n of notes) {
                 const end = n.row + n.len;
-                if (end >= ROWS || starts.has(end)) continue;
+                if (end >= len || starts.has(end)) continue;
                 const c = cells[end];
                 if (c.fx === 0 && c.fp === 0 && c.note === NO_NOTE) {
                     c.fx = 0xE;
@@ -175,8 +178,12 @@
         return new Uint8Array(buf.slice(0, i));
     }
 
-    function compile(doc) {
+    function compile(doc, opts) {
         const warnings = [];
+        const sfxIndex = opts && opts.sfx !== undefined && doc.mode === "sfx" && doc.sfx ? opts.sfx : -1;
+        const sfx = sfxIndex >= 0 ? doc.sfx[sfxIndex] : null;
+        const rows = sfx ? sfx.rows : ROWS;
+        const orderRows = sfx ? [doc.order[sfxIndex]] : doc.order;
         const byType = { pulse: [], wave: [], noise: [] };
         for (const inst of doc.instruments) byType[inst.type].push(inst);
         for (const t of Object.keys(byType)) {
@@ -203,13 +210,13 @@
         const orders = [[], [], [], []];
         const cache = new Map();
         for (let c = 0; c < 4; c++) {
-            for (const row of doc.order) {
+            for (const row of orderRows) {
                 const idx = row[c];
                 const key = c + ":" + idx;
                 if (!cache.has(key)) {
                     const pat = idx >= 0 ? doc.tracks[c].patterns[idx] : null;
                     cache.set(key, patterns.length);
-                    patterns.push({ id: patterns.length, cells: buildCells(pat, KINDS[c], instIndex) });
+                    patterns.push({ id: patterns.length, cells: buildCells(pat, KINDS[c], instIndex, rows, !!sfx) });
                 }
                 orders[c].push(cache.get(key));
             }
@@ -219,7 +226,9 @@
             name: (doc.name || "Untitled").slice(0, 255),
             artist: (doc.artist || "").slice(0, 255),
             comment: (doc.comment || "").slice(0, 255),
-            speed: doc.speed,
+            speed: sfx ? sfx.speed : doc.speed,
+            rows,
+            used: [0, 1, 2, 3].map(c => orderRows.some(r => r[c] >= 0 && doc.tracks[c].patterns[r[c]] && doc.tracks[c].patterns[r[c]].notes.some(n => n.row < rows))),
             duty: byType.pulse,
             wave: waveSpecs,
             noise: byType.noise,

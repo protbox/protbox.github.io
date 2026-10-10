@@ -33,6 +33,7 @@ function GBAudioCore() {
             this.cps = CPU_HZ / rate;
             this.charge = Math.pow(0.999958, this.cps);
             this.mask = [true, true, true, true];
+            this.log = null;
             this.reset();
         }
 
@@ -54,6 +55,7 @@ function GBAudioCore() {
         write(a, v) {
             v &= 0xff;
             this.regs[a] = v;
+            if (this.log) this.log.push(a, v);
             if (a >= 0x30) {
                 this.waveRam[(a - 0x30) * 2] = v >> 4;
                 this.waveRam[(a - 0x30) * 2 + 1] = v & 15;
@@ -348,8 +350,14 @@ function GBAudioCore() {
             this.powerOn();
             const count = this.song.orders[0].length;
             this.order = Math.max(0, Math.min(count - 1, order | 0));
-            this.row = Math.max(0, Math.min(ROWS - 1, row | 0));
+            this.row = Math.max(0, Math.min((this.song.rows || ROWS) - 1, row | 0));
             this.playing = true;
+        }
+
+        finish() {
+            this.playing = false;
+            if (!this.cutAtEnd) return;
+            for (let c = 0; c < 4; c++) if (!this.song.used || this.song.used[c]) this.cut(c);
         }
 
         stop() {
@@ -584,9 +592,10 @@ function GBAudioCore() {
             if (this.tick < this.speed) return;
             this.tick = 0;
             const count = this.song.orders[0].length;
+            const rows = this.song.rows || ROWS;
             let b = 0;
             if (this.rowBreak) {
-                b = Math.min(ROWS - 1, this.rowBreak - 1);
+                b = Math.min(rows - 1, this.rowBreak - 1);
                 this.rowBreak = 0;
                 if (this.nextOrder) {
                     this.order = Math.min(count - 1, this.nextOrder - 1);
@@ -596,10 +605,14 @@ function GBAudioCore() {
                 }
             } else {
                 this.row++;
-                if (this.row < ROWS) return;
+                if (this.row < rows) return;
             }
             if (this.loop) {
                 this.row = 0;
+                return;
+            }
+            if (this.once && this.order + 1 >= count) {
+                this.finish();
                 return;
             }
             this.order = (this.order + 1) % count;
@@ -639,6 +652,8 @@ function GBAudioCore() {
                 case "play":
                     if (!d.song) return;
                     this.previewLeft = 0;
+                    d.once = !!m.once;
+                    d.cutAtEnd = !!m.cutAtEnd;
                     d.start(m.order, m.row);
                     this.frameLeft = 0;
                     break;
@@ -648,6 +663,7 @@ function GBAudioCore() {
                     break;
                 case "loop":
                     d.loop = !!m.on;
+                    if (m.once !== undefined) d.once = !!m.once;
                     break;
                 case "mute":
                     this.apu.mask = m.mask.slice(0, 4).map(Boolean);
@@ -674,7 +690,8 @@ function GBAudioCore() {
                     if (this.frameLeft <= 0) {
                         this.frameLeft += FRAME_CYCLES;
                         d.tickOnce();
-                        this.post({ type: "pos", order: d.order, row: d.row, tick: d.tick, speed: d.speed });
+                        if (d.playing) this.post({ type: "pos", order: d.order, row: d.row, tick: d.tick, speed: d.speed });
+                        else this.post({ type: "ended" });
                     }
                 }
                 if (this.previewLeft > 0) {
@@ -686,7 +703,112 @@ function GBAudioCore() {
         }
     }
 
-    return { Engine, APU, Driver, notePoly, PERIODS };
+    const regChannel = a => a >= 0x30 ? 2 : a <= 0x14 ? 0 : a <= 0x19 ? 1 : a <= 0x1e ? 2 : a <= 0x23 ? 3 : -1;
+
+    function renderVgm(song, maxSeconds) {
+        const apu = new APU(44100);
+        const d = new Driver(apu);
+        d.setSong(song);
+        d.start(0, 0);
+        d.once = true;
+        d.cutAtEnd = true;
+        d.loop = false;
+        const used = song.used || [true, true, true, true];
+        const limit = Math.round((maxSeconds || 60) * 59.7275);
+        const data = [];
+        let frames = 0;
+        while (d.playing && frames < limit) {
+            apu.log = [];
+            d.tickOnce();
+            const log = apu.log;
+            for (let i = 0; i < log.length; i += 2) {
+                const c = regChannel(log[i]);
+                if (c >= 0 && !used[c]) continue;
+                data.push(0xb3, log[i] - 0x10, log[i + 1]);
+            }
+            data.push(0x62);
+            frames++;
+        }
+        data.push(0x66);
+        const out = new Uint8Array(0x100 + data.length);
+        const view = new DataView(out.buffer);
+        out.set([0x56, 0x67, 0x6d, 0x20], 0);
+        view.setUint32(0x04, out.length - 4, true);
+        view.setUint32(0x08, 0x172, true);
+        view.setUint32(0x18, frames * 735, true);
+        view.setUint32(0x24, 60, true);
+        view.setUint32(0x34, 0x100 - 0x34, true);
+        view.setUint32(0x80, CPU_HZ, true);
+        out.set(data, 0x100);
+        return { bytes: out, frames, seconds: frames / 59.7275 };
+    }
+
+    function wavFile(L, R, n, rate) {
+        let peak = 0;
+        for (let i = 0; i < n; i++) peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i]));
+        const g = peak > 0.89 ? 0.89 / peak : 1;
+        const out = new Uint8Array(44 + n * 4);
+        const v = new DataView(out.buffer);
+        const str = (o, s) => {
+            for (let k = 0; k < s.length; k++) out[o + k] = s.charCodeAt(k);
+        };
+        str(0, "RIFF");
+        v.setUint32(4, 36 + n * 4, true);
+        str(8, "WAVE");
+        str(12, "fmt ");
+        v.setUint32(16, 16, true);
+        v.setUint16(20, 1, true);
+        v.setUint16(22, 2, true);
+        v.setUint32(24, rate, true);
+        v.setUint32(28, rate * 4, true);
+        v.setUint16(32, 4, true);
+        v.setUint16(34, 16, true);
+        str(36, "data");
+        v.setUint32(40, n * 4, true);
+        for (let i = 0; i < n; i++) {
+            v.setInt16(44 + i * 4, Math.round(Math.max(-1, Math.min(1, L[i] * g)) * 32767), true);
+            v.setInt16(46 + i * 4, Math.round(Math.max(-1, Math.min(1, R[i] * g)) * 32767), true);
+        }
+        return out;
+    }
+
+    function renderWav(song, opts) {
+        const o = opts || {};
+        const rate = 44100;
+        let done = false;
+        const e = new Engine(rate, m => {
+            if (m.type === "ended") done = true;
+        });
+        if (o.mask) e.handle({ type: "mute", mask: o.mask });
+        e.handle({ type: "song", song });
+        e.handle({ type: "play", order: 0, row: 0, once: true, cutAtEnd: !!o.cutAtEnd });
+        const max = rate * (o.maxSeconds || 600);
+        const block = 1024;
+        let L = new Float32Array(rate * 4);
+        let R = new Float32Array(rate * 4);
+        let n = 0;
+        let tail = -1;
+        while (n < max) {
+            if (n + block > L.length) {
+                const L2 = new Float32Array(L.length * 2);
+                const R2 = new Float32Array(R.length * 2);
+                L2.set(L);
+                R2.set(R);
+                L = L2;
+                R = R2;
+            }
+            e.render(L.subarray(n, n + block), R.subarray(n, n + block), block);
+            n += block;
+            if (done && tail < 0) tail = Math.round((o.tail || 0) * rate);
+            if (tail >= 0) {
+                tail -= block;
+                if (tail <= 0) break;
+            }
+        }
+        return { bytes: wavFile(L, R, n, rate), seconds: n / rate };
+    }
+
+    return { Engine, APU, Driver, notePoly, PERIODS, renderVgm, renderWav };
 }
 
 const GBAudio = (function () {

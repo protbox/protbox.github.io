@@ -10,7 +10,8 @@
     const KINDS = ["pulse", "wave", "noise"];
     const KIND_LABEL = { pulse: "Pulse", wave: "Wave", noise: "Noise" };
     const KIND_COLOR = { pulse: "--ch1", wave: "--ch3", noise: "--ch4" };
-    const ROWS = 64;
+    const MAX_ROWS = 64;
+    let ROWS = MAX_ROWS;
     const NOTE_MAX = 71;
     const NOISE_MAX = 63;
     const MAX_INST = 15;
@@ -88,6 +89,7 @@
             name: "Untitled",
             artist: "",
             comment: "",
+            mode: "song",
             speed: 7,
             rowsPerBeat: 4,
             beatsPerBar: 4,
@@ -204,9 +206,9 @@
             const rt = raw.tracks[k] || {};
             const pats = (Array.isArray(rt.patterns) ? rt.patterns : []).map(p => {
                 const notes = (p && Array.isArray(p.notes) ? p.notes : []).filter(n => n && kindOf.get(n.inst) === t.kind).map(n => {
-                    const row = num(n.row, 0, ROWS - 1, 0);
+                    const row = num(n.row, 0, MAX_ROWS - 1, 0);
                     const fx = n.fx && Number.isFinite(Number(n.fx.code)) ? { code: num(n.fx.code, 0, 15, 0), param: num(n.fx.param, 0, 255, 0) } : null;
-                    return { row, len: num(n.len, 1, ROWS - row, 1), note: num(n.note, 0, t.kind === "noise" ? NOISE_MAX : NOTE_MAX, 24), inst: n.inst, fx };
+                    return { row, len: num(n.len, 1, MAX_ROWS - row, 1), note: num(n.note, 0, t.kind === "noise" ? NOISE_MAX : NOTE_MAX, 24), inst: n.inst, fx };
                 });
                 return { notes };
             });
@@ -219,6 +221,67 @@
             }));
         }
         if (!s.order.length) s.order.push([-1, -1, -1, -1]);
+        s.mode = raw.mode === "sfx" ? "sfx" : "song";
+        if (s.mode === "sfx") {
+            const src = Array.isArray(raw.sfx) ? raw.sfx : [];
+            s.sfx = s.order.map((r, k) => {
+                const x = src[k] || {};
+                return { name: String(x.name || "Sound " + (k + 1)).slice(0, 32), rows: num(x.rows, 1, MAX_ROWS, 16), speed: num(x.speed, 1, 255, 3) };
+            });
+        }
+        return s;
+    }
+
+    function sfxSet(examples) {
+        const names = examples
+            ? { pulse: ["Jump", "Coin", "Power Up", "Laser Zap", "Hurt", "Swoosh", "Teleport", "Charge Up", "Sparkle", "Menu Blip", "Error Buzz"], wave: ["Rumble", "Warble"], noise: ["Hit", "Big Boom", "Slash", "Footstep"] }
+            : { pulse: ["Menu Blip", "Confirm", "Coin", "Jump"], wave: ["Warble"], noise: ["Hit", "Big Boom", "Slash"] };
+        const instruments = [];
+        for (const type of KINDS) for (const n of names[type]) instruments.push(makeInst(type, n));
+        const s = {
+            format: "fuge",
+            version: 1,
+            name: examples ? "Sound effects" : "Untitled sounds",
+            artist: "",
+            comment: "",
+            mode: "sfx",
+            speed: 3,
+            rowsPerBeat: 4,
+            beatsPerBar: 4,
+            instruments,
+            tracks: TRACKS.map(t => ({ key: t.key, patterns: [] })),
+            order: [],
+            sfx: []
+        };
+        const id = n => s.instruments.find(i => i.name === n).id;
+        const add = (name, rows, speed, parts) => {
+            const row = [-1, -1, -1, -1];
+            parts.forEach((notes, c) => {
+                if (!notes) return;
+                s.tracks[c].patterns.push({ notes: notes.map(x => ({ row: x[0], len: x[1], note: x[2], inst: id(x[3]), fx: x[4] || null })) });
+                row[c] = s.tracks[c].patterns.length - 1;
+            });
+            s.order.push(row);
+            s.sfx.push({ name, rows, speed });
+        };
+        if (!examples) {
+            add("Sound 1", 16, 3, []);
+            return s;
+        }
+        const arp = p => ({ code: 0x0, param: p });
+        add("Jump", 8, 3, [[[0, 6, 24, "Jump"]]]);
+        add("Coin", 12, 2, [[[0, 2, 47, "Coin"], [2, 10, 52, "Coin"]]]);
+        add("Power Up", 24, 2, [[[0, 3, 24, "Power Up"], [3, 3, 28, "Power Up"], [6, 3, 31, "Power Up"], [9, 3, 36, "Power Up"], [12, 3, 40, "Power Up"], [15, 3, 43, "Power Up"], [18, 6, 48, "Power Up"]]]);
+        add("Laser", 10, 2, [[[0, 8, 48, "Laser Zap", { code: 0x2, param: 0x18 }]]]);
+        add("Hit", 8, 2, [[[0, 5, 31, "Hurt"]], null, null, [[0, 1, 40, "Hit"]]]);
+        add("Explosion", 32, 3, [null, null, [[0, 24, 12, "Rumble", { code: 0x2, param: 0x03 }]], [[0, 1, 30, "Big Boom"]]]);
+        add("Magic", 24, 2, [null, [[0, 4, 43, "Sparkle", arp(0x7c)], [4, 4, 47, "Sparkle", arp(0x7c)], [8, 4, 50, "Sparkle", arp(0x7c)], [12, 10, 55, "Sparkle", arp(0x47)]], [[0, 22, 36, "Warble", { code: 0x4, param: 0x13 }]]]);
+        add("Menu Select", 6, 2, [null, [[0, 1, 48, "Menu Blip"], [1, 4, 55, "Menu Blip"]]]);
+        add("Sword", 8, 2, [[[0, 6, 36, "Swoosh"]], null, null, [[0, 1, 54, "Slash"]]]);
+        add("Error", 12, 3, [null, [[0, 3, 14, "Error Buzz"], [4, 6, 14, "Error Buzz"]]]);
+        add("Teleport", 20, 2, [[[0, 18, 24, "Teleport"]]]);
+        add("Charge", 32, 3, [[[0, 32, 24, "Charge Up"]]]);
+        add("Footsteps", 8, 3, [null, null, null, [[0, 1, 46, "Footstep"], [4, 1, 42, "Footstep"]]]);
         return s;
     }
 
@@ -301,7 +364,7 @@
     function pushSong() {
         clearTimeout(pushTimer);
         if (!GBAudio.started) return;
-        GBAudio.send({ type: "song", song: UGE.compile(state.song).song });
+        GBAudio.send({ type: "song", song: compileNow() });
     }
 
     function schedulePush() {
@@ -342,6 +405,24 @@
     const usage = (t, idx) => state.song.order.filter(r => r[t] === idx).length;
     const curInst = () => instById(state.inst);
     const muted = k => state.mute[k] || (state.solo.some(Boolean) && !state.solo[k]);
+    const isSfx = () => state.song.mode === "sfx";
+    const curSfx = () => isSfx() ? state.song.sfx[state.ord] : null;
+    const speedNow = () => isSfx() && curSfx() ? curSfx().speed : state.song.speed;
+    const sfxSeconds = s => s.rows * s.speed / VBLANK_HZ;
+
+    function syncRows() {
+        ROWS = isSfx() && curSfx() ? curSfx().rows : MAX_ROWS;
+    }
+
+    function compileNow() {
+        return isSfx() ? UGE.compile(state.song, { sfx: state.ord }).song : UGE.compile(state.song).song;
+    }
+
+    function playMsg(row) {
+        syncRows();
+        const r = Math.min(row, ROWS - 1);
+        return isSfx() ? { type: "play", order: 0, row: r, once: !state.loop, cutAtEnd: true } : { type: "play", order: state.ord, row: r };
+    }
 
     function patAt(t, o) {
         const i = patIndex(t, o);
@@ -386,7 +467,8 @@
         if (state.playing) {
             state.playOrd = state.ord;
             state.playRow = 0;
-            GBAudio.send({ type: "play", order: state.ord, row: 0 });
+            if (isSfx()) pushSong();
+            GBAudio.send(playMsg(0));
         }
         renderAll();
         revealSlot();
@@ -520,25 +602,29 @@
         const s = state.song;
         const sp = $("speed");
         const speeds = [];
+        const cur = speedNow();
         for (let v = 1; v <= 20; v++) speeds.push(v);
-        if (!speeds.includes(s.speed)) speeds.push(s.speed);
+        if (!speeds.includes(cur)) speeds.push(cur);
         sp.innerHTML = speeds.map(v => "<option value=\"" + v + "\">" + v + "</option>").join("");
-        sp.value = String(s.speed);
+        sp.value = String(cur);
+        $("modeChip").hidden = !isSfx();
         const rp = $("rpb");
         const rpbs = [2, 3, 4, 6, 8];
         if (!rpbs.includes(s.rowsPerBeat)) rpbs.push(s.rowsPerBeat);
         rp.innerHTML = rpbs.map(v => "<option value=\"" + v + "\">" + v + "</option>").join("");
         rp.value = String(s.rowsPerBeat);
-        $("bpm").textContent = "≈ " + bpm().toFixed(1) + " BPM";
+        $("bpm").textContent = isSfx() && curSfx() ? (VBLANK_HZ / cur).toFixed(1) + " rows/s · " + sfxSeconds(curSfx()).toFixed(2) + " s" : "≈ " + bpm().toFixed(1) + " BPM";
         if (document.activeElement !== $("songName")) $("songName").value = s.name;
         if (document.activeElement !== $("songArtist")) $("songArtist").value = s.artist;
         $("btnUndo").disabled = !history.undo.length;
         $("btnRedo").disabled = !history.redo.length;
         $("btnLoop").setAttribute("aria-pressed", String(state.loop));
+        $("btnLoop").textContent = isSfx() ? "Loop sound" : "Loop order";
+        $("btnLoop").title = isSfx() ? "Keep repeating the selected sound" : "Loop the selected order";
         $("btnPlay").setAttribute("aria-pressed", String(state.playing));
     }
 
-    const bpm = () => 60 * VBLANK_HZ / (state.song.speed * state.song.rowsPerBeat);
+    const bpm = () => 60 * VBLANK_HZ / (speedNow() * state.song.rowsPerBeat);
 
     function renderInstList() {
         const kind = trackKind(state.track);
@@ -722,8 +808,13 @@
             "<span class=\"ms\"><button type=\"button\" class=\"m\" data-mute=\"" + k + "\" aria-pressed=\"" + state.mute[k] + "\" title=\"Mute\">M</button><button type=\"button\" class=\"s\" data-solo=\"" + k + "\" aria-pressed=\"" + state.solo[k] + "\" title=\"Solo\">S</button></span></div>"
         ).join("");
         const order = state.song.order;
-        let h = "<div class=\"ord-head\">" + order.map((r, o) => "<button type=\"button\" class=\"ord-num" + (o === state.ord ? " active" : "") + "\" data-o=\"" + o + "\" title=\"Order " + pad2(o) + "\">" + pad2(o) + "</button>").join("") +
-            "<button type=\"button\" class=\"ord-add\" data-add=\"1\" title=\"Add an order at the end\">+</button></div>";
+        const sfx = isSfx();
+        let h = "<div class=\"ord-head\">" + order.map((r, o) => {
+            const label = sfx ? esc(state.song.sfx[o].name) : pad2(o);
+            const title = sfx ? esc(state.song.sfx[o].name) + " · " + state.song.sfx[o].rows + " rows · " + sfxSeconds(state.song.sfx[o]).toFixed(2) + " s" : "Order " + pad2(o);
+            return "<button type=\"button\" class=\"ord-num" + (sfx ? " sfx" : "") + (o === state.ord ? " active" : "") + "\" data-o=\"" + o + "\" title=\"" + title + "\">" + label + "</button>";
+        }).join("") +
+            "<button type=\"button\" class=\"ord-add\" data-add=\"1\" title=\"" + (sfx ? "Add a sound effect" : "Add an order at the end") + "\">+</button></div>";
         TRACKS.forEach((t, k) => {
             h += "<div class=\"lane\" style=\"--c:var(" + t.color + ")" + (muted(k) ? ";opacity:.4" : "") + "\">";
             order.forEach((r, o) => {
@@ -734,31 +825,42 @@
                 } else {
                     const u = usage(k, idx);
                     h += "<button type=\"button\" class=\"" + cls + "\" data-t=\"" + k + "\" data-o=\"" + o + "\" aria-label=\"" + t.name + ", order " + o + ", pattern " + idx + "\"><div class=\"clip filled\"><span class=\"pid\">P" + pad2(idx) + "</span>" +
-                        (u > 1 ? "<span class=\"reuse\" title=\"Used " + u + " times\">×" + u + "</span>" : "") + "<canvas data-t=\"" + k + "\" data-p=\"" + idx + "\"></canvas></div></button>";
+                        (u > 1 ? "<span class=\"reuse\" title=\"Used " + u + " times\">×" + u + "</span>" : "") + "<canvas data-t=\"" + k + "\" data-p=\"" + idx + "\" data-o=\"" + o + "\"></canvas></div></button>";
                 }
             });
             h += "</div>";
         });
         h += "<div class=\"playline\" id=\"playline\"></div>";
         $("lanes").innerHTML = h;
-        $("lanes").querySelectorAll("canvas[data-p]").forEach(cv => drawClip(cv, +cv.dataset.t, +cv.dataset.p));
-        const secs = order.length * ROWS * state.song.speed / VBLANK_HZ;
-        $("arrInfo").textContent = order.length + " order" + (order.length === 1 ? "" : "s") + " · " + Math.floor(secs / 60) + ":" + pad2(Math.round(secs % 60)) + " long";
+        $("lanes").querySelectorAll("canvas[data-p]").forEach(cv => drawClip(cv, +cv.dataset.t, +cv.dataset.p, +cv.dataset.o));
+        if (sfx) {
+            $("arrInfo").textContent = order.length + " sound" + (order.length === 1 ? "" : "s");
+        } else {
+            const secs = order.length * MAX_ROWS * state.song.speed / VBLANK_HZ;
+            $("arrInfo").textContent = order.length + " order" + (order.length === 1 ? "" : "s") + " · " + Math.floor(secs / 60) + ":" + pad2(Math.round(secs % 60)) + " long";
+        }
+        $("arrLabel").textContent = sfx ? "Sound effects" : "Arrangement";
+        $("ordAdd").textContent = sfx ? "+ Sound" : "+ Order";
+        $("ordAdd").title = sfx ? "Add a new sound effect after this one" : "Insert an empty order after the selected one";
+        $("ordDup").textContent = sfx ? "Duplicate" : "Repeat";
+        $("ordDup").title = sfx ? "Copy this sound effect so you can make a variation" : "Repeat the selected order";
         $("ordLeft").disabled = state.ord === 0;
         $("ordRight").disabled = state.ord >= order.length - 1;
         positionPlayline();
     }
 
-    function drawClip(cv, t, idx) {
+    function drawClip(cv, t, idx, o) {
         const w = SLOT_W - 8;
         const h = 36;
         const ctx = prep(cv, w, h);
-        const pat = state.song.tracks[t].patterns[idx];
+        const src = state.song.tracks[t].patterns[idx];
+        const rows = isSfx() && state.song.sfx[o] ? state.song.sfx[o].rows : MAX_ROWS;
+        const pat = src ? { notes: src.notes.filter(n => n.row < rows) } : null;
         if (!pat || !pat.notes.length) return;
         ctx.fillStyle = P.ch[t];
         const top = 14;
         const bh = h - top - 4;
-        const sx = w / ROWS;
+        const sx = w / rows;
         if (TRACKS[t].kind === "noise") {
             const ns = instsOf("noise");
             const n = Math.max(1, ns.length - 1);
@@ -804,7 +906,7 @@
         const t = TRACKS[state.track];
         const idx = patIndex(state.track, state.ord);
         const u = idx >= 0 ? usage(state.track, idx) : 0;
-        $("patTitle").innerHTML = "<span class=\"chip\" style=\"--c:var(" + t.color + ")\">" + t.short + "</span><span class=\"where\">" + t.name + " · Order " + pad2(state.ord) + "</span>" +
+        $("patTitle").innerHTML = "<span class=\"chip\" style=\"--c:var(" + t.color + ")\">" + t.short + "</span><span class=\"where\">" + t.name + (isSfx() ? "" : " · Order " + pad2(state.ord)) + "</span>" +
             (u > 1 ? "<span class=\"shared\" title=\"Edits change every slot that uses this pattern. Use Make unique to edit just this one.\">Shared by " + u + " slots</span>" : "");
         const pats = state.song.tracks[state.track].patterns;
         const sel = $("patSelect");
@@ -821,6 +923,17 @@
         $("toolErase").setAttribute("aria-pressed", String(state.tool === "erase"));
         $("btnGhost").setAttribute("aria-pressed", String(state.ghost));
         $("btnGhost").disabled = t.kind === "noise";
+        const sx = curSfx();
+        $("sfxCtl").hidden = !sx;
+        if (sx) {
+            if (document.activeElement !== $("sfxName")) $("sfxName").value = sx.name;
+            const lens = [2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 64];
+            if (!lens.includes(sx.rows)) lens.push(sx.rows);
+            lens.sort((a, b) => a - b);
+            $("sfxRows").innerHTML = lens.map(v => "<option value=\"" + v + "\">" + v + " rows</option>").join("");
+            $("sfxRows").value = String(sx.rows);
+            $("sfxDur").textContent = sfxSeconds(sx).toFixed(2) + " s";
+        }
     }
 
     const G = { colW: 16, rowH: PITCH_H, lanes: [], drum: false, w: 0, h: 0, hover: null };
@@ -830,7 +943,8 @@
         const kind = trackKind(state.track);
         G.drum = kind === "noise";
         G.lanes = G.drum ? instsOf("noise") : [];
-        G.colW = Math.max(12, Math.floor((scroll.clientWidth - KEY_W) / ROWS));
+        syncRows();
+        G.colW = clamp(Math.floor((scroll.clientWidth - KEY_W) / ROWS), 12, 64);
         G.w = G.colW * ROWS;
         const availH = Math.max(120, scroll.clientHeight - RULER_H);
         if (G.drum) {
@@ -1908,7 +2022,7 @@
             pitched && { label: "Slide up", sub: [opt("Slow", 0x1, 0x04), opt("Medium", 0x1, 0x10), opt("Fast", 0x1, 0x30)] },
             pitched && { label: "Slide down", sub: [opt("Slow", 0x2, 0x04), opt("Medium", 0x2, 0x10), opt("Fast", 0x2, 0x30)] },
             pitched && { label: "Glide to note", sub: [opt("Slow", 0x3, 0x08), opt("Medium", 0x3, 0x20), opt("Fast", 0x3, 0x60)] },
-            { label: "Note delay", sub: [opt("1 tick", 0x7, 1), opt("2 ticks", 0x7, 2), opt("3 ticks", 0x7, 3), opt("Half a row", 0x7, Math.max(1, Math.floor(state.song.speed / 2)))] },
+            { label: "Note delay", sub: [opt("1 tick", 0x7, 1), opt("2 ticks", 0x7, 2), opt("3 ticks", 0x7, 3), opt("Half a row", 0x7, Math.max(1, Math.floor(speedNow() / 2)))] },
             { label: "Note cut", sub: [opt("After 1 tick", 0xe, 1), opt("After 2 ticks", 0xe, 2), opt("After 4 ticks", 0xe, 4)] },
             { sep: true },
             { label: "Other effects…", action: () => {
@@ -1970,6 +2084,28 @@
             state.ord = o;
             fn();
         };
+        if (isSfx()) {
+            const name = state.song.sfx[o].name;
+            return [
+                { label: "Rename…", action: () => {
+                    selectSlot(state.track, o);
+                    $("sfxName").focus();
+                    $("sfxName").select();
+                } },
+                { label: "Hear it", action: () => {
+                    selectSlot(state.track, o);
+                    if (!state.playing) play();
+                } },
+                { label: "Export as .vgm", action: () => exportVgm(o) },
+                { sep: true },
+                { label: "New sound after this", action: at(() => orderOp("add")) },
+                { label: "Duplicate", action: at(() => orderOp("dup")) },
+                { label: "Move left", disabled: o === 0, action: at(() => orderOp("left")) },
+                { label: "Move right", disabled: o >= count - 1, action: at(() => orderOp("right")) },
+                { sep: true },
+                { label: count > 1 ? "Delete " + name : "Clear " + name, danger: true, action: at(() => orderOp("del")) }
+            ];
+        }
         return [
             { label: "Insert order after", action: at(() => orderOp("add")) },
             { label: "Repeat order", action: at(() => orderOp("dup")) },
@@ -1988,7 +2124,7 @@
             fn();
         };
         showMenu(e, [
-            { head: TRACKS[t].name + " · order " + pad2(o) },
+            { head: TRACKS[t].name + " · " + (isSfx() ? state.song.sfx[o].name : "order " + pad2(o)) },
             { label: "Edit", action: go(() => {}) },
             { label: "New pattern", action: go(() => setPattern("new")) },
             { label: "Use pattern", sub: [{ label: "Empty", checked: idx < 0, action: go(() => setPattern("-1")) }].concat(pats.map((p, i) => ({ label: "P" + pad2(i) + " · " + p.notes.length + " " + (p.notes.length === 1 ? "note" : "notes"), checked: idx === i, action: go(() => setPattern(String(i))) }))) },
@@ -2054,7 +2190,7 @@
         }
         const on = e.target.closest(".ord-num");
         if (on) {
-            showMenu(e, [{ head: "Order " + pad2(+on.dataset.o) }].concat(orderItems(+on.dataset.o)));
+            showMenu(e, [{ head: isSfx() ? state.song.sfx[+on.dataset.o].name : "Order " + pad2(+on.dataset.o) }].concat(orderItems(+on.dataset.o)));
             return;
         }
         const th = e.target.closest(".track-head");
@@ -2083,10 +2219,11 @@
     function updateLcd() {
         const o = state.playing ? state.playOrd : state.ord;
         const r = state.playing ? Math.floor(state.playRow) : state.startRow;
-        $("lcd").textContent = (state.playing ? "▶ " : "") + "ORD " + pad2(o) + "  ROW " + pad2(r);
+        $("lcd").textContent = (state.playing ? "▶ " : "") + (isSfx() ? "SFX " : "ORD ") + pad2(o) + "  ROW " + pad2(r);
     }
 
     function renderAll() {
+        syncRows();
         readPalette();
         renderTop();
         renderInstList();
@@ -2278,9 +2415,11 @@
     }
 
     let presetTab = "pulse";
+    let presetGroup = "music";
 
     function openPresets(tab) {
         presetTab = tab || trackKind(state.track);
+        presetGroup = isSfx() ? "sfx" : "music";
         renderPresets();
         $("presetModal").classList.add("open");
         $("presetClose").focus();
@@ -2292,15 +2431,21 @@
 
     function renderPresets() {
         $("presetTabs").innerHTML = KINDS.map(k => "<button type=\"button\" class=\"btn small\" data-tab=\"" + k + "\" aria-pressed=\"" + (k === presetTab) + "\"><span class=\"kind-dot\" style=\"background:var(" + KIND_COLOR[k] + ")\"></span>" + KIND_LABEL[k] + " <span style=\"opacity:.7\">" + instsOf(k).length + "/15</span></button>").join("") +
-            "<span class=\"hint\" style=\"margin-left:auto\">Listen first, then add the ones you like to your song.</span>";
+            "<div class=\"seg\" role=\"group\" aria-label=\"Preset group\" style=\"margin-left:auto\"><button type=\"button\" data-group=\"music\" aria-pressed=\"" + (presetGroup === "music") + "\">Music</button><button type=\"button\" data-group=\"sfx\" aria-pressed=\"" + (presetGroup === "sfx") + "\">Sound effects</button></div>";
         const grid = $("presetGrid");
         const full = instsOf(presetTab).length >= MAX_INST;
-        grid.innerHTML = Presets.LIBRARY[presetTab].map((p, i) => "<div class=\"preset\" data-i=\"" + i + "\"><canvas></canvas><b>" + esc(p.name) + "</b><small>" + esc(p.desc) + "</small>" +
+        grid.innerHTML = Presets.LIBRARY[presetTab].map((p, i) => !!p.sfx !== (presetGroup === "sfx") ? "" : "<div class=\"preset\" data-i=\"" + i + "\"><canvas></canvas><b>" + esc(p.name) + "</b><small>" + esc(p.desc) + "</small>" +
             "<div class=\"preset-actions\"><button type=\"button\" class=\"btn small\" data-listen=\"" + i + "\">▶ Listen</button><button type=\"button\" class=\"btn small\" data-add=\"" + i + "\"" + (full ? " disabled" : "") + ">+ Add</button></div></div>").join("");
         grid.querySelectorAll(".preset").forEach(b => drawIcon(b.querySelector("canvas"), Presets.make(presetTab, Presets.LIBRARY[presetTab][+b.dataset.i]), 44, 24));
     }
 
     function onPresetClick(e) {
+        const group = e.target.closest("[data-group]");
+        if (group) {
+            presetGroup = group.dataset.group;
+            renderPresets();
+            return;
+        }
         const tab = e.target.closest("[data-tab]");
         if (tab) {
             presetTab = tab.dataset.tab;
@@ -2323,35 +2468,63 @@
         toast("Added " + inst.name + " as " + KIND_LABEL[inst.type] + " " + pad2(instNum(inst)) + ".");
     }
 
+    function newSfxEntry() {
+        const names = new Set(state.song.sfx.map(x => x.name));
+        let k = state.song.sfx.length + 1;
+        while (names.has("Sound " + k)) k++;
+        const base = curSfx();
+        return { name: "Sound " + k, rows: base ? base.rows : 16, speed: base ? base.speed : 3 };
+    }
+
     function orderOp(op) {
         const o = state.ord;
         const order = state.song.order;
+        const sfx = isSfx() ? state.song.sfx : null;
         checkpoint();
         if (op === "add") {
+            if (sfx) sfx.splice(o + 1, 0, newSfxEntry());
             order.splice(o + 1, 0, [-1, -1, -1, -1]);
             state.ord = o + 1;
         } else if (op === "append") {
+            if (sfx) sfx.push(newSfxEntry());
             order.push([-1, -1, -1, -1]);
             state.ord = order.length - 1;
         } else if (op === "dup") {
-            order.splice(o + 1, 0, order[o].slice());
+            if (sfx) {
+                const row = order[o].map((idx, c) => {
+                    if (idx < 0) return -1;
+                    const pats = state.song.tracks[c].patterns;
+                    pats.push(clone(pats[idx]));
+                    return pats.length - 1;
+                });
+                order.splice(o + 1, 0, row);
+                sfx.splice(o + 1, 0, Object.assign({}, sfx[o], { name: (sfx[o].name + " 2").slice(0, 32) }));
+            } else {
+                order.splice(o + 1, 0, order[o].slice());
+            }
             state.ord = o + 1;
         } else if (op === "left" && o > 0) {
             [order[o - 1], order[o]] = [order[o], order[o - 1]];
+            if (sfx) [sfx[o - 1], sfx[o]] = [sfx[o], sfx[o - 1]];
             state.ord = o - 1;
         } else if (op === "right" && o < order.length - 1) {
             [order[o + 1], order[o]] = [order[o], order[o + 1]];
+            if (sfx) [sfx[o + 1], sfx[o]] = [sfx[o], sfx[o + 1]];
             state.ord = o + 1;
         } else if (op === "del") {
             if (order.length > 1) {
                 order.splice(o, 1);
+                if (sfx) sfx.splice(o, 1);
                 state.ord = Math.min(o, order.length - 1);
             } else {
                 order[0] = [-1, -1, -1, -1];
             }
         }
         state.sel = [];
-        if (state.playing) state.playOrd = state.ord;
+        if (state.playing) {
+            if (isSfx()) stop();
+            else state.playOrd = state.ord;
+        }
         renderAll();
         revealSlot();
     }
@@ -2407,8 +2580,18 @@
         pushSong();
         sendMute();
         GBAudio.send({ type: "loop", on: state.loop });
-        GBAudio.send({ type: "play", order: state.ord, row: state.startRow });
+        GBAudio.send(playMsg(state.startRow));
         requestAnimationFrame(frame);
+    }
+
+    function playEnded() {
+        if (!state.playing) return;
+        state.playing = false;
+        renderTop();
+        positionPlayline();
+        drawRuler();
+        drawGrid();
+        updateLcd();
     }
 
     function stop() {
@@ -2422,8 +2605,12 @@
     }
 
     function onAudio(m) {
+        if (m.type === "ended") {
+            playEnded();
+            return;
+        }
         if (m.type !== "pos" || !state.playing) return;
-        state.playOrd = m.order;
+        state.playOrd = isSfx() ? state.ord : m.order;
         state.playRow = m.row + m.tick / Math.max(1, m.speed);
     }
 
@@ -2480,6 +2667,181 @@
         }
     }
 
+    let CORE = null;
+    const core = () => CORE || (CORE = GBAudioCore());
+
+    const CRC_TABLE = (() => {
+        const t = new Uint32Array(256);
+        for (let n = 0; n < 256; n++) {
+            let c = n;
+            for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+            t[n] = c >>> 0;
+        }
+        return t;
+    })();
+
+    function crc32(b) {
+        let c = 0xffffffff;
+        for (let i = 0; i < b.length; i++) c = CRC_TABLE[(c ^ b[i]) & 255] ^ (c >>> 8);
+        return (c ^ 0xffffffff) >>> 0;
+    }
+
+    function makeZip(files) {
+        const enc = new TextEncoder();
+        const parts = [];
+        const central = [];
+        let offset = 0;
+        for (const f of files) {
+            const name = enc.encode(f.name);
+            const crc = crc32(f.data);
+            const size = f.data.length;
+            const h = new DataView(new ArrayBuffer(30));
+            h.setUint32(0, 0x04034b50, true);
+            h.setUint16(4, 20, true);
+            h.setUint16(12, 0x21, true);
+            h.setUint32(14, crc, true);
+            h.setUint32(18, size, true);
+            h.setUint32(22, size, true);
+            h.setUint16(26, name.length, true);
+            parts.push(new Uint8Array(h.buffer), name, f.data);
+            const c = new DataView(new ArrayBuffer(46));
+            c.setUint32(0, 0x02014b50, true);
+            c.setUint16(4, 20, true);
+            c.setUint16(6, 20, true);
+            c.setUint16(14, 0x21, true);
+            c.setUint32(16, crc, true);
+            c.setUint32(20, size, true);
+            c.setUint32(24, size, true);
+            c.setUint16(28, name.length, true);
+            c.setUint32(42, offset, true);
+            central.push(new Uint8Array(c.buffer), name);
+            offset += 30 + name.length + size;
+        }
+        const csize = central.reduce((a, b) => a + b.length, 0);
+        const e = new DataView(new ArrayBuffer(22));
+        e.setUint32(0, 0x06054b50, true);
+        e.setUint16(8, files.length, true);
+        e.setUint16(10, files.length, true);
+        e.setUint32(12, csize, true);
+        e.setUint32(16, offset, true);
+        return new Blob(parts.concat(central, [new Uint8Array(e.buffer)]), { type: "application/zip" });
+    }
+
+    function fileNames(list, ext) {
+        const seen = new Map();
+        return list.map(n => {
+            const base = slug(n);
+            const c = (seen.get(base) || 0) + 1;
+            seen.set(base, c);
+            return (c > 1 ? base + "_" + c : base) + ext;
+        });
+    }
+
+    const sfxSong = k => UGE.compile(state.song, { sfx: k }).song;
+    const wavMask = () => TRACKS.map((t, k) => !muted(k));
+
+    function busy(msg, fn) {
+        status(msg);
+        setTimeout(() => {
+            try {
+                fn();
+            } catch (err) {
+                toast("Export failed: " + err.message);
+            }
+        }, 30);
+    }
+
+    function exportVgm(k) {
+        const s = state.song.sfx[k];
+        const song = sfxSong(k);
+        if (!song.used.some(Boolean)) {
+            toast("\"" + s.name + "\" is empty, so there's nothing to export.");
+            return;
+        }
+        const res = core().renderVgm(song);
+        const name = fileNames([s.name], ".vgm")[0];
+        download(name, res.bytes, "application/octet-stream");
+        status("Exported " + name + " (" + res.seconds.toFixed(2) + " s, " + song.used.filter(Boolean).length + " channel" + (song.used.filter(Boolean).length === 1 ? "" : "s") + "). Copy it into your GB Studio project's assets/sounds folder.");
+    }
+
+    function exportAllVgm() {
+        busy("Rendering sound effects…", () => {
+            const keep = state.song.sfx.map((s, k) => k).filter(k => sfxSong(k).used.some(Boolean));
+            if (!keep.length) {
+                toast("All the sound effects are empty.");
+                return;
+            }
+            const names = fileNames(keep.map(k => state.song.sfx[k].name), ".vgm");
+            const files = keep.map((k, i) => ({ name: names[i], data: core().renderVgm(sfxSong(k)).bytes }));
+            download(slug(state.song.name) + "_vgm.zip", makeZip(files), "application/zip");
+            status("Exported " + files.length + " .vgm sound effects in a .zip. Unzip them into your GB Studio project's assets/sounds folder.");
+        });
+    }
+
+    function exportWav(k) {
+        busy("Rendering audio…", () => {
+            if (isSfx()) {
+                const s = state.song.sfx[k];
+                const res = core().renderWav(sfxSong(k), { cutAtEnd: true, tail: 0.03, mask: wavMask() });
+                const name = fileNames([s.name], ".wav")[0];
+                download(name, res.bytes, "audio/wav");
+                status("Exported " + name + " (" + res.seconds.toFixed(2) + " s).");
+            } else {
+                const res = core().renderWav(UGE.compile(state.song).song, { tail: 1.5, mask: wavMask() });
+                const name = slug(state.song.name) + ".wav";
+                download(name, res.bytes, "audio/wav");
+                status("Exported " + name + " (" + Math.floor(res.seconds / 60) + ":" + pad2(Math.round(res.seconds % 60)) + ")" + (state.mute.some(Boolean) || state.solo.some(Boolean) ? ", without the muted tracks." : "."));
+            }
+        });
+    }
+
+    function exportAllWav() {
+        busy("Rendering sound effects…", () => {
+            const names = fileNames(state.song.sfx.map(s => s.name), ".wav");
+            const files = state.song.sfx.map((s, k) => ({ name: names[k], data: core().renderWav(sfxSong(k), { cutAtEnd: true, tail: 0.03, mask: wavMask() }).bytes }));
+            download(slug(state.song.name) + "_wav.zip", makeZip(files), "application/zip");
+            status("Exported " + files.length + " .wav files in a .zip.");
+        });
+    }
+
+    function exportPrimary() {
+        if (isSfx()) exportVgm(state.ord);
+        else exportUge();
+    }
+
+    function anchor(el) {
+        const r = el.getBoundingClientRect();
+        return { clientX: r.left, clientY: r.bottom + 4 };
+    }
+
+    function openExportMenu() {
+        if (isSfx()) {
+            const s = curSfx();
+            showMenu(anchor($("btnExport")), [
+                { head: s.name },
+                { label: "This sound as .vgm (GB Studio)", kbd: "Ctrl+E", action: () => exportVgm(state.ord) },
+                { label: "All sounds as .vgm (.zip)", action: exportAllVgm },
+                { sep: true },
+                { label: "This sound as .wav", action: () => exportWav(state.ord) },
+                { label: "All sounds as .wav (.zip)", action: exportAllWav }
+            ]);
+        } else {
+            showMenu(anchor($("btnExport")), [
+                { label: "Song as .uge (hUGETracker, GB Studio)", kbd: "Ctrl+E", action: exportUge },
+                { label: "Song as .wav", action: () => exportWav() }
+            ]);
+        }
+    }
+
+    function openNewMenu() {
+        showMenu(anchor($("btnNew")), [
+            { label: "New song", action: () => newSong("song") },
+            { sep: true },
+            { label: "New sound effects (with examples)", action: () => newSong("examples") },
+            { label: "New sound effects (empty)", action: () => newSong("sfx") }
+        ]);
+    }
+
     function openFile(file) {
         const reader = new FileReader();
         reader.onload = () => {
@@ -2512,10 +2874,16 @@
         centerRoll(true);
     }
 
-    function newSong() {
-        if (state.dirty && !confirm("Start a new song? Changes since your last save will be lost.")) return;
-        loadSong(blankSong());
-        status("New song. Draw on any track to begin.");
+    function newSong(kind) {
+        if (state.dirty && !confirm("Start something new? Changes since your last save will be lost.")) return;
+        if (kind === "song") {
+            loadSong(blankSong());
+            status("New song. Draw on any track to begin.");
+            return;
+        }
+        loadSong(sfxSet(kind === "examples"));
+        state.drawLen = 2;
+        status(kind === "examples" ? "Sound effects: each column is one sound. Pick one and press Space to hear it, then make it your own." : "Sound effects: each column is one sound. Draw a few notes and press Space.");
     }
 
     function applyTheme(t) {
@@ -2551,7 +2919,7 @@
         }
         if (mod && k === "e") {
             e.preventDefault();
-            exportUge();
+            exportPrimary();
             return;
         }
         if (mod && k === "o") {
@@ -2647,7 +3015,7 @@
     }
 
     function bind() {
-        $("btnNew").onclick = newSong;
+        $("btnNew").onclick = openNewMenu;
         $("btnOpen").onclick = () => $("fileInput").click();
         $("fileInput").onchange = e => {
             const f = e.target.files[0];
@@ -2655,7 +3023,25 @@
             e.target.value = "";
         };
         $("btnSave").onclick = saveJson;
-        $("btnExport").onclick = exportUge;
+        $("btnExport").onclick = openExportMenu;
+        $("sfxName").oninput = e => {
+            const sx = curSfx();
+            if (!sx) return;
+            checkpoint("sfxname:" + state.ord);
+            sx.name = e.target.value.slice(0, 32) || "Untitled";
+            const b = document.querySelector(".ord-num[data-o=\"" + state.ord + "\"]");
+            if (b) b.textContent = sx.name;
+        };
+        $("sfxName").onchange = () => renderArrange();
+        $("sfxRows").onchange = e => {
+            const sx = curSfx();
+            if (!sx) return;
+            checkpoint();
+            sx.rows = parseInt(e.target.value, 10);
+            state.startRow = Math.min(state.startRow, sx.rows - 1);
+            if (state.playing) stop();
+            renderAll();
+        };
         $("btnUndo").onclick = undo;
         $("btnRedo").onclick = redo;
         $("btnPlay").onclick = play;
@@ -2669,7 +3055,7 @@
         };
         $("btnLoop").onclick = () => {
             state.loop = !state.loop;
-            GBAudio.send({ type: "loop", on: state.loop });
+            GBAudio.send({ type: "loop", on: state.loop, once: isSfx() });
             renderTop();
         };
         const vol = parseInt(storeGet(VOL_KEY), 10);
@@ -2683,9 +3069,12 @@
         $("btnTheme").onclick = toggleTheme;
         $("speed").onchange = e => {
             checkpoint();
-            state.song.speed = parseInt(e.target.value, 10);
+            const v = parseInt(e.target.value, 10);
+            if (isSfx()) curSfx().speed = v;
+            else state.song.speed = v;
             renderTop();
             renderArrange();
+            renderPatBar();
         };
         $("rpb").onchange = e => {
             checkpoint();
@@ -2816,7 +3205,7 @@
             if (state.playing) {
                 state.playOrd = state.ord;
                 state.playRow = row;
-                GBAudio.send({ type: "play", order: state.ord, row });
+                GBAudio.send(playMsg(row));
             } else {
                 state.startRow = row;
             }

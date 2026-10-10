@@ -13,11 +13,12 @@
     <div class="app">
         <header class="topbar">
             <div class="brand" title="subterfUGE: a Game Boy music maker"><span>f</span>UGE</div>
+            <span class="mode-chip" id="modeChip" hidden title="This project is a set of sound effects">SFX</span>
             <div class="group">
-                <button class="btn" id="btnNew" type="button">New</button>
+                <button class="btn" id="btnNew" type="button">New ▾</button>
                 <button class="btn" id="btnOpen" type="button">Open</button>
                 <button class="btn" id="btnSave" type="button" title="Save project (Ctrl+S)">Save</button>
-                <button class="btn accent" id="btnExport" type="button" title="Export hUGETracker file (Ctrl+E)">Export .uge</button>
+                <button class="btn accent" id="btnExport" type="button" title="Export (Ctrl+E for the main format)">Export ▾</button>
                 <input type="file" id="fileInput" accept=".json,application/json" hidden>
             </div>
             <div class="group">
@@ -54,7 +55,7 @@
         <main class="main" id="main">
             <section class="arrange" aria-label="Arrangement">
                 <div class="bar">
-                    <p class="label">Arrangement</p>
+                    <p class="label" id="arrLabel">Arrangement</p>
                     <button class="btn small" id="ordAdd" type="button" title="Insert an empty order after the selected one">+ Order</button>
                     <button class="btn small" id="ordDup" type="button" title="Repeat the selected order">Repeat</button>
                     <button class="btn small icon" id="ordLeft" type="button" title="Move order left" aria-label="Move order left">◀</button>
@@ -78,6 +79,11 @@
             <section class="pattern" aria-label="Pattern editor">
                 <div class="bar">
                     <div class="pat-title" id="patTitle"></div>
+                    <div class="sfx-ctl" id="sfxCtl" hidden>
+                        <input type="text" id="sfxName" maxlength="32" aria-label="Sound effect name" title="Sound effect name">
+                        <select id="sfxRows" aria-label="Sound effect length" title="Length in rows"></select>
+                        <span class="hint" id="sfxDur"></span>
+                    </div>
                     <select id="patSelect" aria-label="Pattern in this slot"></select>
                     <button class="btn small" id="patUnique" type="button" title="Copy this pattern so edits only affect this slot">Make unique</button>
                     <button class="btn small" id="patClear" type="button">Clear</button>

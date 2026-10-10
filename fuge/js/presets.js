@@ -58,9 +58,19 @@
         { name: "Swell", desc: "Fades in from silence.", data: { duty: 2, vol: 0, envDir: "up", envPace: 3 } },
         { name: "Echo", desc: "Quiet copy of a lead, for a delayed echo on Pulse 2.", data: { duty: 1, vol: 5, envDir: "down", envPace: 2 } },
         { name: "Blip", desc: "Short staccato chirp using the length counter.", data: { duty: 0, vol: 14, envDir: "down", envPace: 1, length: 12 } },
-        { name: "Laser", desc: "Pitch sweeps down. Sweep works on Pulse 1 only.", data: { duty: 2, vol: 15, envDir: "down", envPace: 2, sweepTime: 2, sweepDir: "down", sweepShift: 2 } },
-        { name: "Coin", desc: "Quick upward sweep. Sweep works on Pulse 1 only.", data: { duty: 1, vol: 13, envDir: "down", envPace: 2, sweepTime: 1, sweepDir: "up", sweepShift: 4 } },
-        { name: "Jump", desc: "Rising slide for jump sounds. Pulse 1 only.", data: { duty: 2, vol: 12, envDir: "down", envPace: 1, sweepTime: 3, sweepDir: "up", sweepShift: 3 } }
+        { sfx: true, name: "Jump", desc: "Quick rising chirp. Pulse 1 only (uses sweep).", data: { duty: 2, vol: 13, envDir: "down", envPace: 2, sweepTime: 2, sweepDir: "up", sweepShift: 3 } },
+        { sfx: true, name: "Coin", desc: "Bright ding. Play two quick notes a fourth apart.", data: { duty: 1, vol: 15, envDir: "down", envPace: 3 } },
+        { sfx: true, name: "Power Up", desc: "Slow upward glide for climbing arpeggios. Pulse 1 only.", data: { duty: 2, vol: 12, envDir: "down", envPace: 4, sweepTime: 4, sweepDir: "up", sweepShift: 6 } },
+        { sfx: true, name: "Laser Zap", desc: "Thin, fast downward zap. Pulse 1 only.", data: { duty: 0, vol: 15, envDir: "down", envPace: 1, sweepTime: 1, sweepDir: "down", sweepShift: 2 } },
+        { sfx: true, name: "Hurt", desc: "Harsh pitch drop for damage. Pulse 1 only.", data: { duty: 0, vol: 15, envDir: "down", envPace: 2, sweepTime: 2, sweepDir: "down", sweepShift: 1 } },
+        { sfx: true, name: "Bounce", desc: "Short springy boing. Pulse 1 only.", data: { duty: 2, vol: 14, envDir: "down", envPace: 1, sweepTime: 1, sweepDir: "up", sweepShift: 4 } },
+        { sfx: true, name: "Swoosh", desc: "Soft falling sweep for swings and dashes. Pulse 1 only.", data: { duty: 0, vol: 10, envDir: "down", envPace: 3, sweepTime: 3, sweepDir: "down", sweepShift: 3 } },
+        { sfx: true, name: "Teleport", desc: "Smooth long rise. Pulse 1 only.", data: { duty: 2, vol: 12, envDir: "down", envPace: 5, sweepTime: 1, sweepDir: "up", sweepShift: 7 } },
+        { sfx: true, name: "Charge Up", desc: "Fades in while slowly rising. Pulse 1 only.", data: { duty: 1, vol: 3, envDir: "up", envPace: 2, sweepTime: 7, sweepDir: "up", sweepShift: 7 } },
+        { sfx: true, name: "Sparkle", desc: "Glassy tone for magic. Add a fast arpeggio.", data: { duty: 1, vol: 11, envDir: "down", envPace: 3 } },
+        { sfx: true, name: "Menu Blip", desc: "Tiny tick for cursors and text.", data: { duty: 1, vol: 12, envDir: "down", envPace: 1, length: 6 } },
+        { sfx: true, name: "Confirm", desc: "Round, friendly beep.", data: { duty: 2, vol: 13, envDir: "down", envPace: 2 } },
+        { sfx: true, name: "Error Buzz", desc: "Flat buzz. Use low notes.", data: { duty: 3, vol: 13, envDir: "down", envPace: 0 } }
     ];
 
     const WAVE = [
@@ -75,7 +85,11 @@
         { name: "Buzz Bass", desc: "Gritty bass with extra bite.", data: { level: 1, shape: "buzz" } },
         { name: "Pad", desc: "Sine at half volume, sits behind the leads.", data: { level: 2, shape: "sine" } },
         { name: "Quiet Echo", desc: "Triangle at 25% volume for echoes and backing.", data: { level: 3, shape: "triangle" } },
-        { name: "Wave Pluck", desc: "Saw that stops after a short time.", data: { level: 1, shape: "sawtooth", length: 40 } }
+        { name: "Wave Pluck", desc: "Saw that stops after a short time.", data: { level: 1, shape: "sawtooth", length: 40 } },
+        { sfx: true, name: "Warble", desc: "Pure tone for magic. Add vibrato.", data: { level: 1, shape: "sine" } },
+        { sfx: true, name: "Rumble", desc: "Deep one-cycle wave. Slide it down under explosions.", data: { level: 1, shape: "deep" } },
+        { sfx: true, name: "Bass Drop", desc: "Buzzy saw for big falling sounds.", data: { level: 1, shape: "sawtooth" } },
+        { sfx: true, name: "Beep", desc: "Hollow square that stops on its own.", data: { level: 2, shape: "square", length: 24 } }
     ];
 
     const NOISE = [
@@ -92,7 +106,18 @@
         { name: "Rimshot", desc: "Short metallic click.", data: { vol: 11, envDir: "down", envPace: 1, bits: 7, note: 56 } },
         { name: "Shaker", desc: "Quiet, high texture for fast patterns.", data: { vol: 5, envDir: "down", envPace: 1, bits: 15, note: 58 } },
         { name: "Explosion", desc: "Big, low and long. A sound effect as much as a drum.", data: { vol: 15, envDir: "down", envPace: 7, bits: 15, note: 30 } },
-        { name: "Riser", desc: "Noise that fades in.", data: { vol: 0, envDir: "up", envPace: 4, bits: 15, note: 48 } }
+        { name: "Riser", desc: "Noise that fades in.", data: { vol: 0, envDir: "up", envPace: 4, bits: 15, note: 48 } },
+        { sfx: true, name: "Big Boom", desc: "Long, heavy explosion.", data: { vol: 15, envDir: "down", envPace: 7, bits: 15, note: 30 } },
+        { sfx: true, name: "Small Boom", desc: "Short blast for bullets hitting walls.", data: { vol: 15, envDir: "down", envPace: 4, bits: 15, note: 34 } },
+        { sfx: true, name: "Hit", desc: "Punchy impact.", data: { vol: 15, envDir: "down", envPace: 1, bits: 15, note: 40 } },
+        { sfx: true, name: "Slash", desc: "Bright hiss for swords and claws.", data: { vol: 11, envDir: "down", envPace: 2, bits: 15, note: 54 } },
+        { sfx: true, name: "Crunch", desc: "Metallic crunch for breaking things.", data: { vol: 14, envDir: "down", envPace: 2, bits: 7, note: 44 } },
+        { sfx: true, name: "Thud", desc: "Low knock for doors and landing.", data: { vol: 15, envDir: "down", envPace: 1, bits: 7, note: 30 } },
+        { sfx: true, name: "Footstep", desc: "Quiet tap. Alternate two pitches for walking.", data: { vol: 9, envDir: "down", envPace: 1, bits: 15, note: 46 } },
+        { sfx: true, name: "Splash", desc: "Wet spray for water.", data: { vol: 12, envDir: "down", envPace: 4, bits: 15, note: 56 } },
+        { sfx: true, name: "Static", desc: "Electric crackle.", data: { vol: 10, envDir: "down", envPace: 3, bits: 7, note: 58 } },
+        { sfx: true, name: "Noise Zap", desc: "Short electric snap.", data: { vol: 12, envDir: "down", envPace: 2, bits: 7, note: 52 } },
+        { sfx: true, name: "Wind", desc: "Hiss that swells in.", data: { vol: 0, envDir: "up", envPace: 6, bits: 15, note: 50 } }
     ];
 
     const DEFAULTS = {
