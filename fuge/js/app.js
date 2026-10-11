@@ -42,6 +42,17 @@
         { code: 0x5, name: "Master volume", kinds: ["pulse", "wave", "noise"], x: "left", y: "right", hint: "Sets the overall left/right volume, 0–7 each." },
         { code: 0xF, name: "Set speed", kinds: ["pulse", "wave", "noise"], x: "ticks", y: "ticks", hint: "Changes the song speed (ticks per row) from here on." }
     ];
+    const SUB_MAX = 32;
+    const TABLE_FX = { pulse: [0x0, 0x1, 0x2, 0x4, 0x9, 0xA, 0xC], wave: [0x0, 0x1, 0x2, 0x4, 0xC], noise: [0x9, 0xA, 0xC] };
+    const TABLE_HINT = {
+        0x0: "Plays +y, +x or the note itself on this tick, in turn. Loop a single row for a steady chord.",
+        0x1: "Bends the pitch up by xy period steps on this tick.",
+        0x2: "Bends the pitch down by xy period steps on this tick.",
+        0x4: "Flips the pitch up by y or back, at rate x. Loop a single row for a steady vibrato.",
+        0x9: "Pulse width: 00 = 12.5%, 40 = 25%, 80 = 50%, C0 = 75%. On noise, 08 switches to metallic and 00 back, until the pitch changes.",
+        0xA: "Restarts the note x louder or y quieter. Restarts click a little and can bring back a note that already ended.",
+        0xC: "Sets volume y. Pulse and noise restart (a small click); wave changes level smoothly but only has 4 steps."
+    };
     const SCALES = {
         Ionian: { label: "Major (Ionian)", steps: [2, 2, 1, 2, 2, 2, 1] },
         Dorian: { label: "Dorian", steps: [2, 1, 2, 2, 2, 1, 2] },
@@ -175,6 +186,29 @@
         return Number.isFinite(n) ? clamp(n, lo, hi) : d;
     }
 
+    function subLimit(loop) {
+        return loop >= 0 ? SUB_MAX : SUB_MAX - 2;
+    }
+
+    function normSub(raw, oldFx, type) {
+        if (raw && Array.isArray(raw.rows) && raw.rows.length) {
+            const rows = raw.rows.slice(0, SUB_MAX).map(r => {
+                const fx = r && r.fx && Number.isFinite(Number(r.fx.code)) ? { code: num(r.fx.code, 0, 15, 0), param: num(r.fx.param, 0, 255, 0) } : null;
+                const n = r ? parseInt(r.note, 10) : NaN;
+                return { note: Number.isFinite(n) ? clamp(n, -36, 35) : null, fx: fx && (TABLE_FX[type] || []).includes(fx.code) ? fx : null };
+            });
+            let loop = parseInt(raw.loop, 10);
+            loop = Number.isFinite(loop) && loop >= 0 && loop < rows.length ? loop : -1;
+            return { name: String(raw.name || "Custom").slice(0, 32), loop, rows: rows.slice(0, subLimit(loop)) };
+        }
+        if (oldFx && Number.isFinite(Number(oldFx.code))) {
+            const fx = { code: num(oldFx.code, 0, 15, 0), param: num(oldFx.param, 0, 255, 0) };
+            if (!(TABLE_FX[type] || []).includes(fx.code)) return null;
+            return { name: (FX.find(f => f.code === fx.code) || { name: "Effect" }).name, loop: 0, rows: [{ note: null, fx }] };
+        }
+        return null;
+    }
+
     function normalize(raw) {
         if (!raw || typeof raw !== "object" || !Array.isArray(raw.instruments) || !Array.isArray(raw.tracks) || !Array.isArray(raw.order)) {
             throw new Error("This file isn't a fUGE project.");
@@ -218,7 +252,7 @@
                 inst.bits = parseInt(r.bits, 10) === 7 ? 7 : 15;
                 inst.note = num(r.note, 0, NOISE_MAX, d.note);
             }
-            inst.fx = r.fx && Number.isFinite(Number(r.fx.code)) ? { code: num(r.fx.code, 0, 15, 0), param: num(r.fx.param, 0, 255, 0) } : null;
+            inst.sub = normSub(r.sub, r.fx, r.type);
             ids.add(inst.id);
             s.instruments.push(inst);
         }
@@ -228,7 +262,7 @@
             const pats = (Array.isArray(rt.patterns) ? rt.patterns : []).map(p => {
                 const notes = (p && Array.isArray(p.notes) ? p.notes : []).filter(n => n && kindOf.get(n.inst) === t.kind).map(n => {
                     const row = num(n.row, 0, MAX_ROWS - 1, 0);
-                    const fx = n.fx === false ? false : n.fx && Number.isFinite(Number(n.fx.code)) ? { code: num(n.fx.code, 0, 15, 0), param: num(n.fx.param, 0, 255, 0) } : null;
+                    const fx = n.fx && Number.isFinite(Number(n.fx.code)) ? { code: num(n.fx.code, 0, 15, 0), param: num(n.fx.param, 0, 255, 0) } : null;
                     return { row, len: num(n.len, 1, MAX_ROWS - row, 1), note: num(n.note, 0, t.kind === "noise" ? NOISE_MAX : NOTE_MAX, 24), inst: n.inst, fx };
                 });
                 return { notes };
@@ -322,6 +356,7 @@
         drawLen: 4,
         ghost: true,
         waveMirror: true,
+        subOpen: false,
         mute: [false, false, false, false],
         solo: [false, false, false, false],
         playing: false,
@@ -407,6 +442,8 @@
 
     function audioSpec(inst) {
         const spec = clone(inst);
+        spec.table = UGE.compileSub(inst.sub);
+        delete spec.sub;
         if (inst.type === "wave") spec.waveIndex = -2;
         return spec;
     }
@@ -422,9 +459,10 @@
         if (!inst || state.playing) return;
         const c = ch === undefined ? previewChannel(inst) : ch;
         const n = note === undefined ? (inst.type === "noise" ? inst.note : inst.type === "wave" ? 24 : 36) : note;
-        const f = fx === undefined ? inst.fx || null : fx;
+        const f = fx === undefined ? null : fx;
+        const moving = subActive(inst.sub) || (f && (f.code === 0x4 || f.code === 0x0));
         GBAudio.start().then(sendMute).catch(() => toast("Couldn't start audio in this browser."));
-        GBAudio.send({ type: "preview", ch: c, inst: audioSpec(inst), note: n, fx: f, dur: inst.type === "noise" ? 0.9 : f && (f.code === 0x4 || f.code === 0x0) ? 0.8 : 0.45 });
+        GBAudio.send({ type: "preview", ch: c, inst: audioSpec(inst), note: n, fx: f, dur: inst.type === "noise" ? 0.9 : moving ? 0.8 : 0.45 });
     }
 
     const trackKind = t => TRACKS[t].kind;
@@ -477,11 +515,7 @@
     }
 
     const curPat = () => patAt(state.track, state.ord);
-    const instFx = n => {
-        const i = instById(n.inst);
-        return i && i.fx ? i.fx : null;
-    };
-    const effFx = n => n.fx === false ? null : n.fx || instFx(n);
+    const effFx = n => n.fx || null;
     const fxLabel = fx => fx ? hex(fx.code, 1) + hex(fx.param, 2) + " " + ((FX.find(f => f.code === fx.code) || { name: "" }).name) : "";
 
     function instUseCount(id) {
@@ -700,8 +734,8 @@
                 b.className = "inst" + (inst.id === state.inst ? " active" : "") + (type !== kind ? " dim" : "");
                 b.dataset.id = inst.id;
                 if (type !== kind) b.title = "Plays on " + (type === "pulse" ? "Pulse 1 and 2" : KIND_LABEL[type]) + ". Selecting it switches track.";
-                const tag = inst.fx ? (inst.fx.code === 0 ? "ARP" : inst.fx.code === 4 ? "VIB" : hex(inst.fx.code, 1) + hex(inst.fx.param, 2)) : "";
-                b.innerHTML = "<span class=\"num\">" + pad2(k + 1) + "</span><canvas></canvas><span class=\"name\">" + esc(inst.name) + (tag ? " <span class=\"ifx\" title=\"Default effect " + esc(fxLabel(inst.fx)) + "\">" + tag + "</span>" : "") + "</span>";
+                const tag = subTag(inst.sub);
+                b.innerHTML = "<span class=\"num\">" + pad2(k + 1) + "</span><canvas></canvas><span class=\"name\">" + esc(inst.name) + (tag ? " <span class=\"ifx\" title=\"Subpattern: " + esc(inst.sub.name) + "\">" + tag + "</span>" : "") + "</span>";
                 g.appendChild(b);
                 drawIcon(b.querySelector("canvas"), inst, 38, 18);
             });
@@ -782,46 +816,147 @@
             h += "<p class=\"hint\">New hits use this pitch. Change a single hit in the note panel.</p>";
             h += lengthFields(inst, 64);
         }
-        h += instFxFields(inst);
+        h += subFields(inst);
         h += "<div class=\"chips\" style=\"align-items:center\"><button class=\"btn small\" type=\"button\" data-act=\"dup\"" + (instsOf(inst.type).length >= MAX_INST ? " disabled" : "") + ">Duplicate</button><button class=\"btn small\" type=\"button\" data-act=\"del\">Delete</button><span class=\"hint\" style=\"margin-left:auto\">" + (uses ? "Used by " + uses + " note" + (uses === 1 ? "" : "s") : "Not used yet") + "</span></div>";
         el.innerHTML = h;
         drawEditorCanvases(inst);
     }
 
-    const INST_FX_PRESETS = {
-        pulse: [["Natural vibrato", 0x4, 0x43], ["Major arp", 0x0, 0x47], ["Minor arp", 0x0, 0x37], ["Octave arp", 0x0, 0x0c]],
-        wave: [["Natural vibrato", 0x4, 0x43], ["Major arp", 0x0, 0x47], ["Minor arp", 0x0, 0x37], ["Octave arp", 0x0, 0x0c]],
-        noise: [["Short cut", 0xe, 0x02], ["Flam", 0x7, 0x01]]
-    };
-    const GLOBAL_FX = [0x5, 0x8, 0xf];
+    const TABLE_NAMES = { 0x0: "Arp", 0x1: "Slide up", 0x2: "Slide down", 0x4: "Vibrato", 0x9: "Duty", 0xA: "Vol step", 0xC: "Volume" };
 
-    function instFxFields(inst) {
-        const fx = inst.fx;
-        const def = fx ? FX.find(f => f.code === fx.code) : null;
-        let h = "<div class=\"field\"><span>Default effect</span><select data-ifx=\"code\" aria-label=\"Default effect\"><option value=\"\">None</option>" +
-            FX.filter(f => f.kinds.includes(inst.type) && !GLOBAL_FX.includes(f.code)).map(f => "<option value=\"" + f.code + "\"" + (fx && fx.code === f.code ? " selected" : "") + ">" + hex(f.code, 1) + "xy · " + f.name + "</option>").join("") + "</select></div>";
-        if (def) {
-            const nib = (k, v, label) => "<label class=\"field\"><span>" + label + "</span><select data-ifx=\"" + k + "\">" + Array.from({ length: 16 }, (_, i) => "<option value=\"" + i + "\"" + (i === v ? " selected" : "") + ">" + hex(i, 1) + "</option>").join("") + "</select></label>";
-            h += "<div class=\"two\">" + nib("x", fx.param >> 4, "x · " + def.x) + nib("y", fx.param & 15, "y · " + def.y) + "</div>";
-            h += "<p class=\"hint\"><b style=\"font-family:var(--f-mono)\">" + hex(fx.code, 1) + hex(fx.param, 2) + "</b> " + def.hint + "</p>";
-        } else {
-            h += "<p class=\"hint\">Give every note drawn with this instrument an effect, like vibrato or an arpeggio chord. Single notes can still set their own, or None.</p>";
-        }
-        const presets = INST_FX_PRESETS[inst.type] || [];
-        if (presets.length) h += "<div class=\"chips\">" + presets.map(p => "<button type=\"button\" class=\"btn small\" data-ifxp=\"" + p[1] + ":" + p[2] + "\" aria-pressed=\"" + !!(fx && fx.code === p[1] && fx.param === p[2]) + "\">" + p[0] + "</button>").join("") + "</div>";
+    function subActive(sub) {
+        return !!(sub && sub.rows.some(r => typeof r.note === "number" || (r.fx && (r.fx.code || r.fx.param))));
+    }
+
+    function subTag(sub) {
+        if (!subActive(sub)) return "";
+        const n = sub.name.toLowerCase();
+        return n.includes("vib") ? "VIB" : n.includes("arp") ? "ARP" : "SUB";
+    }
+
+    function sameSub(a, b) {
+        if (!a || !b || a.loop !== b.loop || a.rows.length !== b.rows.length) return false;
+        return a.rows.every((r, k) => {
+            const q = b.rows[k];
+            return r.note === q.note && (r.fx ? !!q.fx && r.fx.code === q.fx.code && r.fx.param === q.fx.param : !q.fx);
+        });
+    }
+
+    function subPresetName(inst) {
+        if (!subActive(inst.sub)) return "";
+        const hit = (Presets.SUBS[inst.type] || []).find(d => sameSub(inst.sub, Presets.subOf(inst.type, d.name)));
+        return hit ? hit.name : "custom";
+    }
+
+    const offName = v => v === 0 ? "±0" : v > 0 ? "+" + v : "−" + -v;
+
+    function subFields(inst) {
+        const sub = inst.sub;
+        const cur = subPresetName(inst);
+        const list = Presets.SUBS[inst.type] || [];
+        let h = "<div class=\"sub-sec\"><div class=\"field\"><span>Subpattern <b>moves every tick</b></span><select data-sp=\"preset\" aria-label=\"Subpattern preset\"><option value=\"\">None</option>" +
+            (cur === "custom" ? "<option value=\"custom\" selected>Custom" + (sub.name && sub.name !== "Custom" ? " · " + esc(sub.name) : "") + "</option>" : "") +
+            list.map(d => "<option value=\"" + esc(d.name) + "\"" + (d.name === cur ? " selected" : "") + ">" + esc(d.name) + "</option>").join("") + "</select></div>";
+        const def = list.find(d => d.name === cur);
+        if (def) h += "<p class=\"hint\">" + esc(def.desc) + "</p>";
+        else if (!cur) h += "<p class=\"hint\">A tiny pattern that runs on every note this instrument plays, one row per tick: arpeggios, vibrato, pitch drops, duty changes. It exports to hUGETracker and GB Studio as the instrument's subpattern.</p>";
+        h += "<div class=\"chips\"><button type=\"button\" class=\"btn small\" data-act=\"subEdit\" aria-pressed=\"" + !!state.subOpen + "\">" + (state.subOpen ? "Hide rows" : "Edit rows") + "</button>" +
+            (cur ? "<button type=\"button\" class=\"btn small\" data-act=\"subOff\">Turn off</button>" : "") + "</div>";
+        if (state.subOpen) h += subGrid(inst);
+        return h + "</div>";
+    }
+
+    function subGrid(inst) {
+        const sub = inst.sub || { loop: -1, rows: [] };
+        const len = sub.rows.length;
+        const max = subLimit(sub.loop);
+        let h = "<div class=\"two\"><label class=\"field\"><span>Rows</span><select data-sp=\"len\">" +
+            Array.from({ length: max }, (_, k) => "<option value=\"" + (k + 1) + "\"" + (k + 1 === len ? " selected" : "") + ">" + (k + 1) + "</option>").join("") +
+            (len ? "" : "<option value=\"0\" selected>0</option>") + "</select></label>";
+        h += "<label class=\"field\"><span>At the end</span><select data-sp=\"loop\"><option value=\"-1\"" + (sub.loop < 0 ? " selected" : "") + (len > SUB_MAX - 2 ? " disabled" : "") + ">Stop</option>" +
+            Array.from({ length: len }, (_, k) => "<option value=\"" + k + "\"" + (k === sub.loop ? " selected" : "") + ">Loop from " + pad2(k + 1) + "</option>").join("") + "</select></label></div>";
+        if (!len) return h + "<p class=\"hint\">Pick how many rows (ticks) to start with.</p>";
+        const codes = TABLE_FX[inst.type] || [];
+        let notes = "<option value=\"\">—</option>";
+        for (let v = 24; v >= -24; v--) notes += "<option value=\"" + v + "\">" + offName(v) + "</option>";
+        h += "<div class=\"sub-grid\" role=\"grid\"><div class=\"sub-row head\"><span>#</span><span>Note</span><span>Effect</span><span>x</span><span>y</span></div>";
+        sub.rows.forEach((r, k) => {
+            const fx = r.fx;
+            const nib = (f, v) => "<select data-sp=\"" + f + "\" data-r=\"" + k + "\"" + (fx ? "" : " disabled") + " aria-label=\"Row " + (k + 1) + " " + f + "\">" + Array.from({ length: 16 }, (_, i) => "<option value=\"" + i + "\"" + (i === v ? " selected" : "") + ">" + hex(i, 1) + "</option>").join("") + "</select>";
+            const nv = typeof r.note === "number" ? String(r.note) : "";
+            let ns = notes.replace("value=\"" + nv + "\">", "value=\"" + nv + "\" selected>");
+            if (typeof r.note === "number" && (r.note > 24 || r.note < -24)) ns += "<option value=\"" + r.note + "\" selected>" + offName(r.note) + "</option>";
+            h += "<div class=\"sub-row" + (k === sub.loop ? " loop" : "") + (k >= sub.loop && sub.loop >= 0 ? " in-loop" : "") + "\"><span class=\"num\">" + pad2(k + 1) + "</span>" +
+                "<select data-sp=\"note\" data-r=\"" + k + "\" aria-label=\"Row " + (k + 1) + " note offset\">" + ns + "</select>" +
+                "<select data-sp=\"fx\" data-r=\"" + k + "\" aria-label=\"Row " + (k + 1) + " effect\"><option value=\"\">—</option>" + codes.map(c => "<option value=\"" + c + "\"" + (fx && fx.code === c ? " selected" : "") + ">" + hex(c, 1) + " " + TABLE_NAMES[c] + "</option>").join("") + "</select>" +
+                nib("x", fx ? fx.param >> 4 : 0) + nib("y", fx ? fx.param & 15 : 0) + "</div>";
+        });
+        h += "</div>";
+        const used = [...new Set(sub.rows.filter(r => r.fx).map(r => r.fx.code))];
+        h += "<p class=\"hint\">Each row lasts one tick (1/60 s) and starts again on every new note. Note offsets are in semitones from the note you drew" + (inst.type === "noise" ? " (noise pitch steps here)" : "") + "." + (sub.loop >= 0 ? " Rows from " + pad2(sub.loop + 1) + " repeat until the next note." : " After the last row the sound holds where it ended.") + "</p>";
+        used.forEach(c => {
+            h += "<p class=\"hint\"><b style=\"font-family:var(--f-mono)\">" + hex(c, 1) + "xy</b> " + TABLE_HINT[c] + "</p>";
+        });
         return h;
     }
 
-    function setInstFx(inst, fx) {
+    function setSub(inst, sub, quiet) {
         checkpoint();
-        inst.fx = fx;
+        inst.sub = sub;
         renderEditor();
         renderInstList();
-        drawGrid();
-        renderInspector();
         scheduleAutosave();
-        preview(inst);
+        if (!quiet) preview(inst);
     }
+
+    function editSub(inst, fn) {
+        const sub = inst.sub ? clone(inst.sub) : { name: "Custom", loop: -1, rows: [] };
+        fn(sub);
+        if (sub.loop >= sub.rows.length) sub.loop = sub.rows.length ? 0 : -1;
+        if (sub.loop < 0 && sub.rows.length > SUB_MAX - 2) sub.rows.length = SUB_MAX - 2;
+        if (!subPresetNameOf(inst.type, sub)) sub.name = "Custom";
+        setSub(inst, sub.rows.length ? sub : null);
+    }
+
+    function subPresetNameOf(type, sub) {
+        const hit = (Presets.SUBS[type] || []).find(d => sameSub(sub, Presets.subOf(type, d.name)));
+        if (hit) sub.name = hit.name;
+        return hit ? hit.name : "";
+    }
+
+    function onSubChange(t) {
+        const inst = curInst();
+        if (!inst) return;
+        const f = t.dataset.sp;
+        const v = t.value;
+        if (f === "preset") {
+            if (v === "custom") return;
+            setSub(inst, v ? Presets.subOf(inst.type, v) : null);
+            return;
+        }
+        const r = parseInt(t.dataset.r, 10);
+        editSub(inst, sub => {
+            if (f === "len") {
+                const n = clamp(parseInt(v, 10) || 0, 0, SUB_MAX);
+                while (sub.rows.length < n) sub.rows.push({ note: null, fx: null });
+                sub.rows.length = n;
+            } else if (f === "loop") {
+                sub.loop = parseInt(v, 10);
+            } else if (f === "note") {
+                sub.rows[r].note = v === "" ? null : clamp(parseInt(v, 10), -36, 35);
+            } else if (f === "fx") {
+                const code = v === "" ? -1 : parseInt(v, 10);
+                const old = sub.rows[r].fx;
+                sub.rows[r].fx = code < 0 ? null : { code, param: old && old.code === code ? old.param : TABLE_DEFAULT[code] };
+            } else if ((f === "x" || f === "y") && sub.rows[r].fx) {
+                const k = parseInt(v, 10);
+                const p = sub.rows[r].fx.param;
+                sub.rows[r].fx.param = f === "x" ? (k << 4) | (p & 15) : (p & 0xf0) | k;
+            }
+        });
+    }
+
+    const TABLE_DEFAULT = { 0x0: 0x47, 0x1: 0x04, 0x2: 0x04, 0x4: 0x43, 0x9: 0x80, 0xA: 0x01, 0xC: 0x08 };
 
     function drawEditorCanvases(inst) {
         const env = $("envCanvas");
@@ -1310,9 +1445,9 @@
                         ctx.globalAlpha = 1;
                     }
                 }
-                if (effFx(n)) {
+                if (n.fx) {
                     ctx.fillStyle = P.accent;
-                    ctx.globalAlpha = n.fx ? 1 : 0.45;
+                    ctx.globalAlpha = 1;
                     ctx.beginPath();
                     ctx.moveTo(r.x + 1, r.y + 1);
                     ctx.lineTo(r.x + 7, r.y + 1);
@@ -1770,7 +1905,7 @@
         const min = Math.min(...sel.map(n => n.row));
         state.clip = {
             kind: trackKind(state.track),
-            notes: sel.map(n => ({ dr: n.row - min, len: n.len, note: n.note, inst: n.inst, fx: n.fx === false ? false : n.fx ? { code: n.fx.code, param: n.fx.param } : null })),
+            notes: sel.map(n => ({ dr: n.row - min, len: n.len, note: n.note, inst: n.inst, fx: n.fx ? { code: n.fx.code, param: n.fx.param } : null })),
             span: Math.max(...sel.map(noteEnd)) - min
         };
         if (!quiet) status("Copied " + sel.length + " " + noun(sel.length) + ".");
@@ -1804,7 +1939,7 @@
                 dropped++;
                 continue;
             }
-            const n = { row: r, len: Math.min(c.len, ROWS - r), note: c.note, inst: c.inst, fx: c.fx === false ? false : c.fx ? { code: c.fx.code, param: c.fx.param } : null };
+            const n = { row: r, len: Math.min(c.len, ROWS - r), note: c.note, inst: c.inst, fx: c.fx ? { code: c.fx.code, param: c.fx.param } : null };
             pat.notes.push(n);
             added.push(n);
         }
@@ -1853,8 +1988,8 @@
 
     function setFx(code, param) {
         applySel(n => {
-            n.fx = code === null ? (instFx(n) ? false : null) : code === "inherit" ? null : { code, param };
-        }, code === null ? "Effects removed." : code === "inherit" ? "Back to the instrument's own effect." : "Effect " + hex(code, 1) + hex(param, 2) + " set.");
+            n.fx = code === null ? null : { code, param };
+        }, code === null ? "Effects removed." : "Effect " + hex(code, 1) + hex(param, 2) + " set.");
     }
 
     function tipsHtml(kind) {
@@ -1886,16 +2021,13 @@
         const one = sel.length === 1 ? sel[0] : null;
         const insts = instsOf(kind);
         const sameInst = sel.every(n => n.inst === sel[0].inst);
-        const modeOf = n => n.fx === false ? "" : n.fx ? String(n.fx.code) : instFx(n) ? "inherit" : "";
+        const modeOf = n => n.fx ? String(n.fx.code) : "";
         const modes = new Set(sel.map(modeOf));
         const mode = modes.size === 1 ? [...modes][0] : "keep";
         const effs = sel.map(effFx);
         const effCodes = new Set(effs.map(f => f ? f.code : -1));
         const fxCode = effCodes.size === 1 ? [...effCodes][0] : -2;
         const fxDef = fxCode >= 0 ? FX.find(f => f.code === fxCode) : null;
-        const ifx = sel.map(instFx);
-        const anyInherit = ifx.some(Boolean);
-        const sameIfx = ifx.every(f => f && f.code === ifx[0].code && f.param === ifx[0].param);
         let h;
         if (one) {
             h = "<p class=\"label\">" + title + "</p>";
@@ -1923,7 +2055,6 @@
             h += "<label class=\"field\"><span>Length</span><input type=\"number\" data-f=\"len\" min=\"1\" max=\"64\" value=\"" + (sameLen ? sel[0].len : "") + "\" placeholder=\"mixed\"></label>";
         }
         h += "<label class=\"field\"><span>Effect</span><select data-f=\"fx\">" + (mode === "keep" ? "<option value=\"keep\" selected>— mixed —</option>" : "") +
-            (anyInherit ? "<option value=\"inherit\"" + (mode === "inherit" ? " selected" : "") + ">From instrument" + (sameIfx ? " · " + esc(fxLabel(ifx[0])) : "") + "</option>" : "") +
             "<option value=\"\"" + (mode === "" ? " selected" : "") + ">None</option>" +
             FX.filter(f => f.kinds.includes(kind)).map(f => "<option value=\"" + f.code + "\"" + (String(f.code) === mode ? " selected" : "") + ">" + hex(f.code, 1) + "xy · " + f.name + "</option>").join("") + "</select></label>";
         if (fxDef) {
@@ -1932,7 +2063,7 @@
             const x = xs.size === 1 ? [...xs][0] : -1;
             const y = ys.size === 1 ? [...ys][0] : -1;
             h += "<div class=\"nib\">" + nibSelect("fxx", x, "x · " + fxDef.x) + nibSelect("fxy", y, "y · " + fxDef.y) + "</div>";
-            h += "<p class=\"hint\">" + (x >= 0 && y >= 0 ? "<b style=\"font-family:var(--f-mono)\">" + hex(fxDef.code, 1) + hex((x << 4) | y, 2) + "</b> " : "") + fxDef.hint + (mode === "inherit" ? " This comes from the instrument. Changing x or y here gives " + (one ? "this note" : "these notes") + " their own copy." : "") + "</p>";
+            h += "<p class=\"hint\">" + (x >= 0 && y >= 0 ? "<b style=\"font-family:var(--f-mono)\">" + hex(fxDef.code, 1) + hex((x << 4) | y, 2) + "</b> " : "") + fxDef.hint + "</p>";
         }
         h += "<div class=\"field\"><span>Volume <b>sets C0y</b></span><div class=\"seg\" role=\"group\">" +
             VOLUMES.map(v => "<button type=\"button\" data-f=\"vol\" data-v=\"" + v.y + "\" aria-pressed=\"" + sel.every(n => n.fx && n.fx.code === 0xc && n.fx.param === v.y) + "\">" + v.label + "</button>").join("") + "</div></div>";
@@ -1994,10 +2125,6 @@
             if (v === "keep") return;
             if (v === "") {
                 setFx(null);
-                return;
-            }
-            if (v === "inherit") {
-                setFx("inherit");
                 return;
             }
             const code = parseInt(v, 10);
@@ -2137,11 +2264,10 @@
         if (first) first.focus({ preventScroll: true });
     }
 
-    function fxMenu(kind, inherit) {
+    function fxMenu(kind) {
         const pitched = kind !== "noise";
         const opt = (label, code, param) => ({ label: label + "  " + hex(code, 1) + hex(param, 2), action: () => setFx(code, param) });
         return [
-            inherit && { label: "From instrument", action: () => setFx("inherit") },
             { label: "None", action: () => setFx(null) },
             { sep: true },
             pitched && { label: "Arpeggio", sub: [opt("Major", 0x0, 0x47), opt("Minor", 0x0, 0x37), opt("Sus4", 0x0, 0x57), opt("Fifth", 0x0, 0x07), opt("Octave", 0x0, 0x0c)] },
@@ -2189,7 +2315,7 @@
                 n.inst = i.id;
                 if (G.drum) n.note = i.note;
             }, "Instrument set to " + i.name + ".") })) },
-            has && { label: "Effect", sub: fxMenu(kind, sel.some(n => instFx(n))) },
+            has && { label: "Effect", sub: fxMenu(kind) },
             has && { label: "Volume", sub: VOLUMES.map(v => ({ label: v.label + "  C0" + hex(v.y, 1), checked: has && sel.every(n => n.fx && n.fx.code === 0xc && n.fx.param === v.y), action: () => setFx(0xc, v.y) })) },
             has && { label: G.drum ? "Pitch" : "Transpose", sub: [{ label: "Up a semitone", kbd: "↑", action: () => transposeSel(1) }, { label: "Down a semitone", kbd: "↓", action: () => transposeSel(-1) }, { label: "Up an octave", kbd: "Shift+↑", action: () => transposeSel(12) }, { label: "Down an octave", kbd: "Shift+↓", action: () => transposeSel(-12) }] },
             has && !G.drum && { label: "Length", sub: [1, 2, 3, 4, 6, 8, 16].map(l => ({ label: l + (l === 1 ? " row" : " rows"), checked: has && sel.every(n => n.len === l), action: () => applySel(n => {
@@ -2462,16 +2588,8 @@
     }
 
     function onEditorChange(e) {
-        const ifx = e.target.dataset.ifx;
-        if (ifx) {
-            const inst = curInst();
-            if (!inst) return;
-            const v = parseInt(e.target.value, 10);
-            if (ifx === "code") {
-                setInstFx(inst, Number.isFinite(v) ? { code: v, param: inst.fx && inst.fx.code === v ? inst.fx.param : fxDefault(v) } : null);
-            } else if (inst.fx) {
-                setInstFx(inst, { code: inst.fx.code, param: ifx === "x" ? (v << 4) | (inst.fx.param & 15) : (inst.fx.param & 0xf0) | v });
-            }
+        if (e.target.dataset.sp) {
+            onSubChange(e.target);
             return;
         }
         const k = e.target.dataset.k;
@@ -2518,9 +2636,17 @@
             preview(inst);
             return;
         }
-        if (b.dataset.ifxp) {
-            const [code, param] = b.dataset.ifxp.split(":").map(Number);
-            setInstFx(inst, inst.fx && inst.fx.code === code && inst.fx.param === param ? null : { code, param });
+        if (b.dataset.act === "subEdit") {
+            state.subOpen = !state.subOpen;
+            renderEditor();
+            if (state.subOpen) {
+                const g = $("instEditor").querySelector(".sub-sec");
+                if (g) g.scrollIntoView({ block: "nearest" });
+            }
+            return;
+        }
+        if (b.dataset.act === "subOff") {
+            setSub(inst, null, true);
             return;
         }
         if (b.dataset.act === "dup") {

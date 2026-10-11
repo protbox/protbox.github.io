@@ -57,11 +57,13 @@
         { name: "Pulse Bass", desc: "Full volume, slow fade. Bass on a pulse channel.", data: { duty: 2, vol: 15, envDir: "down", envPace: 6 } },
         { name: "Swell", desc: "Fades in from silence.", data: { duty: 2, vol: 0, envDir: "up", envPace: 3 } },
         { name: "Echo", desc: "Quiet copy of a lead, for a delayed echo on Pulse 2.", data: { duty: 1, vol: 5, envDir: "down", envPace: 2 } },
-        { name: "Violin Lead", desc: "Thin, bowed-sounding lead with a natural vibrato (4 43).", data: { duty: 1, vol: 11, envDir: "down", envPace: 0, fx: { code: 4, param: 67 } } },
-        { name: "Vibrato Lead", desc: "Square lead with a natural vibrato (4 43).", data: { duty: 2, vol: 12, envDir: "down", envPace: 0, fx: { code: 4, param: 67 } } },
-        { name: "Major Arp", desc: "Every note plays a major chord as a fast arpeggio (0 47).", data: { duty: 1, vol: 12, envDir: "down", envPace: 0, fx: { code: 0, param: 71 } } },
-        { name: "Minor Arp", desc: "Every note plays a minor chord as a fast arpeggio (0 37).", data: { duty: 1, vol: 12, envDir: "down", envPace: 0, fx: { code: 0, param: 55 } } },
-        { name: "Arp Pluck", desc: "Decaying major arpeggio, classic chiptune chords (0 47).", data: { duty: 1, vol: 15, envDir: "down", envPace: 2, fx: { code: 0, param: 71 } } },
+        { name: "Violin Lead", desc: "Thin, bowed-sounding lead. The vibrato eases in after the note starts.", data: { duty: 1, vol: 11, envDir: "down", envPace: 0 }, sub: "Delayed vibrato" },
+        { name: "Vibrato Lead", desc: "Square lead with a natural vibrato.", data: { duty: 2, vol: 12, envDir: "down", envPace: 0 }, sub: "Natural vibrato" },
+        { name: "Major Arp", desc: "Every note plays a major chord as a fast arpeggio.", data: { duty: 1, vol: 12, envDir: "down", envPace: 0 }, sub: "Major arp" },
+        { name: "Minor Arp", desc: "Every note plays a minor chord as a fast arpeggio.", data: { duty: 1, vol: 12, envDir: "down", envPace: 0 }, sub: "Minor arp" },
+        { name: "Arp Pluck", desc: "Decaying major arpeggio, classic chiptune chords.", data: { duty: 1, vol: 15, envDir: "down", envPace: 2 }, sub: "Major arp" },
+        { name: "Shimmer Pad", desc: "Held tone whose duty cycle keeps turning, so it sounds alive.", data: { duty: 2, vol: 10, envDir: "down", envPace: 0 }, sub: "Duty shimmer" },
+        { name: "Scoop Lead", desc: "Bends up into each note like a singer.", data: { duty: 2, vol: 12, envDir: "down", envPace: 0 }, sub: "Scoop in" },
         { name: "Blip", desc: "Short staccato chirp using the length counter.", data: { duty: 0, vol: 14, envDir: "down", envPace: 1, length: 12 } },
         { sfx: true, name: "Jump", desc: "Quick rising chirp. Pulse 1 only (uses sweep).", data: { duty: 2, vol: 13, envDir: "down", envPace: 2, sweepTime: 2, sweepDir: "up", sweepShift: 3 } },
         { sfx: true, name: "Coin", desc: "Bright ding. Play two quick notes a fourth apart.", data: { duty: 1, vol: 15, envDir: "down", envPace: 3 } },
@@ -75,6 +77,7 @@
         { sfx: true, name: "Sparkle", desc: "Glassy tone for magic. Add a fast arpeggio.", data: { duty: 1, vol: 11, envDir: "down", envPace: 3 } },
         { sfx: true, name: "Menu Blip", desc: "Tiny tick for cursors and text.", data: { duty: 1, vol: 12, envDir: "down", envPace: 1, length: 6 } },
         { sfx: true, name: "Confirm", desc: "Round, friendly beep.", data: { duty: 2, vol: 13, envDir: "down", envPace: 2 } },
+        { sfx: true, name: "Pickup", desc: "Bright octave flutter for coins and items.", data: { duty: 1, vol: 14, envDir: "down", envPace: 2 }, sub: "Octave flutter" },
         { sfx: true, name: "Error Buzz", desc: "Flat buzz. Use low notes.", data: { duty: 3, vol: 13, envDir: "down", envPace: 0 } }
     ];
 
@@ -86,7 +89,7 @@
         { name: "Wave Square", desc: "Hollow square, fuller than the pulse channels.", data: { level: 1, shape: "square" } },
         { name: "Organ", desc: "Harmonic-rich organ tone.", data: { level: 1, shape: "organ" } },
         { name: "Flute", desc: "Soft, breathy lead.", data: { level: 1, shape: "flute" } },
-        { name: "Vibrato Flute", desc: "Soft flute with a natural vibrato (4 43).", data: { level: 1, shape: "flute", fx: { code: 4, param: 67 } } },
+        { name: "Vibrato Flute", desc: "Soft flute. The vibrato eases in after the note starts.", data: { level: 1, shape: "flute" }, sub: "Delayed vibrato" },
         { name: "Hollow", desc: "Nasal, clarinet-ish tone.", data: { level: 1, shape: "hollow" } },
         { name: "Buzz Bass", desc: "Gritty bass with extra bite.", data: { level: 1, shape: "buzz" } },
         { name: "Pad", desc: "Sine at half volume, sits behind the leads.", data: { level: 2, shape: "sine" } },
@@ -102,9 +105,11 @@
         { name: "Kick", desc: "Low thump. Metallic mode keeps it heavy but audible.", data: { vol: 15, envDir: "down", envPace: 2, bits: 7, note: 32 } },
         { name: "Punchy Kick", desc: "Shorter and brighter, cuts through busy mixes.", data: { vol: 15, envDir: "down", envPace: 1, bits: 7, note: 36 } },
         { name: "Soft Kick", desc: "Smooth noise thud for quieter tracks.", data: { vol: 15, envDir: "down", envPace: 2, bits: 15, note: 34 } },
+        { name: "Drop Kick", desc: "Kick with a quick pitch drop, punchy even on small speakers.", data: { vol: 15, envDir: "down", envPace: 2, bits: 15, note: 30 }, sub: "Kick drop" },
         { name: "Snare", desc: "Mid-range crack.", data: { vol: 13, envDir: "down", envPace: 2, bits: 15, note: 40 } },
         { name: "Closed Hat", desc: "Short, bright tick.", data: { vol: 8, envDir: "down", envPace: 1, bits: 15, note: 54 } },
         { name: "Open Hat", desc: "Bright and ringing.", data: { vol: 8, envDir: "down", envPace: 3, bits: 15, note: 52 } },
+        { name: "Snap Snare", desc: "Snare with a bright metallic snap on the hit.", data: { vol: 13, envDir: "down", envPace: 2, bits: 15, note: 40 }, sub: "Metallic snap" },
         { name: "Clap", desc: "Snappy, a bit higher than the snare.", data: { vol: 12, envDir: "down", envPace: 2, bits: 15, note: 44 } },
         { name: "Crash", desc: "Long noisy wash.", data: { vol: 12, envDir: "down", envPace: 6, bits: 15, note: 46 } },
         { name: "Low Tom", desc: "Tonal drum using metallic noise.", data: { vol: 14, envDir: "down", envPace: 2, bits: 7, note: 48 } },
@@ -132,14 +137,55 @@
         noise: { vol: 15, envDir: "down", envPace: 1, length: 0, bits: 15, note: 24 }
     };
 
+    const E = null;
+    const PITCHED = [
+        { name: "Natural vibrato", desc: "A smooth, violin-like wobble.", loop: 0, rows: [[E, 0x4, 0x43]] },
+        { name: "Delayed vibrato", desc: "Holds steady, then the vibrato eases in.", loop: 14, rows: [[E], [E], [E], [E], [E], [E], [E], [E], [E], [E], [E], [E], [E], [E], [E, 0x4, 0x43]] },
+        { name: "Deep vibrato", desc: "Wider and slower, for dramatic held notes.", loop: 0, rows: [[E, 0x4, 0x85]] },
+        { name: "Major arp", desc: "Root, major third, fifth.", loop: 0, rows: [[0], [4], [7]] },
+        { name: "Minor arp", desc: "Root, minor third, fifth.", loop: 0, rows: [[0], [3], [7]] },
+        { name: "Major 7 arp", desc: "Four-note jazzy chord.", loop: 0, rows: [[0], [4], [7], [11]] },
+        { name: "Power arp", desc: "Root, fifth, octave.", loop: 0, rows: [[0], [7], [12]] },
+        { name: "Octave flutter", desc: "Flips between the note and the octave above.", loop: 0, rows: [[0], [0], [12], [12]] },
+        { name: "Lazy arp", desc: "A slower major arpeggio you can follow by ear.", loop: 0, rows: [[0], [0], [0], [4], [4], [4], [7], [7], [7]] },
+        { name: "Trill", desc: "Quick alternation with the note a step above.", loop: 0, rows: [[0], [0], [0], [2], [2], [2]] },
+        { name: "Scoop in", desc: "Bends up into the note.", loop: -1, rows: [[-4], [-3], [-2], [-1], [0]] },
+        { name: "Pitch drop", desc: "Falls an octave right after the hit.", loop: -1, rows: [[0], [-1], [-2], [-3], [-5], [-7], [-9], [-12]] }
+    ];
+    const SUBS = {
+        pulse: PITCHED.concat([
+            { name: "Duty shimmer", desc: "Turns the duty cycle around for a chorus-like movement.", loop: 0, rows: [[E, 0x9, 0x80], [E], [E], [E, 0x9, 0x40], [E], [E], [E, 0x9, 0x00], [E], [E], [E, 0x9, 0x40], [E], [E]] },
+            { name: "Thin attack", desc: "Starts thin and opens up to a full square.", loop: -1, rows: [[E, 0x9, 0x00], [E], [E, 0x9, 0x40], [E], [E, 0x9, 0x80]] }
+        ]),
+        wave: PITCHED.slice(),
+        noise: [
+            { name: "Kick drop", desc: "High click falling to a low thump.", loop: -1, rows: [[14], [9], [5], [2], [0]] },
+            { name: "Metallic snap", desc: "A metallic tick on the hit, then normal noise.", loop: -1, rows: [[8, 0x9, 0x08], [E], [E], [0]] },
+            { name: "Rattle", desc: "Flickers between two pitches.", loop: 0, rows: [[0], [0], [4], [4]] },
+            { name: "Rising hiss", desc: "Climbs in pitch while it plays.", loop: -1, rows: [[0], [E], [1], [E], [2], [E], [3], [E], [4], [E], [5], [E], [6], [E], [7], [E], [8]] },
+            { name: "Falling hiss", desc: "Sinks in pitch while it plays.", loop: -1, rows: [[0], [E], [-1], [E], [-2], [E], [-3], [E], [-4], [E], [-5], [E], [-6], [E], [-7], [E], [-8]] }
+        ]
+    };
+
+    function subOf(type, name) {
+        const d = (SUBS[type] || []).find(x => x.name === name);
+        if (!d) return null;
+        return {
+            name: d.name,
+            loop: d.loop,
+            rows: d.rows.map(r => ({ note: typeof r[0] === "number" ? r[0] : null, fx: r.length > 1 ? { code: r[1], param: r[2] } : null }))
+        };
+    }
+
     function make(type, preset) {
         const inst = Object.assign({ type, name: preset.name }, JSON.parse(JSON.stringify(DEFAULTS[type])), JSON.parse(JSON.stringify(preset.data)));
         if (type === "wave" && !Array.isArray(inst.wave)) inst.wave = SHAPES[inst.shape] ? SHAPES[inst.shape]() : SHAPES.triangle();
         delete inst.shape;
+        inst.sub = preset.sub ? subOf(type, preset.sub) : null;
         return inst;
     }
 
     const LIBRARY = { pulse: PULSE, wave: WAVE, noise: NOISE };
 
-    root.Presets = { LIBRARY, SHAPES, SHAPE_LABELS, DEFAULTS, make };
+    root.Presets = { LIBRARY, SHAPES, SHAPE_LABELS, DEFAULTS, SUBS, subOf, make };
 })(typeof window !== "undefined" ? window : globalThis);

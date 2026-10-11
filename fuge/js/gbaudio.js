@@ -6,6 +6,7 @@ function GBAudioCore() {
     const FS_CYCLES = 8192;
     const ROWS = 64;
     const LAST_NOTE = 72;
+    const NO_NOTE = 90;
     const PERIODS = [44, 156, 262, 363, 457, 547, 631, 710, 786, 854, 923, 986, 1046, 1102, 1155, 1205, 1253, 1297, 1339, 1379, 1417, 1452, 1486, 1517, 1546, 1575, 1602, 1627, 1650, 1673, 1694, 1714, 1732, 1750, 1767, 1783, 1798, 1812, 1825, 1837, 1849, 1860, 1871, 1881, 1890, 1899, 1907, 1915, 1923, 1930, 1936, 1943, 1949, 1954, 1959, 1964, 1969, 1974, 1978, 1982, 1985, 1988, 1992, 1995, 1998, 2001, 2004, 2006, 2009, 2011, 2013, 2015];
     const DUTY = [[0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1, 1, 1], [0, 1, 1, 1, 1, 1, 1, 0]];
     const NOISE_DIV = [8, 16, 32, 48, 64, 80, 96, 112];
@@ -18,9 +19,9 @@ function GBAudioCore() {
     function notePoly(note) {
         const a = ~((note + 192) & 0xff) & 0xff;
         if (a < 7) return a;
-        const b = ((a >> 2) - 1) & 0x0f;
+        const b = ((a >> 2) - 1) & 0xff;
         const c = (a & 3) + 4;
-        return (c | (b << 4)) & 0xff;
+        return (c | ((b << 4) & 0xf0) | (b >> 4)) & 0xff;
     }
 
     function envByte(s) {
@@ -325,7 +326,7 @@ function GBAudioCore() {
             this.speed = this.song ? this.song.speed : 6;
             this.curWave = -1;
             this.stepWidth = 0;
-            this.ch = [0, 1, 2, 3].map(() => ({ period: 0, target: 0, note: 0, highmask: 0 }));
+            this.ch = [0, 1, 2, 3].map(() => ({ period: 0, target: 0, note: 0, highmask: 0, table: null, tableRow: 0 }));
         }
 
         setSong(song) {
@@ -393,6 +394,8 @@ function GBAudioCore() {
             const a = this.apu;
             const ch = this.ch[c];
             const len = s.length || 0;
+            ch.table = s.table || null;
+            ch.tableRow = 0;
             if (c < 2) {
                 if (c === 0) a.write(0x10, ((s.sweepTime & 7) << 4) | (s.sweepDir === "down" ? 8 : 0) | (s.sweepShift & 7));
                 a.write(c === 0 ? 0x11 : 0x16, ((s.duty & 3) << 6) | (len ? (64 - len) & 63 : 0));
@@ -451,16 +454,39 @@ function GBAudioCore() {
             if (c !== 2) this.apu.write(reg + 2, 0xff);
         }
 
-        effect(c, fx, p) {
-            const t = this.tick;
-            if (t === 0 && fx === 0 && p === 0) return true;
+        doTable(c) {
+            const ch = this.ch[c];
+            const tb = ch.table;
+            if (!tb) return;
+            const row = ch.tableRow & 31;
+            ch.tableRow = (ch.tableRow + 1) & 255;
+            const cell = tb[row];
+            if (cell.jump) ch.tableRow = (cell.jump - 1) & 31;
+            if (cell.note !== NO_NOTE) {
+                const n = ch.note + cell.note - 36;
+                const h = ch.highmask & 0x7f;
+                if (c < 3) this.updateFreq(c, periodOf(n), h);
+                else this.updateFreq(3, n & 255, h);
+            }
+            if (cell.fx || cell.fp) this.effect(c, cell.fx, cell.fp, true);
+        }
+
+        effect(c, fx, p, inTable) {
+            if (inTable) {
+                if (fx === 0x3 || fx === 0x6 || fx === 0x7) return true;
+                if (fx === 0xe) {
+                    if (this.tick === 0) this.cut(c);
+                    return true;
+                }
+            } else if (this.tick === 0 && fx === 0 && p === 0) return true;
+            const t = inTable ? (fx === 0x1 || fx === 0x2 || fx === 0x4 ? 1 : 0) : this.tick;
             const a = this.apu;
             const ch = this.ch[c];
             switch (fx) {
                 case 0x0: {
                     const idx = ((this.counter - 1) & 255) % 3;
                     const off = idx === 0 ? p & 15 : idx === 1 ? p >> 4 : 0;
-                    this.updateFreq(c, c < 3 ? periodOf(ch.note + off) : ch.note + off);
+                    this.updateFreq(c, c < 3 ? periodOf(ch.note + off) : periodOf(ch.note + off) & 255);
                     break;
                 }
                 case 0x1:
@@ -575,6 +601,7 @@ function GBAudioCore() {
             }
             const play = this.effect(c, cell.fx, cell.fp);
             if (valid && play) this.playNote(c);
+            this.doTable(c);
         }
 
         tickOnce() {
@@ -585,6 +612,7 @@ function GBAudioCore() {
                 for (let c = 0; c < 4; c++) {
                     const cell = this.cell(c);
                     if (cell.fp) this.effect(c, cell.fx, cell.fp);
+                    this.doTable(c);
                 }
             }
             this.counter = (this.counter + 1) & 255;
@@ -676,6 +704,10 @@ function GBAudioCore() {
                     d.preview(m.ch, m.inst, m.note);
                     this.previewCh = m.ch;
                     this.previewFx = m.fx && [0x0, 0x1, 0x2, 0x4].includes(m.fx.code) ? m.fx : null;
+                    this.previewTable = !!d.ch[m.ch].table;
+                    this.previewTick = 0;
+                    d.tick = 0;
+                    if (this.previewTable) d.doTable(m.ch);
                     this.previewFrame = FRAME_CYCLES;
                     this.previewLeft = Math.max(1, Math.round((m.dur || 0.5) * this.rate));
                     break;
@@ -703,13 +735,16 @@ function GBAudioCore() {
                     }
                 }
                 if (this.previewLeft > 0) {
-                    if (this.previewFx && !d.playing) {
+                    if ((this.previewFx || this.previewTable) && !d.playing) {
                         this.previewFrame -= cyc;
                         if (this.previewFrame <= 0) {
                             this.previewFrame += FRAME_CYCLES;
-                            d.tick = 1;
                             d.counter = (d.counter + 1) & 255;
-                            d.effect(this.previewCh, this.previewFx.code, this.previewFx.param);
+                            this.previewTick = (this.previewTick + 1) % Math.max(1, d.speed);
+                            d.tick = 1;
+                            if (this.previewFx) d.effect(this.previewCh, this.previewFx.code, this.previewFx.param);
+                            d.tick = this.previewTick;
+                            if (this.previewTable) d.doTable(this.previewCh);
                             d.tick = 0;
                         }
                     }

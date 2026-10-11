@@ -12,8 +12,36 @@
         return cells;
     }
 
-    function buildCells(pattern, kind, instIndex, rows, sfx, instFx) {
-        const fxOf = n => n.fx === false ? null : n.fx || (instFx && instFx.get(n.inst)) || null;
+    const TABLE_ROWS = 32;
+
+    function compileSub(sub) {
+        if (!sub || !sub.rows || !sub.rows.length) return null;
+        const loop = sub.loop >= 0 && sub.loop < sub.rows.length ? sub.loop : -1;
+        const len = Math.max(1, Math.min(loop >= 0 ? TABLE_ROWS : TABLE_ROWS - 2, sub.rows.length));
+        const cells = [];
+        for (let r = 0; r < TABLE_ROWS; r++) cells.push({ note: NO_NOTE, jump: 0, fx: 0, fp: 0 });
+        let active = false;
+        for (let r = 0; r < len; r++) {
+            const row = sub.rows[r] || {};
+            const c = cells[r];
+            if (typeof row.note === "number") {
+                c.note = Math.max(0, Math.min(71, 36 + row.note));
+                active = true;
+            }
+            if (row.fx) {
+                c.fx = row.fx.code & 15;
+                c.fp = row.fx.param & 255;
+                if (c.fx || c.fp) active = true;
+            }
+        }
+        if (!active) return null;
+        if (loop >= 0) cells[len - 1].jump = Math.min(loop, len - 1) + 1;
+        else cells[len].jump = len + 1;
+        return cells;
+    }
+
+    function buildCells(pattern, kind, instIndex, rows, sfx) {
+        const fxOf = n => n.fx || null;
         const len = rows || ROWS;
         const cells = emptyCells();
         if (!pattern) {
@@ -85,14 +113,16 @@
             u8(enc.length);
             for (let k = 0; k < 255; k++) u8(k < enc.length ? enc[k] : 0);
         };
-        const subpattern = () => {
-            u8(0);
+        const subpattern = s => {
+            const t = s && s.table;
+            u8(t ? 1 : 0);
             for (let n = 0; n < 64; n++) {
-                u32(NO_NOTE);
+                const c = t && n < t.length ? t[n] : null;
+                u32(c ? c.note : NO_NOTE);
                 u32(0);
-                u32(0);
-                u32(0);
-                u8(0);
+                u32(c ? c.jump : 0);
+                u32(c ? c.fx : 0);
+                u8(c ? c.fp : 0);
             }
         };
         const env = s => {
@@ -113,7 +143,7 @@
             u32(0);
             u32(0);
             u32(0);
-            subpattern();
+            subpattern(s);
         };
         const wave = s => {
             u32(1);
@@ -130,7 +160,7 @@
             u32(s ? s.level : 1);
             u32(s ? s.waveIndex : 0);
             u32(0);
-            subpattern();
+            subpattern(s);
         };
         const noise = s => {
             u32(2);
@@ -145,7 +175,7 @@
             u32(0);
             u32(0);
             u32(s && s.bits === 7 ? 1 : 0);
-            subpattern();
+            subpattern(s);
         };
 
         u32(6);
@@ -206,10 +236,10 @@
                 waveKeys.set(key, waves.length);
                 waves.push(inst.wave.slice());
             }
-            return Object.assign({}, inst, { waveIndex: waveKeys.get(key) });
+            return Object.assign({}, inst, { waveIndex: waveKeys.get(key), table: compileSub(inst.sub) });
         });
+        const withTable = inst => Object.assign({}, inst, { table: compileSub(inst.sub) });
 
-        const instFx = new Map(doc.instruments.map(i => [i.id, i.fx || null]));
         const patterns = [];
         const orders = [[], [], [], []];
         const cache = new Map();
@@ -220,7 +250,7 @@
                 if (!cache.has(key)) {
                     const pat = idx >= 0 ? doc.tracks[c].patterns[idx] : null;
                     cache.set(key, patterns.length);
-                    patterns.push({ id: patterns.length, cells: buildCells(pat, KINDS[c], instIndex, rows, !!sfx, instFx) });
+                    patterns.push({ id: patterns.length, cells: buildCells(pat, KINDS[c], instIndex, rows, !!sfx) });
                 }
                 orders[c].push(cache.get(key));
             }
@@ -233,9 +263,9 @@
             speed: sfx ? sfx.speed : doc.speed,
             rows,
             used: [0, 1, 2, 3].map(c => orderRows.some(r => r[c] >= 0 && doc.tracks[c].patterns[r[c]] && doc.tracks[c].patterns[r[c]].notes.some(n => n.row < rows))),
-            duty: byType.pulse,
+            duty: byType.pulse.map(withTable),
             wave: waveSpecs,
-            noise: byType.noise,
+            noise: byType.noise.map(withTable),
             waves,
             patterns,
             orders
@@ -248,5 +278,5 @@
         return { bytes: writeBytes(res.song), warnings: res.warnings };
     }
 
-    root.UGE = { compile, exportSong, NO_NOTE };
+    root.UGE = { compile, compileSub, exportSong, NO_NOTE, TABLE_ROWS };
 })(typeof window !== "undefined" ? window : globalThis);
