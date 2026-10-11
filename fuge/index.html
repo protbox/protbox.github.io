@@ -4,9 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>fUGE</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -17,7 +14,7 @@
             <div class="group">
                 <button class="btn" id="btnNew" type="button">New ▾</button>
                 <button class="btn" id="btnOpen" type="button">Open</button>
-                <button class="btn" id="btnSave" type="button" title="Save project (Ctrl+S)">Save</button>
+                <button class="btn" id="btnSave" type="button" title="Save project (Ctrl+S). Shift-click or Ctrl+Shift+S to save a copy.">Save</button>
                 <button class="btn accent" id="btnExport" type="button" title="Export (Ctrl+E for the main format)">Export ▾</button>
                 <input type="file" id="fileInput" accept=".json,application/json" hidden>
             </div>
@@ -87,6 +84,10 @@
                     <select id="patSelect" aria-label="Pattern in this slot"></select>
                     <button class="btn small" id="patUnique" type="button" title="Copy this pattern so edits only affect this slot">Make unique</button>
                     <button class="btn small" id="patClear" type="button">Clear</button>
+                    <div class="scale-ctl" title="Darken the rows that aren't in this scale">
+                        <select id="scaleRoot" aria-label="Scale key"></select>
+                        <select id="scaleName" aria-label="Scale"></select>
+                    </div>
                     <div class="spacer"></div>
                     <div class="seg" role="group" aria-label="Tool">
                         <button type="button" id="toolDraw" aria-pressed="true" title="Draw (D)">✎ Draw</button>
@@ -103,6 +104,7 @@
                                 <canvas class="ruler" id="ruler" title="Click to set where playback starts"></canvas>
                                 <canvas class="keys" id="keys"></canvas>
                                 <canvas id="roll"></canvas>
+                                <div class="playhead" id="rollHead"></div>
                             </div>
                         </div>
                         <div class="roll-empty" id="rollEmpty" hidden></div>
@@ -131,6 +133,7 @@
 
     <div class="toast" id="toast" role="alert"></div>
 
+    <script src="js/desktop.js"></script>
     <script src="js/presets.js"></script>
     <script src="js/uge.js"></script>
     <script src="js/gbaudio.js"></script>

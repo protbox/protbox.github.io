@@ -1,3 +1,43 @@
+@font-face {
+    font-family: "Silkscreen";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/silkscreen-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Atkinson Hyperlegible";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Atkinson Hyperlegible";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/jetbrains-mono-latin-600-normal.woff2") format("woff2");
+}
+
 :root {
     --bg: #e6e8ee;
     --panel: #ffffff;
@@ -15,6 +55,7 @@
     --ch4: #a95a16;
     --roll-bg: #f7f8fb;
     --roll-alt: #eceef4;
+    --roll-out: #c4c8d4;
     --roll-beat: #d9dde8;
     --roll-bar: #a9b0c2;
     --key-white: #ffffff;
@@ -49,6 +90,8 @@
         --ch4: #e8a160;
         --roll-bg: #171a23;
         --roll-alt: #12141c;
+    --roll-out: #07080c;
+        --roll-out: #07080c;
         --roll-beat: #252a38;
         --roll-bar: #3d4459;
         --key-white: #c9cdd8;
@@ -153,6 +196,12 @@ input:focus-visible {
 
 .btn:hover {
     border-color: var(--muted);
+}
+
+select:disabled,
+input:disabled {
+    opacity: 0.45;
+    cursor: default;
 }
 
 .btn:disabled {
@@ -261,6 +310,29 @@ input[type="range"] {
 
 .brand span {
     color: var(--accent);
+    font-family: var(--f-mono);
+    font-weight: 600;
+    font-size: 21px;
+    letter-spacing: -0.02em;
+    margin-right: 1px;
+}
+
+.scale-ctl {
+    display: flex;
+    gap: 4px;
+}
+
+.scale-ctl select {
+    min-height: 26px;
+    font-size: 12.5px;
+}
+
+#scaleName {
+    width: 132px;
+}
+
+#patSelect {
+    max-width: 170px;
 }
 
 .mode-chip {
@@ -453,6 +525,17 @@ input[type="range"] {
     font-family: var(--f-mono);
     font-size: 11.5px;
     color: var(--muted);
+}
+
+.inst .ifx {
+    font-family: var(--f-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    border-radius: 3px;
+    padding: 0 3px;
+    vertical-align: 1px;
 }
 
 .inst .name {
@@ -792,7 +875,9 @@ input[type="range"] {
 .playline {
     position: absolute;
     top: 0;
+    left: 0;
     bottom: 0;
+    will-change: transform;
     width: 2px;
     background: var(--accent);
     pointer-events: none;
@@ -871,6 +956,20 @@ input[type="range"] {
 .roll-inner {
     display: grid;
     width: max-content;
+    position: relative;
+}
+
+.playhead {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    border-left: 2px solid var(--accent);
+    pointer-events: none;
+    z-index: 1;
+    display: none;
+    will-change: transform;
 }
 
 .roll-inner canvas {

@@ -656,6 +656,8 @@ function GBAudioCore() {
                     d.cutAtEnd = !!m.cutAtEnd;
                     d.start(m.order, m.row);
                     this.frameLeft = 0;
+                    this.lastRow = -1;
+                    this.lastOrder = -1;
                     break;
                 case "stop":
                     d.stop();
@@ -673,6 +675,8 @@ function GBAudioCore() {
                     if (this.previewLeft > 0 && this.previewCh !== m.ch) d.cut(this.previewCh);
                     d.preview(m.ch, m.inst, m.note);
                     this.previewCh = m.ch;
+                    this.previewFx = m.fx && [0x0, 0x1, 0x2, 0x4].includes(m.fx.code) ? m.fx : null;
+                    this.previewFrame = FRAME_CYCLES;
                     this.previewLeft = Math.max(1, Math.round((m.dur || 0.5) * this.rate));
                     break;
             }
@@ -690,11 +694,25 @@ function GBAudioCore() {
                     if (this.frameLeft <= 0) {
                         this.frameLeft += FRAME_CYCLES;
                         d.tickOnce();
-                        if (d.playing) this.post({ type: "pos", order: d.order, row: d.row, tick: d.tick, speed: d.speed });
-                        else this.post({ type: "ended" });
+                        if (!d.playing) this.post({ type: "ended" });
+                        else if (d.row !== this.lastRow || d.order !== this.lastOrder) {
+                            this.lastRow = d.row;
+                            this.lastOrder = d.order;
+                            this.post({ type: "pos", order: d.order, row: d.row, tick: d.tick, speed: d.speed });
+                        }
                     }
                 }
                 if (this.previewLeft > 0) {
+                    if (this.previewFx && !d.playing) {
+                        this.previewFrame -= cyc;
+                        if (this.previewFrame <= 0) {
+                            this.previewFrame += FRAME_CYCLES;
+                            d.tick = 1;
+                            d.counter = (d.counter + 1) & 255;
+                            d.effect(this.previewCh, this.previewFx.code, this.previewFx.param);
+                            d.tick = 0;
+                        }
+                    }
                     this.previewLeft--;
                     if (this.previewLeft === 0 && !d.playing) d.cut(this.previewCh);
                 }
@@ -874,14 +892,46 @@ const GBAudio = (function () {
         if (ctx.state === "suspended") await ctx.resume();
     }
 
+    let sleepTimer = 0;
+    let playing = false;
+
+    function wake() {
+        clearTimeout(sleepTimer);
+        if (ctx && ctx.state === "suspended") ctx.resume();
+    }
+
+    function sleepSoon() {
+        clearTimeout(sleepTimer);
+        sleepTimer = setTimeout(() => {
+            if (ctx && ctx.state === "running" && !playing) ctx.suspend();
+        }, 10000);
+    }
+
+    listeners.push(m => {
+        if (m.type === "ended" || m.type === "stopped") {
+            playing = false;
+            sleepSoon();
+        }
+    });
+
     function start() {
         if (!starting) starting = boot();
-        else if (ctx && ctx.state === "suspended") ctx.resume();
+        else wake();
         return starting;
     }
 
     function send(m) {
         if (!starting) return;
+        if (m.type === "play") {
+            playing = true;
+            wake();
+        } else if (m.type === "preview") {
+            wake();
+            if (!playing) sleepSoon();
+        } else if (m.type === "stop") {
+            playing = false;
+            sleepSoon();
+        }
         starting.then(() => {
             if (node) node.port.postMessage(m);
             else if (engine) engine.handle(m);
@@ -900,6 +950,9 @@ const GBAudio = (function () {
         on: f => listeners.push(f),
         get started() {
             return !!starting;
+        },
+        get state() {
+            return ctx ? ctx.state : "none";
         },
         get mode() {
             return node ? "worklet" : engine ? "script" : "none";

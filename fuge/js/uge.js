@@ -12,7 +12,8 @@
         return cells;
     }
 
-    function buildCells(pattern, kind, instIndex, rows, sfx) {
+    function buildCells(pattern, kind, instIndex, rows, sfx, instFx) {
+        const fxOf = n => n.fx === false ? null : n.fx || (instFx && instFx.get(n.inst)) || null;
         const len = rows || ROWS;
         const cells = emptyCells();
         if (!pattern) {
@@ -29,19 +30,21 @@
             const c = cells[n.row];
             c.note = n.note;
             c.inst = instIndex.get(n.inst) || 0;
-            if (n.fx) {
-                c.fx = n.fx.code;
-                c.fp = n.fx.param & 0xff;
+            const fx = fxOf(n);
+            if (fx) {
+                c.fx = fx.code;
+                c.fp = fx.param & 0xff;
             }
         }
         if (kind !== "noise") {
             for (const n of notes) {
-                if (!n.fx || !SUSTAIN.has(n.fx.code)) continue;
+                const fx = fxOf(n);
+                if (!fx || !SUSTAIN.has(fx.code)) continue;
                 for (let r = n.row + 1; r < Math.min(len, n.row + n.len); r++) {
                     if (starts.has(r)) break;
                     if (cells[r].fx === 0 && cells[r].fp === 0) {
-                        cells[r].fx = n.fx.code;
-                        cells[r].fp = n.fx.param & 0xff;
+                        cells[r].fx = fx.code;
+                        cells[r].fp = fx.param & 0xff;
                     }
                 }
             }
@@ -206,6 +209,7 @@
             return Object.assign({}, inst, { waveIndex: waveKeys.get(key) });
         });
 
+        const instFx = new Map(doc.instruments.map(i => [i.id, i.fx || null]));
         const patterns = [];
         const orders = [[], [], [], []];
         const cache = new Map();
@@ -216,7 +220,7 @@
                 if (!cache.has(key)) {
                     const pat = idx >= 0 ? doc.tracks[c].patterns[idx] : null;
                     cache.set(key, patterns.length);
-                    patterns.push({ id: patterns.length, cells: buildCells(pat, KINDS[c], instIndex, rows, !!sfx) });
+                    patterns.push({ id: patterns.length, cells: buildCells(pat, KINDS[c], instIndex, rows, !!sfx, instFx) });
                 }
                 orders[c].push(cache.get(key));
             }

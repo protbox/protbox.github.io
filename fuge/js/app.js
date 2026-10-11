@@ -32,7 +32,7 @@
         { code: 0x1, name: "Slide up", kinds: ["pulse", "wave"], x: "speed", y: "speed", hint: "Bends the pitch up by xy period steps every tick while the note plays." },
         { code: 0x2, name: "Slide down", kinds: ["pulse", "wave"], x: "speed", y: "speed", hint: "Bends the pitch down by xy period steps every tick while the note plays." },
         { code: 0x3, name: "Glide to note", kinds: ["pulse", "wave"], x: "speed", y: "speed", hint: "Slides from the previous note to this one at speed xy instead of jumping." },
-        { code: 0x4, name: "Vibrato", kinds: ["pulse", "wave"], x: "speed", y: "depth", hint: "Flicks the pitch up by y. x sets the rate: 0 fastest, then 1, 3, 7, F slowest." },
+        { code: 0x4, name: "Vibrato", kinds: ["pulse", "wave"], x: "rate", y: "depth", hint: "Flips the pitch up by y and back. x sets the rate: 4 is about 7 Hz (natural), 8 about 3 Hz (slow), 1 about 19 Hz (shimmer). The same depth wobbles more on higher notes." },
         { code: 0x7, name: "Note delay", kinds: ["pulse", "wave", "noise"], x: "ticks", y: "ticks", hint: "Starts the note xy ticks into the row. Must be less than the song speed, and 00 never plays." },
         { code: 0x9, name: "Set duty", kinds: ["pulse"], x: "duty", y: "-", hint: "Changes the pulse width: 00 = 12.5%, 40 = 25%, 80 = 50%, C0 = 75%." },
         { code: 0xA, name: "Volume step", kinds: ["pulse", "wave", "noise"], x: "up", y: "down", hint: "Restarts the note x louder or y quieter. It happens once, at the start of the row." },
@@ -42,9 +42,28 @@
         { code: 0x5, name: "Master volume", kinds: ["pulse", "wave", "noise"], x: "left", y: "right", hint: "Sets the overall left/right volume, 0–7 each." },
         { code: 0xF, name: "Set speed", kinds: ["pulse", "wave", "noise"], x: "ticks", y: "ticks", hint: "Changes the song speed (ticks per row) from here on." }
     ];
+    const SCALES = {
+        Ionian: { label: "Major (Ionian)", steps: [2, 2, 1, 2, 2, 2, 1] },
+        Dorian: { label: "Dorian", steps: [2, 1, 2, 2, 2, 1, 2] },
+        Phrygian: { label: "Phrygian", steps: [1, 2, 2, 2, 1, 2, 2] },
+        Lydian: { label: "Lydian", steps: [2, 2, 2, 1, 2, 2, 1] },
+        Mixolydian: { label: "Mixolydian", steps: [2, 2, 1, 2, 2, 1, 2] },
+        Aeolian: { label: "Minor (Aeolian)", steps: [2, 1, 2, 2, 1, 2, 2] },
+        Locrian: { label: "Locrian", steps: [1, 2, 2, 1, 2, 2, 2] },
+        HarmonicMinor: { label: "Harmonic minor", steps: [2, 1, 2, 2, 1, 3, 1] },
+        MelodicMinor: { label: "Melodic minor", steps: [2, 1, 2, 2, 2, 2, 1] },
+        PhrygianDom: { label: "Phrygian dominant", steps: [1, 3, 1, 2, 1, 2, 2] },
+        MinorBlues: { label: "Minor blues", steps: [3, 2, 1, 1, 3, 2] },
+        Chinese: { label: "Chinese", steps: [4, 2, 1, 4, 1] },
+        Romanian: { label: "Romanian", steps: [2, 1, 3, 1, 2, 1, 2] },
+        MajorBeBop: { label: "Major bebop", steps: [2, 2, 1, 2, 1, 1, 2, 1] },
+        MinorBebop: { label: "Minor bebop", steps: [2, 1, 1, 1, 2, 2, 1, 2] }
+    };
+    const ROOT_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
     const STORE_KEY = "fuge.autosave";
     const THEME_KEY = "fuge.theme";
     const VOL_KEY = "fuge.volume";
+    const PATH_KEY = "fuge.path";
     const OLD_KEYS = { "fuge.autosave": "gbdaw.autosave", "fuge.theme": "gbdaw.theme", "fuge.volume": "gbdaw.volume" };
 
     const $ = id => document.getElementById(id);
@@ -90,6 +109,7 @@
             artist: "",
             comment: "",
             mode: "song",
+            scale: { root: 0, name: "Free" },
             speed: 7,
             rowsPerBeat: 4,
             beatsPerBar: 4,
@@ -198,6 +218,7 @@
                 inst.bits = parseInt(r.bits, 10) === 7 ? 7 : 15;
                 inst.note = num(r.note, 0, NOISE_MAX, d.note);
             }
+            inst.fx = r.fx && Number.isFinite(Number(r.fx.code)) ? { code: num(r.fx.code, 0, 15, 0), param: num(r.fx.param, 0, 255, 0) } : null;
             ids.add(inst.id);
             s.instruments.push(inst);
         }
@@ -207,7 +228,7 @@
             const pats = (Array.isArray(rt.patterns) ? rt.patterns : []).map(p => {
                 const notes = (p && Array.isArray(p.notes) ? p.notes : []).filter(n => n && kindOf.get(n.inst) === t.kind).map(n => {
                     const row = num(n.row, 0, MAX_ROWS - 1, 0);
-                    const fx = n.fx && Number.isFinite(Number(n.fx.code)) ? { code: num(n.fx.code, 0, 15, 0), param: num(n.fx.param, 0, 255, 0) } : null;
+                    const fx = n.fx === false ? false : n.fx && Number.isFinite(Number(n.fx.code)) ? { code: num(n.fx.code, 0, 15, 0), param: num(n.fx.param, 0, 255, 0) } : null;
                     return { row, len: num(n.len, 1, MAX_ROWS - row, 1), note: num(n.note, 0, t.kind === "noise" ? NOISE_MAX : NOTE_MAX, 24), inst: n.inst, fx };
                 });
                 return { notes };
@@ -222,6 +243,8 @@
         }
         if (!s.order.length) s.order.push([-1, -1, -1, -1]);
         s.mode = raw.mode === "sfx" ? "sfx" : "song";
+        const sc = raw.scale || {};
+        s.scale = { root: num(sc.root, 0, 11, 0), name: SCALES[sc.name] ? sc.name : "Free" };
         if (s.mode === "sfx") {
             const src = Array.isArray(raw.sfx) ? raw.sfx : [];
             s.sfx = s.order.map((r, k) => {
@@ -245,6 +268,7 @@
             artist: "",
             comment: "",
             mode: "sfx",
+            scale: { root: 0, name: "Free" },
             speed: 3,
             rowsPerBeat: 4,
             beatsPerBar: 4,
@@ -305,7 +329,8 @@
         playOrd: 0,
         playRow: 0,
         startRow: 0,
-        dirty: false
+        dirty: false,
+        filePath: null
     };
     const history = { undo: [], redo: [], key: null, time: 0 };
 
@@ -322,6 +347,7 @@
         history.redo = [];
         state.dirty = true;
         scheduleAutosave();
+        updateTitle();
     }
 
     function restore(json) {
@@ -355,7 +381,10 @@
 
     function scheduleAutosave() {
         clearTimeout(autosaveTimer);
-        autosaveTimer = setTimeout(() => storeSet(STORE_KEY, JSON.stringify(state.song)), 400);
+        autosaveTimer = setTimeout(() => {
+            storeSet(STORE_KEY, JSON.stringify(state.song));
+            storeSet(PATH_KEY, state.filePath || "");
+        }, 400);
         schedulePush();
     }
 
@@ -389,12 +418,13 @@
         return trackKind(state.track) === "pulse" ? state.track : 0;
     }
 
-    function preview(inst, note, ch) {
+    function preview(inst, note, ch, fx) {
         if (!inst || state.playing) return;
         const c = ch === undefined ? previewChannel(inst) : ch;
         const n = note === undefined ? (inst.type === "noise" ? inst.note : inst.type === "wave" ? 24 : 36) : note;
+        const f = fx === undefined ? inst.fx || null : fx;
         GBAudio.start().then(sendMute).catch(() => toast("Couldn't start audio in this browser."));
-        GBAudio.send({ type: "preview", ch: c, inst: audioSpec(inst), note: n, dur: inst.type === "noise" ? 0.9 : 0.45 });
+        GBAudio.send({ type: "preview", ch: c, inst: audioSpec(inst), note: n, fx: f, dur: inst.type === "noise" ? 0.9 : f && (f.code === 0x4 || f.code === 0x0) ? 0.8 : 0.45 });
     }
 
     const trackKind = t => TRACKS[t].kind;
@@ -409,6 +439,23 @@
     const curSfx = () => isSfx() ? state.song.sfx[state.ord] : null;
     const speedNow = () => isSfx() && curSfx() ? curSfx().speed : state.song.speed;
     const sfxSeconds = s => s.rows * s.speed / VBLANK_HZ;
+
+    function scaleSet() {
+        const sc = state.song.scale;
+        if (!sc || !SCALES[sc.name]) return null;
+        const set = new Set();
+        let pc = sc.root;
+        for (const step of SCALES[sc.name].steps) {
+            set.add(pc % 12);
+            pc += step;
+        }
+        return set;
+    }
+
+    function labelRoot() {
+        const sc = state.song.scale;
+        return sc && SCALES[sc.name] ? sc.root : 0;
+    }
 
     function syncRows() {
         ROWS = isSfx() && curSfx() ? curSfx().rows : MAX_ROWS;
@@ -430,6 +477,12 @@
     }
 
     const curPat = () => patAt(state.track, state.ord);
+    const instFx = n => {
+        const i = instById(n.inst);
+        return i && i.fx ? i.fx : null;
+    };
+    const effFx = n => n.fx === false ? null : n.fx || instFx(n);
+    const fxLabel = fx => fx ? hex(fx.code, 1) + hex(fx.param, 2) + " " + ((FX.find(f => f.code === fx.code) || { name: "" }).name) : "";
 
     function instUseCount(id) {
         let c = 0;
@@ -502,6 +555,7 @@
         P = {
             bg: g("--roll-bg"),
             alt: g("--roll-alt"),
+            out: g("--roll-out"),
             beat: g("--roll-beat"),
             bar: g("--roll-bar"),
             line: g("--line"),
@@ -516,7 +570,9 @@
             keyB: g("--key-black"),
             dim: g("--dim"),
             ch: [g("--ch1"), g("--ch2"), g("--ch3"), g("--ch4")],
-            kind: { pulse: g("--ch1"), wave: g("--ch3"), noise: g("--ch4") }
+            kind: { pulse: g("--ch1"), wave: g("--ch3"), noise: g("--ch4") },
+            mono: g("--f-mono"),
+            body: g("--f-body")
         };
     }
 
@@ -644,7 +700,8 @@
                 b.className = "inst" + (inst.id === state.inst ? " active" : "") + (type !== kind ? " dim" : "");
                 b.dataset.id = inst.id;
                 if (type !== kind) b.title = "Plays on " + (type === "pulse" ? "Pulse 1 and 2" : KIND_LABEL[type]) + ". Selecting it switches track.";
-                b.innerHTML = "<span class=\"num\">" + pad2(k + 1) + "</span><canvas></canvas><span class=\"name\">" + esc(inst.name) + "</span>";
+                const tag = inst.fx ? (inst.fx.code === 0 ? "ARP" : inst.fx.code === 4 ? "VIB" : hex(inst.fx.code, 1) + hex(inst.fx.param, 2)) : "";
+                b.innerHTML = "<span class=\"num\">" + pad2(k + 1) + "</span><canvas></canvas><span class=\"name\">" + esc(inst.name) + (tag ? " <span class=\"ifx\" title=\"Default effect " + esc(fxLabel(inst.fx)) + "\">" + tag + "</span>" : "") + "</span>";
                 g.appendChild(b);
                 drawIcon(b.querySelector("canvas"), inst, 38, 18);
             });
@@ -725,9 +782,45 @@
             h += "<p class=\"hint\">New hits use this pitch. Change a single hit in the note panel.</p>";
             h += lengthFields(inst, 64);
         }
+        h += instFxFields(inst);
         h += "<div class=\"chips\" style=\"align-items:center\"><button class=\"btn small\" type=\"button\" data-act=\"dup\"" + (instsOf(inst.type).length >= MAX_INST ? " disabled" : "") + ">Duplicate</button><button class=\"btn small\" type=\"button\" data-act=\"del\">Delete</button><span class=\"hint\" style=\"margin-left:auto\">" + (uses ? "Used by " + uses + " note" + (uses === 1 ? "" : "s") : "Not used yet") + "</span></div>";
         el.innerHTML = h;
         drawEditorCanvases(inst);
+    }
+
+    const INST_FX_PRESETS = {
+        pulse: [["Natural vibrato", 0x4, 0x43], ["Major arp", 0x0, 0x47], ["Minor arp", 0x0, 0x37], ["Octave arp", 0x0, 0x0c]],
+        wave: [["Natural vibrato", 0x4, 0x43], ["Major arp", 0x0, 0x47], ["Minor arp", 0x0, 0x37], ["Octave arp", 0x0, 0x0c]],
+        noise: [["Short cut", 0xe, 0x02], ["Flam", 0x7, 0x01]]
+    };
+    const GLOBAL_FX = [0x5, 0x8, 0xf];
+
+    function instFxFields(inst) {
+        const fx = inst.fx;
+        const def = fx ? FX.find(f => f.code === fx.code) : null;
+        let h = "<div class=\"field\"><span>Default effect</span><select data-ifx=\"code\" aria-label=\"Default effect\"><option value=\"\">None</option>" +
+            FX.filter(f => f.kinds.includes(inst.type) && !GLOBAL_FX.includes(f.code)).map(f => "<option value=\"" + f.code + "\"" + (fx && fx.code === f.code ? " selected" : "") + ">" + hex(f.code, 1) + "xy · " + f.name + "</option>").join("") + "</select></div>";
+        if (def) {
+            const nib = (k, v, label) => "<label class=\"field\"><span>" + label + "</span><select data-ifx=\"" + k + "\">" + Array.from({ length: 16 }, (_, i) => "<option value=\"" + i + "\"" + (i === v ? " selected" : "") + ">" + hex(i, 1) + "</option>").join("") + "</select></label>";
+            h += "<div class=\"two\">" + nib("x", fx.param >> 4, "x · " + def.x) + nib("y", fx.param & 15, "y · " + def.y) + "</div>";
+            h += "<p class=\"hint\"><b style=\"font-family:var(--f-mono)\">" + hex(fx.code, 1) + hex(fx.param, 2) + "</b> " + def.hint + "</p>";
+        } else {
+            h += "<p class=\"hint\">Give every note drawn with this instrument an effect, like vibrato or an arpeggio chord. Single notes can still set their own, or None.</p>";
+        }
+        const presets = INST_FX_PRESETS[inst.type] || [];
+        if (presets.length) h += "<div class=\"chips\">" + presets.map(p => "<button type=\"button\" class=\"btn small\" data-ifxp=\"" + p[1] + ":" + p[2] + "\" aria-pressed=\"" + !!(fx && fx.code === p[1] && fx.param === p[2]) + "\">" + p[0] + "</button>").join("") + "</div>";
+        return h;
+    }
+
+    function setInstFx(inst, fx) {
+        checkpoint();
+        inst.fx = fx;
+        renderEditor();
+        renderInstList();
+        drawGrid();
+        renderInspector();
+        scheduleAutosave();
+        preview(inst);
     }
 
     function drawEditorCanvases(inst) {
@@ -744,7 +837,7 @@
         const c = P.kind[inst.type];
         const span = 1;
         ctx.fillStyle = P.muted;
-        ctx.font = "10px " + getComputedStyle(document.body).getPropertyValue("--f-mono");
+        ctx.font = "10px " + P.mono;
         ctx.globalAlpha = 0.5;
         ctx.fillRect(0, h - 12, w, 1);
         ctx.globalAlpha = 1;
@@ -892,7 +985,7 @@
             return;
         }
         pl.style.display = "block";
-        pl.style.left = (state.playOrd * SLOT_W + state.playRow / ROWS * SLOT_W) + "px";
+        pl.style.transform = "translate3d(" + Math.round(state.playOrd * SLOT_W + Math.floor(state.playRow) / ROWS * SLOT_W) + "px, 0, 0)";
     }
 
     function revealSlot() {
@@ -907,7 +1000,7 @@
         const idx = patIndex(state.track, state.ord);
         const u = idx >= 0 ? usage(state.track, idx) : 0;
         $("patTitle").innerHTML = "<span class=\"chip\" style=\"--c:var(" + t.color + ")\">" + t.short + "</span><span class=\"where\">" + t.name + (isSfx() ? "" : " · Order " + pad2(state.ord)) + "</span>" +
-            (u > 1 ? "<span class=\"shared\" title=\"Edits change every slot that uses this pattern. Use Make unique to edit just this one.\">Shared by " + u + " slots</span>" : "");
+            (u > 1 ? "<span class=\"shared\" title=\"Edits change every slot that uses this pattern. Use Make unique to edit just this one.\">Shared ×" + u + "</span>" : "");
         const pats = state.song.tracks[state.track].patterns;
         const sel = $("patSelect");
         sel.innerHTML = "<option value=\"-1\">— Empty —</option>" + pats.map((p, i) => {
@@ -918,6 +1011,13 @@
         const pat = curPat();
         $("patUnique").disabled = u < 2;
         $("patClear").disabled = !pat || !pat.notes.length;
+        const sc = state.song.scale || { root: 0, name: "Free" };
+        $("scaleRoot").innerHTML = ROOT_NAMES.map((n, i) => "<option value=\"" + i + "\">" + n + "</option>").join("");
+        $("scaleRoot").value = String(sc.root);
+        $("scaleRoot").disabled = t.kind === "noise";
+        $("scaleName").innerHTML = "<option value=\"Free\">Free</option>" + Object.keys(SCALES).map(k => "<option value=\"" + k + "\">" + SCALES[k].label + "</option>").join("");
+        $("scaleName").value = sc.name;
+        $("scaleName").disabled = t.kind === "noise";
         $("toolDraw").setAttribute("aria-pressed", String(state.tool === "draw"));
         $("toolSelect").setAttribute("aria-pressed", String(state.tool === "select"));
         $("toolErase").setAttribute("aria-pressed", String(state.tool === "erase"));
@@ -967,6 +1067,7 @@
         else if (!curPat()) msg = "This slot is empty. Start drawing to create a new pattern for " + TRACKS[state.track].name + ", or pick an existing one from the menu above.";
         empty.hidden = !msg;
         empty.textContent = msg;
+        placeHead();
     }
 
     function centerRoll(force) {
@@ -995,7 +1096,7 @@
         const bar = rpb * state.song.beatsPerBar;
         ctx.fillStyle = P.panel;
         ctx.fillRect(0, 0, G.w, RULER_H);
-        ctx.font = "600 10px " + getComputedStyle(document.body).getPropertyValue("--f-mono");
+        ctx.font = "600 10px " + P.mono;
         for (let r = 0; r < ROWS; r++) {
             const x = r * G.colW;
             if (r % rpb === 0) {
@@ -1013,10 +1114,6 @@
             ctx.lineTo(x, RULER_H);
             ctx.fill();
         }
-        if (state.playing && state.playOrd === state.ord) {
-            ctx.fillStyle = P.accent;
-            ctx.fillRect(Math.floor(state.playRow) * G.colW, RULER_H - 3, G.colW, 3);
-        }
         ctx.fillStyle = P.lineStrong;
         ctx.fillRect(0, RULER_H - 1, G.w, 1);
     }
@@ -1024,11 +1121,11 @@
     function drawKeys() {
         const cv = $("keys");
         const ctx = prep(cv, KEY_W, G.h);
-        const mono = getComputedStyle(document.body).getPropertyValue("--f-mono");
+        const mono = P.mono;
         if (G.drum) {
             ctx.fillStyle = P.panel;
             ctx.fillRect(0, 0, KEY_W, G.h);
-            ctx.font = "11px " + getComputedStyle(document.body).getPropertyValue("--f-body");
+            ctx.font = "11px " + P.body;
             G.lanes.forEach((inst, k) => {
                 const y = k * G.rowH;
                 if (inst.id === state.inst) {
@@ -1067,7 +1164,7 @@
                     ctx.fillRect(0, y, isBlack(n) ? KEY_W * 0.6 : KEY_W, PITCH_H);
                     ctx.globalAlpha = 1;
                 }
-                if (n % 12 === 0 || hover) {
+                if (n % 12 === labelRoot() || hover) {
                     ctx.fillStyle = "#1b1e2b";
                     ctx.fillText(noteName(n), KEY_W - 26, y + PITCH_H - 3);
                 }
@@ -1106,14 +1203,19 @@
                 ctx.fillRect(0, (k + 1) * G.rowH - 1, G.w, 1);
             });
         } else {
+            const inScale = scaleSet();
             for (let n = 0; n <= NOTE_MAX; n++) {
                 const y = (NOTE_MAX - n) * PITCH_H;
-                if (isBlack(n)) {
+                if (inScale && !inScale.has(n % 12)) {
+                    ctx.fillStyle = P.out;
+                    ctx.fillRect(0, y, G.w, PITCH_H);
+                } else if (isBlack(n)) {
                     ctx.fillStyle = P.alt;
                     ctx.fillRect(0, y, G.w, PITCH_H);
                 }
-                ctx.fillStyle = n % 12 === 0 ? P.beat : P.line;
-                ctx.globalAlpha = n % 12 === 0 ? 1 : 0.45;
+                const octave = n % 12 === labelRoot();
+                ctx.fillStyle = octave ? P.beat : P.line;
+                ctx.globalAlpha = octave ? 1 : 0.45;
                 ctx.fillRect(0, y + PITCH_H - 1, G.w, 1);
                 ctx.globalAlpha = 1;
             }
@@ -1170,7 +1272,7 @@
         const pat = curPat();
         if (pat) {
             const color = P.ch[state.track];
-            ctx.font = "600 10px " + getComputedStyle(document.body).getPropertyValue("--f-mono");
+            ctx.font = "600 10px " + P.mono;
             for (const n of pat.notes) {
                 const r = noteRect(n);
                 if (G.drum && r.lane < 0) continue;
@@ -1208,13 +1310,15 @@
                         ctx.globalAlpha = 1;
                     }
                 }
-                if (n.fx) {
+                if (effFx(n)) {
                     ctx.fillStyle = P.accent;
+                    ctx.globalAlpha = n.fx ? 1 : 0.45;
                     ctx.beginPath();
                     ctx.moveTo(r.x + 1, r.y + 1);
                     ctx.lineTo(r.x + 7, r.y + 1);
                     ctx.lineTo(r.x + 1, r.y + 7);
                     ctx.fill();
+                    ctx.globalAlpha = 1;
                 }
                 if (sel) {
                     ctx.strokeStyle = P.accent;
@@ -1241,10 +1345,18 @@
             ctx.strokeRect(x + 0.5, y + 0.5, w, h);
             ctx.setLineDash([]);
         }
-        if (state.playing && state.playOrd === state.ord) {
-            ctx.fillStyle = P.accent;
-            ctx.fillRect(Math.floor(state.playRow * G.colW), 0, 2, G.h);
+    }
+
+    function placeHead() {
+        const h = $("rollHead");
+        if (!state.playing || state.playOrd !== state.ord) {
+            h.style.display = "none";
+            return;
         }
+        h.style.display = "block";
+        h.style.height = G.h + "px";
+        h.style.width = G.colW + "px";
+        h.style.transform = "translate3d(" + (KEY_W + Math.floor(state.playRow) * G.colW) + "px, " + RULER_H + "px, 0)";
     }
 
     function roundRect(ctx, x, y, w, h, r) {
@@ -1380,7 +1492,7 @@
             const edge = !G.drum && p.x >= r.x + r.w - 6 && r.w >= 12;
             const orig = state.sel.map(n => ({ n, row: n.row, note: n.note, len: n.len }));
             G.drag = { mode: edge ? "resize" : "move", note: hit, orig, startRow: p.row, startPitch: p.pitch, moved: false, heard: hit.note, wasSel };
-            if (!edge) preview(instById(hit.inst), hit.note, state.track);
+            if (!edge) preview(instById(hit.inst), hit.note, state.track, effFx(hit));
             if (G.drum) pickLaneInst(G.lanes[p.lane]);
             drawGrid();
             renderInspector();
@@ -1520,7 +1632,7 @@
                 }
                 if (n.note !== d.heard) {
                     d.heard = n.note;
-                    preview(instById(n.inst), n.note, state.track);
+                    preview(instById(n.inst), n.note, state.track, effFx(n));
                 }
             }
             if (dr || d.orig.some(o => o.n.note !== o.note)) d.moved = true;
@@ -1658,7 +1770,7 @@
         const min = Math.min(...sel.map(n => n.row));
         state.clip = {
             kind: trackKind(state.track),
-            notes: sel.map(n => ({ dr: n.row - min, len: n.len, note: n.note, inst: n.inst, fx: n.fx ? { code: n.fx.code, param: n.fx.param } : null })),
+            notes: sel.map(n => ({ dr: n.row - min, len: n.len, note: n.note, inst: n.inst, fx: n.fx === false ? false : n.fx ? { code: n.fx.code, param: n.fx.param } : null })),
             span: Math.max(...sel.map(noteEnd)) - min
         };
         if (!quiet) status("Copied " + sel.length + " " + noun(sel.length) + ".");
@@ -1692,7 +1804,7 @@
                 dropped++;
                 continue;
             }
-            const n = { row: r, len: Math.min(c.len, ROWS - r), note: c.note, inst: c.inst, fx: c.fx ? { code: c.fx.code, param: c.fx.param } : null };
+            const n = { row: r, len: Math.min(c.len, ROWS - r), note: c.note, inst: c.inst, fx: c.fx === false ? false : c.fx ? { code: c.fx.code, param: c.fx.param } : null };
             pat.notes.push(n);
             added.push(n);
         }
@@ -1733,7 +1845,7 @@
     }
 
     const VOLUMES = [{ label: "100%", y: 15 }, { label: "75%", y: 11 }, { label: "50%", y: 8 }, { label: "25%", y: 4 }, { label: "12%", y: 2 }];
-    const FX_DEFAULT = { 0x0: 0x47, 0x4: 0x32, 0xc: 0x08, 0x3: 0x20, 0x7: 0x02, 0xe: 0x02, 0x5: 0x77, 0x8: 0xff };
+    const FX_DEFAULT = { 0x0: 0x47, 0x4: 0x43, 0xc: 0x08, 0x3: 0x20, 0x7: 0x02, 0xe: 0x02, 0x5: 0x77, 0x8: 0xff };
 
     function fxDefault(code) {
         return FX_DEFAULT[code] !== undefined ? FX_DEFAULT[code] : 0x01;
@@ -1741,8 +1853,8 @@
 
     function setFx(code, param) {
         applySel(n => {
-            n.fx = code === null ? null : { code, param };
-        }, code === null ? "Effects removed." : "Effect " + hex(code, 1) + hex(param, 2) + " set.");
+            n.fx = code === null ? (instFx(n) ? false : null) : code === "inherit" ? null : { code, param };
+        }, code === null ? "Effects removed." : code === "inherit" ? "Back to the instrument's own effect." : "Effect " + hex(code, 1) + hex(param, 2) + " set.");
     }
 
     function tipsHtml(kind) {
@@ -1774,9 +1886,16 @@
         const one = sel.length === 1 ? sel[0] : null;
         const insts = instsOf(kind);
         const sameInst = sel.every(n => n.inst === sel[0].inst);
-        const codes = new Set(sel.map(n => n.fx ? n.fx.code : -1));
-        const fxCode = codes.size === 1 ? [...codes][0] : -2;
+        const modeOf = n => n.fx === false ? "" : n.fx ? String(n.fx.code) : instFx(n) ? "inherit" : "";
+        const modes = new Set(sel.map(modeOf));
+        const mode = modes.size === 1 ? [...modes][0] : "keep";
+        const effs = sel.map(effFx);
+        const effCodes = new Set(effs.map(f => f ? f.code : -1));
+        const fxCode = effCodes.size === 1 ? [...effCodes][0] : -2;
         const fxDef = fxCode >= 0 ? FX.find(f => f.code === fxCode) : null;
+        const ifx = sel.map(instFx);
+        const anyInherit = ifx.some(Boolean);
+        const sameIfx = ifx.every(f => f && f.code === ifx[0].code && f.param === ifx[0].param);
         let h;
         if (one) {
             h = "<p class=\"label\">" + title + "</p>";
@@ -1803,16 +1922,17 @@
             const sameLen = sel.every(n => n.len === sel[0].len);
             h += "<label class=\"field\"><span>Length</span><input type=\"number\" data-f=\"len\" min=\"1\" max=\"64\" value=\"" + (sameLen ? sel[0].len : "") + "\" placeholder=\"mixed\"></label>";
         }
-        h += "<label class=\"field\"><span>Effect</span><select data-f=\"fx\">" + (fxCode === -2 ? "<option value=\"keep\" selected>— mixed —</option>" : "") +
-            "<option value=\"\"" + (fxCode === -1 ? " selected" : "") + ">None</option>" +
-            FX.filter(f => f.kinds.includes(kind)).map(f => "<option value=\"" + f.code + "\"" + (f.code === fxCode ? " selected" : "") + ">" + hex(f.code, 1) + "xy · " + f.name + "</option>").join("") + "</select></label>";
+        h += "<label class=\"field\"><span>Effect</span><select data-f=\"fx\">" + (mode === "keep" ? "<option value=\"keep\" selected>— mixed —</option>" : "") +
+            (anyInherit ? "<option value=\"inherit\"" + (mode === "inherit" ? " selected" : "") + ">From instrument" + (sameIfx ? " · " + esc(fxLabel(ifx[0])) : "") + "</option>" : "") +
+            "<option value=\"\"" + (mode === "" ? " selected" : "") + ">None</option>" +
+            FX.filter(f => f.kinds.includes(kind)).map(f => "<option value=\"" + f.code + "\"" + (String(f.code) === mode ? " selected" : "") + ">" + hex(f.code, 1) + "xy · " + f.name + "</option>").join("") + "</select></label>";
         if (fxDef) {
-            const xs = new Set(sel.map(n => n.fx.param >> 4));
-            const ys = new Set(sel.map(n => n.fx.param & 15));
+            const xs = new Set(effs.map(f => f.param >> 4));
+            const ys = new Set(effs.map(f => f.param & 15));
             const x = xs.size === 1 ? [...xs][0] : -1;
             const y = ys.size === 1 ? [...ys][0] : -1;
             h += "<div class=\"nib\">" + nibSelect("fxx", x, "x · " + fxDef.x) + nibSelect("fxy", y, "y · " + fxDef.y) + "</div>";
-            h += "<p class=\"hint\">" + (x >= 0 && y >= 0 ? "<b style=\"font-family:var(--f-mono)\">" + hex(fxDef.code, 1) + hex((x << 4) | y, 2) + "</b> " : "") + fxDef.hint + "</p>";
+            h += "<p class=\"hint\">" + (x >= 0 && y >= 0 ? "<b style=\"font-family:var(--f-mono)\">" + hex(fxDef.code, 1) + hex((x << 4) | y, 2) + "</b> " : "") + fxDef.hint + (mode === "inherit" ? " This comes from the instrument. Changing x or y here gives " + (one ? "this note" : "these notes") + " their own copy." : "") + "</p>";
         }
         h += "<div class=\"field\"><span>Volume <b>sets C0y</b></span><div class=\"seg\" role=\"group\">" +
             VOLUMES.map(v => "<button type=\"button\" data-f=\"vol\" data-v=\"" + v.y + "\" aria-pressed=\"" + sel.every(n => n.fx && n.fx.code === 0xc && n.fx.param === v.y) + "\">" + v.label + "</button>").join("") + "</div></div>";
@@ -1844,7 +1964,7 @@
                 drawGrid();
                 return;
             }
-            preview(instById(one.inst), one.note, state.track);
+            preview(instById(one.inst), one.note, state.track, effFx(one));
             afterEdit();
             return;
         }
@@ -1876,17 +1996,23 @@
                 setFx(null);
                 return;
             }
+            if (v === "inherit") {
+                setFx("inherit");
+                return;
+            }
             const code = parseInt(v, 10);
             applySel(n => {
-                n.fx = { code, param: n.fx && n.fx.code === code ? n.fx.param : fxDefault(code) };
+                const e = effFx(n);
+                n.fx = { code, param: e && e.code === code ? e.param : fxDefault(code) };
             });
             return;
         }
         if ((f === "fxx" || f === "fxy") && v !== "-1") {
             const k = parseInt(v, 10);
             applySel(n => {
-                if (!n.fx) return;
-                n.fx.param = f === "fxx" ? (k << 4) | (n.fx.param & 15) : (n.fx.param & 0xf0) | k;
+                const e = effFx(n);
+                if (!e) return;
+                n.fx = { code: e.code, param: f === "fxx" ? (k << 4) | (e.param & 15) : (e.param & 0xf0) | k };
             });
         }
     }
@@ -2011,14 +2137,15 @@
         if (first) first.focus({ preventScroll: true });
     }
 
-    function fxMenu(kind) {
+    function fxMenu(kind, inherit) {
         const pitched = kind !== "noise";
         const opt = (label, code, param) => ({ label: label + "  " + hex(code, 1) + hex(param, 2), action: () => setFx(code, param) });
         return [
+            inherit && { label: "From instrument", action: () => setFx("inherit") },
             { label: "None", action: () => setFx(null) },
             { sep: true },
             pitched && { label: "Arpeggio", sub: [opt("Major", 0x0, 0x47), opt("Minor", 0x0, 0x37), opt("Sus4", 0x0, 0x57), opt("Fifth", 0x0, 0x07), opt("Octave", 0x0, 0x0c)] },
-            pitched && { label: "Vibrato", sub: [opt("Gentle", 0x4, 0x32), opt("Wide", 0x4, 0x34), opt("Fast", 0x4, 0x02), opt("Slow", 0x4, 0x72)] },
+            pitched && { label: "Vibrato", sub: [opt("Natural", 0x4, 0x43), opt("Subtle", 0x4, 0x42), opt("Wide", 0x4, 0x44), opt("Slow", 0x4, 0x83), opt("Shimmer", 0x4, 0x12)] },
             pitched && { label: "Slide up", sub: [opt("Slow", 0x1, 0x04), opt("Medium", 0x1, 0x10), opt("Fast", 0x1, 0x30)] },
             pitched && { label: "Slide down", sub: [opt("Slow", 0x2, 0x04), opt("Medium", 0x2, 0x10), opt("Fast", 0x2, 0x30)] },
             pitched && { label: "Glide to note", sub: [opt("Slow", 0x3, 0x08), opt("Medium", 0x3, 0x20), opt("Fast", 0x3, 0x60)] },
@@ -2062,7 +2189,7 @@
                 n.inst = i.id;
                 if (G.drum) n.note = i.note;
             }, "Instrument set to " + i.name + ".") })) },
-            has && { label: "Effect", sub: fxMenu(kind) },
+            has && { label: "Effect", sub: fxMenu(kind, sel.some(n => instFx(n))) },
             has && { label: "Volume", sub: VOLUMES.map(v => ({ label: v.label + "  C0" + hex(v.y, 1), checked: has && sel.every(n => n.fx && n.fx.code === 0xc && n.fx.param === v.y), action: () => setFx(0xc, v.y) })) },
             has && { label: G.drum ? "Pitch" : "Transpose", sub: [{ label: "Up a semitone", kbd: "↑", action: () => transposeSel(1) }, { label: "Down a semitone", kbd: "↓", action: () => transposeSel(-1) }, { label: "Up an octave", kbd: "Shift+↑", action: () => transposeSel(12) }, { label: "Down an octave", kbd: "Shift+↓", action: () => transposeSel(-12) }] },
             has && !G.drum && { label: "Length", sub: [1, 2, 3, 4, 6, 8, 16].map(l => ({ label: l + (l === 1 ? " row" : " rows"), checked: has && sel.every(n => n.len === l), action: () => applySel(n => {
@@ -2216,10 +2343,16 @@
         $("drawHint").textContent = t;
     }
 
+    let lcdText = "";
+
     function updateLcd() {
         const o = state.playing ? state.playOrd : state.ord;
         const r = state.playing ? Math.floor(state.playRow) : state.startRow;
-        $("lcd").textContent = (state.playing ? "▶ " : "") + (isSfx() ? "SFX " : "ORD ") + pad2(o) + "  ROW " + pad2(r);
+        const text = (state.playing ? "▶ " : "") + (isSfx() ? "SFX " : "ORD ") + pad2(o) + "  ROW " + pad2(r);
+        if (text !== lcdText) {
+            lcdText = text;
+            $("lcd").textContent = text;
+        }
     }
 
     function renderAll() {
@@ -2279,7 +2412,12 @@
 
     function deleteInstrument(inst) {
         const uses = instUseCount(inst.id);
-        if (uses && !confirm("Delete \"" + inst.name + "\"? It's used by " + uses + " note" + (uses === 1 ? "" : "s") + ", which will be removed too.")) return;
+        (uses ? Desktop.ask("Delete \"" + inst.name + "\"? It's used by " + uses + " note" + (uses === 1 ? "" : "s") + ", which will be removed too.") : Promise.resolve(true)).then(ok => {
+            if (ok) removeInstrument(inst);
+        });
+    }
+
+    function removeInstrument(inst) {
         checkpoint();
         for (const t of state.song.tracks) for (const p of t.patterns) p.notes = p.notes.filter(n => n.inst !== inst.id);
         state.song.instruments = state.song.instruments.filter(i => i !== inst);
@@ -2324,6 +2462,18 @@
     }
 
     function onEditorChange(e) {
+        const ifx = e.target.dataset.ifx;
+        if (ifx) {
+            const inst = curInst();
+            if (!inst) return;
+            const v = parseInt(e.target.value, 10);
+            if (ifx === "code") {
+                setInstFx(inst, Number.isFinite(v) ? { code: v, param: inst.fx && inst.fx.code === v ? inst.fx.param : fxDefault(v) } : null);
+            } else if (inst.fx) {
+                setInstFx(inst, { code: inst.fx.code, param: ifx === "x" ? (v << 4) | (inst.fx.param & 15) : (inst.fx.param & 0xf0) | v });
+            }
+            return;
+        }
         const k = e.target.dataset.k;
         if (k === "sweepTime" || k === "name") renderEditor();
         if (k && k !== "name" && k !== "mirror") preview(curInst());
@@ -2366,6 +2516,11 @@
         }
         if (b.dataset.act === "test") {
             preview(inst);
+            return;
+        }
+        if (b.dataset.ifxp) {
+            const [code, param] = b.dataset.ifxp.split(":").map(Number);
+            setInstFx(inst, inst.fx && inst.fx.code === code && inst.fx.param === param ? null : { code, param });
             return;
         }
         if (b.dataset.act === "dup") {
@@ -2581,7 +2736,8 @@
         sendMute();
         GBAudio.send({ type: "loop", on: state.loop });
         GBAudio.send(playMsg(state.startRow));
-        requestAnimationFrame(frame);
+        shownRow = -1;
+        showPlay();
     }
 
     function playEnded() {
@@ -2592,6 +2748,7 @@
         drawRuler();
         drawGrid();
         updateLcd();
+        placeHead();
     }
 
     function stop() {
@@ -2602,6 +2759,7 @@
         drawRuler();
         drawGrid();
         updateLcd();
+        placeHead();
     }
 
     function onAudio(m) {
@@ -2611,10 +2769,14 @@
         }
         if (m.type !== "pos" || !state.playing) return;
         state.playOrd = isSfx() ? state.ord : m.order;
-        state.playRow = m.row + m.tick / Math.max(1, m.speed);
+        state.playRow = m.row;
+        showPlay();
     }
 
-    function frame() {
+    let shownRow = -1;
+    let shownOrd = -1;
+
+    function showPlay() {
         if (!state.playing) return;
         if (state.playOrd !== state.ord && state.playOrd < state.song.order.length) {
             state.ord = state.playOrd;
@@ -2624,43 +2786,78 @@
             renderRoll();
             renderInspector();
             revealSlot();
-        } else {
-            drawGrid();
-            drawRuler();
+            shownRow = -1;
         }
-        positionPlayline();
-        updateLcd();
-        requestAnimationFrame(frame);
+        const row = Math.floor(state.playRow);
+        if (row !== shownRow || state.playOrd !== shownOrd) {
+            shownRow = row;
+            shownOrd = state.playOrd;
+            placeHead();
+            positionPlayline();
+            updateLcd();
+        }
     }
 
     function slug(s) {
         return (s || "song").trim().replace(/[^a-z0-9_-]+/gi, "_").replace(/^_+|_+$/g, "") || "song";
     }
 
-    function download(name, data, type) {
-        const blob = new Blob([data], { type });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = name;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            URL.revokeObjectURL(a.href);
-            a.remove();
-        }, 1000);
+    function deliver(name, data, type, msg) {
+        return Desktop.save(name, data, type).then(where => {
+            if (where && msg) status(msg + (Desktop.desktop ? " Saved to " + where : ""));
+            return where;
+        }).catch(err => toast("Couldn't save the file: " + (err && err.message ? err.message : err)));
     }
 
-    function saveJson() {
-        download(slug(state.song.name) + ".fuge.json", JSON.stringify(state.song, null, 2), "application/json");
-        state.dirty = false;
-        status("Saved " + slug(state.song.name) + ".fuge.json");
+    function updateTitle() {
+        const name = state.filePath ? Desktop.baseName(state.filePath) : (state.song.name || "Untitled");
+        Desktop.setTitle((state.dirty ? "• " : "") + name + " — fUGE");
+    }
+
+    function saveJson(as) {
+        const text = JSON.stringify(state.song, null, 2);
+        const name = slug(state.song.name) + ".fuge.json";
+        const done = where => {
+            if (!where) return;
+            state.dirty = false;
+            if (Desktop.desktop) state.filePath = where;
+            updateTitle();
+            status("Saved " + (Desktop.desktop ? where : name) + ".");
+        };
+        const fail = err => toast("Couldn't save the project: " + (err && err.message ? err.message : err));
+        if (Desktop.desktop && state.filePath && !as) return Desktop.write(state.filePath, text).then(done, fail);
+        return Desktop.save(name, text, "application/json").then(done, fail);
+    }
+
+    function confirmDiscard() {
+        return state.dirty ? Desktop.ask("You have changes since your last save. Discard them?") : Promise.resolve(true);
+    }
+
+    function openProject() {
+        if (!Desktop.desktop) {
+            $("fileInput").click();
+            return;
+        }
+        confirmDiscard().then(ok => ok ? Desktop.openProject() : null).then(f => {
+            if (f) loadText(f.text, f.name, f.path);
+        }).catch(err => toast("Couldn't open the file: " + (err && err.message ? err.message : err)));
+    }
+
+    function loadText(text, name, path) {
+        try {
+            loadSong(normalize(JSON.parse(text)));
+            state.filePath = path || null;
+            updateTitle();
+            status("Opened " + name);
+        } catch (err) {
+            toast(err.message.startsWith("This file") ? err.message : "Couldn't read that file. Open a .fuge.json project saved from fUGE.");
+        }
     }
 
     function exportUge() {
         try {
             const res = UGE.exportSong(state.song);
-            download(slug(state.song.name) + ".uge", res.bytes, "application/octet-stream");
-            status("Exported " + slug(state.song.name) + ".uge (" + Math.round(res.bytes.length / 1024) + " KB). Open it in hUGETracker or drop it in GB Studio's assets/music folder.");
+            deliver(slug(state.song.name) + ".uge", res.bytes, "application/octet-stream", "Exported " + slug(state.song.name) + ".uge (" + Math.round(res.bytes.length / 1024) + " KB). Open it in hUGETracker or drop it in GB Studio's assets/music folder.");
             if (res.warnings.length) toast(res.warnings.join(" "));
         } catch (err) {
             toast("Export failed: " + err.message);
@@ -2760,8 +2957,7 @@
         }
         const res = core().renderVgm(song);
         const name = fileNames([s.name], ".vgm")[0];
-        download(name, res.bytes, "application/octet-stream");
-        status("Exported " + name + " (" + res.seconds.toFixed(2) + " s, " + song.used.filter(Boolean).length + " channel" + (song.used.filter(Boolean).length === 1 ? "" : "s") + "). Copy it into your GB Studio project's assets/sounds folder.");
+        deliver(name, res.bytes, "application/octet-stream", "Exported " + name + " (" + res.seconds.toFixed(2) + " s, " + song.used.filter(Boolean).length + " channel" + (song.used.filter(Boolean).length === 1 ? "" : "s") + "). Copy it into your GB Studio project's assets/sounds folder.");
     }
 
     function exportAllVgm() {
@@ -2773,8 +2969,7 @@
             }
             const names = fileNames(keep.map(k => state.song.sfx[k].name), ".vgm");
             const files = keep.map((k, i) => ({ name: names[i], data: core().renderVgm(sfxSong(k)).bytes }));
-            download(slug(state.song.name) + "_vgm.zip", makeZip(files), "application/zip");
-            status("Exported " + files.length + " .vgm sound effects in a .zip. Unzip them into your GB Studio project's assets/sounds folder.");
+            deliver(slug(state.song.name) + "_vgm.zip", makeZip(files), "application/zip", "Exported " + files.length + " .vgm sound effects in a .zip. Unzip them into your GB Studio project's assets/sounds folder.");
         });
     }
 
@@ -2784,13 +2979,11 @@
                 const s = state.song.sfx[k];
                 const res = core().renderWav(sfxSong(k), { cutAtEnd: true, tail: 0.03, mask: wavMask() });
                 const name = fileNames([s.name], ".wav")[0];
-                download(name, res.bytes, "audio/wav");
-                status("Exported " + name + " (" + res.seconds.toFixed(2) + " s).");
+                deliver(name, res.bytes, "audio/wav", "Exported " + name + " (" + res.seconds.toFixed(2) + " s).");
             } else {
                 const res = core().renderWav(UGE.compile(state.song).song, { tail: 1.5, mask: wavMask() });
                 const name = slug(state.song.name) + ".wav";
-                download(name, res.bytes, "audio/wav");
-                status("Exported " + name + " (" + Math.floor(res.seconds / 60) + ":" + pad2(Math.round(res.seconds % 60)) + ")" + (state.mute.some(Boolean) || state.solo.some(Boolean) ? ", without the muted tracks." : "."));
+                deliver(name, res.bytes, "audio/wav", "Exported " + name + " (" + Math.floor(res.seconds / 60) + ":" + pad2(Math.round(res.seconds % 60)) + ")" + (state.mute.some(Boolean) || state.solo.some(Boolean) ? ", without the muted tracks." : "."));
             }
         });
     }
@@ -2799,8 +2992,7 @@
         busy("Rendering sound effects…", () => {
             const names = fileNames(state.song.sfx.map(s => s.name), ".wav");
             const files = state.song.sfx.map((s, k) => ({ name: names[k], data: core().renderWav(sfxSong(k), { cutAtEnd: true, tail: 0.03, mask: wavMask() }).bytes }));
-            download(slug(state.song.name) + "_wav.zip", makeZip(files), "application/zip");
-            status("Exported " + files.length + " .wav files in a .zip.");
+            deliver(slug(state.song.name) + "_wav.zip", makeZip(files), "application/zip", "Exported " + files.length + " .wav files in a .zip.");
         });
     }
 
@@ -2844,15 +3036,7 @@
 
     function openFile(file) {
         const reader = new FileReader();
-        reader.onload = () => {
-            try {
-                const song = normalize(JSON.parse(reader.result));
-                loadSong(song);
-                status("Opened " + file.name);
-            } catch (err) {
-                toast(err.message.startsWith("This file") ? err.message : "Couldn't read that file. Open a .fuge.json project saved from fUGE.");
-            }
-        };
+        reader.onload = () => loadText(reader.result, file.name, null);
         reader.readAsText(file);
     }
 
@@ -2868,14 +3052,21 @@
         history.undo = [];
         history.redo = [];
         state.dirty = false;
+        state.filePath = null;
         syncInstToTrack();
         scheduleAutosave();
         renderAll();
         centerRoll(true);
+        updateTitle();
     }
 
     function newSong(kind) {
-        if (state.dirty && !confirm("Start something new? Changes since your last save will be lost.")) return;
+        confirmDiscard().then(ok => {
+            if (ok) startNew(kind);
+        });
+    }
+
+    function startNew(kind) {
         if (kind === "song") {
             loadSong(blankSong());
             status("New song. Draw on any track to begin.");
@@ -2900,9 +3091,20 @@
         applyTheme(next);
     }
 
+    const TEXT_TYPES = ["text", "number", "search", "email", "url", "password", "tel"];
+
+    function isTextEntry(t) {
+        return !!t && (t.tagName === "TEXTAREA" || t.isContentEditable || (t.tagName === "INPUT" && TEXT_TYPES.includes(t.type)));
+    }
+
     function typing(e) {
+        return isTextEntry(e.target);
+    }
+
+    function controlKey(e) {
         const t = e.target;
-        return t && (t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "TEXTAREA");
+        if (!t || !["SELECT", "INPUT", "BUTTON"].includes(t.tagName)) return false;
+        return ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter", "Home", "End", "PageUp", "PageDown"].includes(e.key);
     }
 
     function onKey(e) {
@@ -2914,7 +3116,7 @@
         const k = e.key.toLowerCase();
         if (mod && k === "s") {
             e.preventDefault();
-            saveJson();
+            saveJson(e.shiftKey);
             return;
         }
         if (mod && k === "e") {
@@ -2924,7 +3126,7 @@
         }
         if (mod && k === "o") {
             e.preventDefault();
-            $("fileInput").click();
+            openProject();
             return;
         }
         if ($("presetModal").classList.contains("open")) {
@@ -2932,6 +3134,7 @@
             return;
         }
         if (typing(e)) return;
+        if (!e.ctrlKey && !e.metaKey && controlKey(e)) return;
         if (mod) {
             if (k === "z") {
                 e.preventDefault();
@@ -2960,6 +3163,7 @@
         }
         if (e.key === " ") {
             e.preventDefault();
+            if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
             play();
             return;
         }
@@ -3016,13 +3220,17 @@
 
     function bind() {
         $("btnNew").onclick = openNewMenu;
-        $("btnOpen").onclick = () => $("fileInput").click();
+        $("btnOpen").onclick = openProject;
         $("fileInput").onchange = e => {
             const f = e.target.files[0];
             if (f) openFile(f);
             e.target.value = "";
         };
-        $("btnSave").onclick = saveJson;
+        $("btnSave").onclick = e => saveJson(e.shiftKey);
+        Desktop.onClose(() => {
+            storeSet(STORE_KEY, JSON.stringify(state.song));
+            return state.dirty ? Desktop.ask("You have unsaved changes. Quit anyway? fUGE will restore them the next time you open it.") : true;
+        });
         $("btnExport").onclick = openExportMenu;
         $("sfxName").oninput = e => {
             const sx = curSfx();
@@ -3159,6 +3367,20 @@
         $("patSelect").onchange = e => setPattern(e.target.value);
         $("patUnique").onclick = makeUnique;
         $("patClear").onclick = clearPattern;
+        const setScale = e => {
+            const name = e && e.target.id === "scaleRoot" && $("scaleName").value === "Free" ? "Ionian" : $("scaleName").value;
+            state.song.scale = { root: parseInt($("scaleRoot").value, 10), name };
+            state.dirty = true;
+            updateTitle();
+            scheduleAutosave();
+            renderPatBar();
+            drawGrid();
+            drawKeys();
+            const sc = state.song.scale;
+            status(sc.name === "Free" ? "Scale highlighting off." : "Showing " + ROOT_NAMES[sc.root] + " " + SCALES[sc.name].label + ". Darkened rows are outside the scale.");
+        };
+        $("scaleRoot").onchange = setScale;
+        $("scaleName").onchange = setScale;
         $("toolDraw").onclick = () => setTool("draw");
         $("toolErase").onclick = () => setTool("erase");
         $("toolSelect").onclick = () => setTool("select");
@@ -3222,6 +3444,14 @@
         });
         insp.addEventListener("click", onInspector);
         document.addEventListener("keydown", onKey);
+        document.addEventListener("change", e => {
+            const t = e.target;
+            if (t.tagName === "SELECT" || (t.tagName === "INPUT" && !isTextEntry(t))) t.blur();
+        });
+        document.addEventListener("click", e => {
+            const b = e.target.closest("button");
+            if (b && e.detail > 0 && !b.closest(".ctx")) b.blur();
+        });
         bindSplitter();
         new ResizeObserver(() => {
             renderRoll();
@@ -3259,12 +3489,14 @@
             }
         }
         state.song = song || demoSong();
+        if (song && Desktop.desktop) state.filePath = storeGet(PATH_KEY) || null;
         syncInstToTrack();
         bind();
         readPalette();
         renderAll();
         centerRoll(true);
         status(song ? "Restored your last session." : "Welcome! This demo song shows each channel. Click a slot in the arrangement to edit it.");
+        updateTitle();
         if (document.fonts) document.fonts.ready.then(() => renderAll());
     }
 
