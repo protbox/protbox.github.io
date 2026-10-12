@@ -140,45 +140,7 @@
     }
 
     function demoSong() {
-        const s = blankSong();
-        s.name = "First Steps";
-        const id = name => s.instruments.find(i => i.name === name).id;
-        const note = (row, len, n, inst, fx) => ({ row, len, note: n, inst, fx: fx || null });
-        const melody = [[0, 4, 40], [4, 4, 43], [8, 6, 48], [14, 2, 47], [16, 6, 45], [22, 2, 43], [24, 8, 40], [32, 4, 41], [36, 4, 45], [40, 4, 48], [44, 4, 45], [48, 6, 47], [54, 2, 45], [56, 8, 43]];
-        const lead = { notes: melody.map(m => note(m[0], m[1], m[2], id("Square Lead"))) };
-        lead.notes[lead.notes.length - 1].fx = { code: 0x4, param: 0x34 };
-        const chords = [[36, 0x47], [33, 0x37], [29, 0x47], [31, 0x47]];
-        const harmony = { notes: [] };
-        chords.forEach((c, bar) => {
-            for (let k = 0; k < 4; k++) harmony.notes.push(note(bar * 16 + k * 4, 3, c[0], id("Pluck"), { code: 0x0, param: c[1] }));
-        });
-        const roots = [12, 9, 5, 7];
-        const bass = { notes: [] };
-        roots.forEach((r, bar) => {
-            bass.notes.push(note(bar * 16, 3, r, id("Triangle Bass")));
-            bass.notes.push(note(bar * 16 + 4, 2, r + 12, id("Triangle Bass")));
-            bass.notes.push(note(bar * 16 + 8, 3, r, id("Triangle Bass")));
-            bass.notes.push(note(bar * 16 + 12, 2, r + 12, id("Triangle Bass")));
-        });
-        const drums = { notes: [] };
-        const hit = (row, name) => drums.notes.push(note(row, 1, s.instruments.find(i => i.name === name).note, id(name)));
-        for (let bar = 0; bar < 4; bar++) {
-            const b = bar * 16;
-            hit(b, "Kick");
-            hit(b + 8, "Kick");
-            hit(b + 4, "Snare");
-            hit(b + 12, "Snare");
-            hit(b + 2, "Closed Hat");
-            hit(b + 6, "Closed Hat");
-            hit(b + 10, "Closed Hat");
-            hit(b + 14, bar === 3 ? "Open Hat" : "Closed Hat");
-        }
-        s.tracks[0].patterns.push(lead);
-        s.tracks[1].patterns.push(harmony);
-        s.tracks[2].patterns.push(bass);
-        s.tracks[3].patterns.push(drums);
-        s.order = [[0, -1, 0, 0], [0, 0, 0, 0]];
-        return s;
+        return normalize(clone(DEMO_SONG));
     }
 
     function num(v, lo, hi, d) {
@@ -3621,7 +3583,7 @@
         readPalette();
         renderAll();
         centerRoll(true);
-        status(song ? "Restored your last session." : "Welcome! This demo song shows each channel. Click a slot in the arrangement to edit it.");
+        status(song ? "Restored your last session." : "Welcome! This demo song, Forest by Polter, shows off each channel and instrument subpatterns. Click a slot in the arrangement to edit it.");
         updateTitle();
         if (document.fonts) document.fonts.ready.then(() => renderAll());
     }
