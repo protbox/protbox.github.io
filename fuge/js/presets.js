@@ -62,6 +62,7 @@
         { name: "Major Arp", desc: "Every note plays a major chord as a fast arpeggio.", data: { duty: 1, vol: 12, envDir: "down", envPace: 0 }, sub: "Major arp" },
         { name: "Minor Arp", desc: "Every note plays a minor chord as a fast arpeggio.", data: { duty: 1, vol: 12, envDir: "down", envPace: 0 }, sub: "Minor arp" },
         { name: "Arp Pluck", desc: "Decaying major arpeggio, classic chiptune chords.", data: { duty: 1, vol: 15, envDir: "down", envPace: 2 }, sub: "Major arp" },
+        { name: "Swell Arp", desc: "Major arpeggio that fades in and back out over about a second. Suits notes around 8 rows long at speed 7.", data: { duty: 1, vol: 0, envDir: "up", envPace: 2 }, sub: "Swell arp" },
         { name: "Shimmer Pad", desc: "Held tone whose duty cycle keeps turning, so it sounds alive.", data: { duty: 2, vol: 10, envDir: "down", envPace: 0 }, sub: "Duty shimmer" },
         { name: "Scoop Lead", desc: "Bends up into each note like a singer.", data: { duty: 2, vol: 12, envDir: "down", envPace: 0 }, sub: "Scoop in" },
         { name: "Blip", desc: "Short staccato chirp using the length counter.", data: { duty: 0, vol: 14, envDir: "down", envPace: 1, length: 12 } },
@@ -92,6 +93,7 @@
         { name: "Vibrato Flute", desc: "Soft flute. The vibrato eases in after the note starts.", data: { level: 1, shape: "flute" }, sub: "Delayed vibrato" },
         { name: "Hollow", desc: "Nasal, clarinet-ish tone.", data: { level: 1, shape: "hollow" } },
         { name: "Buzz Bass", desc: "Gritty bass with extra bite.", data: { level: 1, shape: "buzz" } },
+        { name: "Wave Swell Arp", desc: "Major arpeggio that steps up to full volume and back down to silence in half a second.", data: { level: 1, shape: "flute" }, sub: "Swell arp" },
         { name: "Pad", desc: "Sine at half volume, sits behind the leads.", data: { level: 2, shape: "sine" } },
         { name: "Quiet Echo", desc: "Triangle at 25% volume for echoes and backing.", data: { level: 3, shape: "triangle" } },
         { name: "Wave Pluck", desc: "Saw that stops after a short time.", data: { level: 1, shape: "sawtooth", length: 40 } },
@@ -152,12 +154,18 @@
         { name: "Scoop in", desc: "Bends up into the note.", loop: -1, rows: [[-4], [-3], [-2], [-1], [0]] },
         { name: "Pitch drop", desc: "Falls an octave right after the hit.", loop: -1, rows: [[0], [-1], [-2], [-3], [-5], [-7], [-9], [-12]] }
     ];
+    function swellArp(fx) {
+        return Array.from({ length: 32 }, (_, k) => fx[k] ? [[0, 4, 7][k % 3]].concat(fx[k]) : [[0, 4, 7][k % 3]]);
+    }
     const SUBS = {
         pulse: PITCHED.concat([
+            { name: "Swell arp", desc: "Major arpeggio that fades in, peaks after about half a second, then fades out. The hardware envelope does the fading; the two restarts at the peak can click a little.", loop: 29, rows: swellArp({ 0: [0xC, 0xA0], 27: [0xA, 0xE0], 28: [0xC, 0x2E] }) },
             { name: "Duty shimmer", desc: "Turns the duty cycle around for a chorus-like movement.", loop: 0, rows: [[E, 0x9, 0x80], [E], [E], [E, 0x9, 0x40], [E], [E], [E, 0x9, 0x00], [E], [E], [E, 0x9, 0x40], [E], [E]] },
             { name: "Thin attack", desc: "Starts thin and opens up to a full square.", loop: -1, rows: [[E, 0x9, 0x00], [E], [E, 0x9, 0x40], [E], [E, 0x9, 0x80]] }
         ]),
-        wave: PITCHED.slice(),
+        wave: PITCHED.concat([
+            { name: "Swell arp", desc: "Major arpeggio that rises through the wave channel's volume steps, peaks in the middle, then falls to silence. The wave channel only has four levels, so the fade moves in steps.", loop: 29, rows: swellArp({ 0: [0xC, 0x03], 4: [0xC, 0x07], 9: [0xC, 0x0F], 19: [0xC, 0x07], 24: [0xC, 0x03], 28: [0xC, 0x00] }) }
+        ]),
         noise: [
             { name: "Kick drop", desc: "High click falling to a low thump.", loop: -1, rows: [[14], [9], [5], [2], [0]] },
             { name: "Metallic snap", desc: "A metallic tick on the hit, then normal noise.", loop: -1, rows: [[8, 0x9, 0x08], [E], [E], [0]] },
@@ -181,7 +189,7 @@
         const inst = Object.assign({ type, name: preset.name }, JSON.parse(JSON.stringify(DEFAULTS[type])), JSON.parse(JSON.stringify(preset.data)));
         if (type === "wave" && !Array.isArray(inst.wave)) inst.wave = SHAPES[inst.shape] ? SHAPES[inst.shape]() : SHAPES.triangle();
         delete inst.shape;
-        inst.sub = preset.sub ? subOf(type, preset.sub) : null;
+        inst.sub = preset.sub ? subOf(type, preset.sub) : inst.sub || null;
         return inst;
     }
 

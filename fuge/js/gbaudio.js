@@ -711,6 +711,9 @@ function GBAudioCore() {
                     this.previewFrame = FRAME_CYCLES;
                     this.previewLeft = Math.max(1, Math.round((m.dur || 0.5) * this.rate));
                     break;
+                case "release":
+                    if (!d.playing && this.previewLeft > 1 && this.previewCh === m.ch) this.previewLeft = 1;
+                    break;
             }
         }
 

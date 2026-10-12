@@ -71,6 +71,20 @@
         MinorBebop: { label: "Minor bebop", steps: [2, 1, 1, 1, 2, 2, 1, 2] }
     };
     const ROOT_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    const KB_ROWS = [
+        ["KeyZ", "KeyX", "KeyC", "KeyV", "KeyB", "KeyN", "KeyM", "Comma", "Period", "Slash"],
+        ["KeyA", "KeyS", "KeyD", "KeyF", "KeyG", "KeyH", "KeyJ", "KeyK", "KeyL", "Semicolon", "Quote", "Backslash"],
+        ["KeyQ", "KeyW", "KeyE", "KeyR", "KeyT", "KeyY", "KeyU", "KeyI", "KeyO", "KeyP", "BracketLeft", "BracketRight"],
+        ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9", "Digit0", "Minus", "Equal"]
+    ];
+    const KB_FLAT = KB_ROWS.flat();
+    const KB_CODES = new Set(KB_FLAT);
+    const KB_FREE = {
+        KeyZ: 0, KeyS: 1, KeyX: 2, KeyD: 3, KeyC: 4, KeyV: 5, KeyG: 6, KeyB: 7, KeyH: 8, KeyN: 9, KeyJ: 10, KeyM: 11, Comma: 12, KeyL: 13, Period: 14, Semicolon: 15, Slash: 16,
+        KeyQ: 12, Digit2: 13, KeyW: 14, Digit3: 15, KeyE: 16, KeyR: 17, Digit5: 18, KeyT: 19, Digit6: 20, KeyY: 21, Digit7: 22, KeyU: 23, KeyI: 24, Digit9: 25, KeyO: 26, Digit0: 27, KeyP: 28, BracketLeft: 29, Equal: 30, BracketRight: 31
+    };
+    const KB_OCT_MAX = 3;
+    const KB = { held: new Map(), sound: null, ch: -1, warned: false };
     const STORE_KEY = "fuge.autosave";
     const THEME_KEY = "fuge.theme";
     const VOL_KEY = "fuge.volume";
@@ -225,7 +239,9 @@
                 const notes = (p && Array.isArray(p.notes) ? p.notes : []).filter(n => n && kindOf.get(n.inst) === t.kind).map(n => {
                     const row = num(n.row, 0, MAX_ROWS - 1, 0);
                     const fx = n.fx && Number.isFinite(Number(n.fx.code)) ? { code: num(n.fx.code, 0, 15, 0), param: num(n.fx.param, 0, 255, 0) } : null;
-                    return { row, len: num(n.len, 1, MAX_ROWS - row, 1), note: num(n.note, 0, t.kind === "noise" ? NOISE_MAX : NOTE_MAX, 24), inst: n.inst, fx };
+                    const out = { row, len: num(n.len, 1, MAX_ROWS - row, 1), note: num(n.note, 0, t.kind === "noise" ? NOISE_MAX : NOTE_MAX, 24), inst: n.inst, fx };
+                    if (n.swell && t.kind !== "noise") out.swell = true;
+                    return out;
                 });
                 return { notes };
             });
@@ -319,6 +335,8 @@
         ghost: true,
         waveMirror: true,
         subOpen: false,
+        kb: false,
+        kbOct: 1,
         mute: [false, false, false, false],
         solo: [false, false, false, false],
         playing: false,
@@ -508,6 +526,7 @@
 
     function selectSlot(t, o) {
         const trackChanged = t !== state.track;
+        if (trackChanged) kbStopAll();
         state.track = clamp(t, 0, 3);
         state.ord = clamp(o, 0, state.song.order.length - 1);
         state.sel = [];
@@ -1115,6 +1134,11 @@
         $("scaleName").innerHTML = "<option value=\"Free\">Free</option>" + Object.keys(SCALES).map(k => "<option value=\"" + k + "\">" + SCALES[k].label + "</option>").join("");
         $("scaleName").value = sc.name;
         $("scaleName").disabled = t.kind === "noise";
+        $("btnKb").setAttribute("aria-pressed", String(state.kb));
+        $("kbOct").hidden = !state.kb || t.kind === "noise";
+        $("kbBase").textContent = "Z = " + noteName(kbBase());
+        $("kbDown").disabled = state.kbOct <= 0;
+        $("kbUp").disabled = state.kbOct >= KB_OCT_MAX;
         $("toolDraw").setAttribute("aria-pressed", String(state.tool === "draw"));
         $("toolSelect").setAttribute("aria-pressed", String(state.tool === "select"));
         $("toolErase").setAttribute("aria-pressed", String(state.tool === "erase"));
@@ -1229,6 +1253,12 @@
                     ctx.fillStyle = P.accentSoft;
                     ctx.fillRect(0, y, KEY_W, G.rowH);
                 }
+                if (kbHeld(k)) {
+                    ctx.fillStyle = P.accent;
+                    ctx.globalAlpha = 0.45;
+                    ctx.fillRect(0, y, KEY_W, G.rowH);
+                    ctx.globalAlpha = 1;
+                }
                 ctx.fillStyle = P.kind.noise;
                 ctx.fillRect(0, y + 3, 3, G.rowH - 6);
                 ctx.fillStyle = P.ink;
@@ -1250,7 +1280,7 @@
             }
             for (let n = 0; n <= NOTE_MAX; n++) {
                 const y = (NOTE_MAX - n) * PITCH_H;
-                const hover = G.hover && G.hover.pitch === n;
+                const hover = (G.hover && G.hover.pitch === n) || kbHeld(n);
                 if (isBlack(n)) {
                     ctx.fillStyle = P.keyB;
                     ctx.fillRect(0, y + 1, KEY_W * 0.6, PITCH_H - 2);
@@ -1332,6 +1362,15 @@
                 ctx.globalAlpha = 1;
             }
         }
+        if (KB.held.size) {
+            ctx.fillStyle = P.accent;
+            ctx.globalAlpha = 0.24;
+            for (const v of KB.held.values()) {
+                if (G.drum) ctx.fillRect(0, v * G.rowH, G.w, G.rowH - 1);
+                else ctx.fillRect(0, (NOTE_MAX - v) * PITCH_H, G.w, PITCH_H - 1);
+            }
+            ctx.globalAlpha = 1;
+        }
         if (G.hover && !G.drum && state.tool === "draw" && !G.drag && !G.hoverMod) {
             const inst = curInst();
             if (inst && inst.type === trackKind(state.track) && !noteAt(G.hover.row, G.hover.pitch)) {
@@ -1399,6 +1438,17 @@
                         ctx.clip();
                         ctx.fillText(label, r.x + 4, r.y + PITCH_H - 3.5);
                         ctx.restore();
+                    }
+                    if (n.swell && r.w >= 12) {
+                        ctx.strokeStyle = P.panel;
+                        ctx.globalAlpha = 0.75;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(r.x + 3, r.y + r.h - 3);
+                        ctx.lineTo(r.x + r.w / 2, r.y + 3);
+                        ctx.lineTo(r.x + r.w - 5, r.y + r.h - 3);
+                        ctx.stroke();
+                        ctx.globalAlpha = 1;
                     }
                     if (r.w >= 10) {
                         ctx.fillStyle = P.panel;
@@ -1867,7 +1917,7 @@
         const min = Math.min(...sel.map(n => n.row));
         state.clip = {
             kind: trackKind(state.track),
-            notes: sel.map(n => ({ dr: n.row - min, len: n.len, note: n.note, inst: n.inst, fx: n.fx ? { code: n.fx.code, param: n.fx.param } : null })),
+            notes: sel.map(n => ({ dr: n.row - min, len: n.len, note: n.note, inst: n.inst, fx: n.fx ? { code: n.fx.code, param: n.fx.param } : null, swell: !!n.swell })),
             span: Math.max(...sel.map(noteEnd)) - min
         };
         if (!quiet) status("Copied " + sel.length + " " + noun(sel.length) + ".");
@@ -1902,6 +1952,7 @@
                 continue;
             }
             const n = { row: r, len: Math.min(c.len, ROWS - r), note: c.note, inst: c.inst, fx: c.fx ? { code: c.fx.code, param: c.fx.param } : null };
+            if (c.swell) n.swell = true;
             pat.notes.push(n);
             added.push(n);
         }
@@ -1941,11 +1992,150 @@
         });
     }
 
+    function quietData(inst) {
+        const q = clone(inst);
+        delete q.id;
+        delete q.type;
+        delete q.name;
+        if (inst.type === "wave") q.level = q.level ? Math.min(3, q.level + 1) : 0;
+        else q.vol = q.vol > 1 ? Math.round(q.vol / 2) : q.vol;
+        return q;
+    }
+
+    function stable(v) {
+        if (Array.isArray(v)) return "[" + v.map(stable).join(",") + "]";
+        if (v && typeof v === "object") return "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + stable(v[k])).join(",") + "}";
+        return JSON.stringify(v === undefined ? null : v);
+    }
+
+    function instData(inst) {
+        const d = clone(inst);
+        delete d.id;
+        delete d.type;
+        delete d.name;
+        return stable(d);
+    }
+
+    function echoPlan(insts, kind) {
+        const plan = insts.map(src => {
+            const data = quietData(src);
+            const key = stable(data);
+            const found = instsOf(kind).find(i => i !== src && instData(i) === key) || null;
+            return { src, data, found };
+        });
+        const fresh = plan.filter(p => !p.found).length;
+        return instsOf(kind).length + fresh > MAX_INST ? null : plan;
+    }
+
+    function slotPat(t, o) {
+        const idx = patIndex(t, o);
+        if (idx >= 0) return state.song.tracks[t].patterns[idx];
+        const pats = state.song.tracks[t].patterns;
+        const pat = { notes: [] };
+        pats.push(pat);
+        state.song.order[o][t] = pats.length - 1;
+        return pat;
+    }
+
+    function echoSel(other, delay) {
+        const sel = liveSel().slice().sort((a, b) => a.row - b.row);
+        const kind = trackKind(state.track);
+        if (!sel.length || kind === "noise" || (other && kind !== "pulse")) return;
+        const srcs = [...new Set(sel.map(n => n.inst))].map(instById).filter(Boolean);
+        const plan = echoPlan(srcs, kind);
+        if (!plan) {
+            toast("There's no room for an echo instrument: hUGETracker allows 15 " + KIND_LABEL[kind] + " instruments per song.");
+            return;
+        }
+        const dest = other ? (state.track === 0 ? 1 : 0) : state.track;
+        const next = other && !isSfx() && state.ord + 1 < state.song.order.length ? state.ord + 1 : -1;
+        const orig = curPat().notes.slice();
+        const places = [];
+        let lost = 0;
+        let cut = 0;
+        for (const n of sel) {
+            const at = n.row + delay;
+            if (other) {
+                if (at < ROWS) places.push({ n, o: state.ord, row: at, len: Math.min(n.len, ROWS - at) });
+                else if (next >= 0) places.push({ n, o: next, row: at - ROWS, len: n.len });
+                else lost++;
+                continue;
+            }
+            const nextRow = orig.filter(x => x !== n && x.row > n.row).reduce((m, x) => Math.min(m, x.row), ROWS);
+            if (at >= nextRow) {
+                lost++;
+                continue;
+            }
+            if (n.len > delay) cut++;
+            places.push({ n, o: state.ord, row: at, len: Math.min(n.len, nextRow - at) });
+        }
+        if (!places.length) {
+            toast(other ? "None of these notes has room for an echo before the end." : "There's no gap after these notes for an echo " + delay + " row" + (delay === 1 ? "" : "s") + " later. Try a shorter delay, or echo onto the other pulse track.");
+            return;
+        }
+        checkpoint();
+        const map = new Map();
+        const names = [];
+        for (const p of plan) {
+            const inst = p.found || addInstrument(kind, { name: (p.src.name + " echo").slice(0, 32), data: p.data }, true);
+            map.set(p.src.id, inst.id);
+            if (!names.includes(inst.name)) names.push(inst.name);
+        }
+        const groups = new Map();
+        for (const p of places) {
+            const pat = slotPat(dest, p.o);
+            const e = { row: p.row, len: p.len, note: p.n.note, inst: map.get(p.n.inst) || p.n.inst, fx: p.n.fx ? { code: p.n.fx.code, param: p.n.fx.param } : null };
+            if (p.n.swell) e.swell = true;
+            pat.notes.push(e);
+            if (!groups.has(pat)) groups.set(pat, []);
+            groups.get(pat).push(e);
+        }
+        groups.forEach((notes, pat) => resolveMany(pat, notes));
+        const added = places.length;
+        liveSel();
+        afterEdit();
+        renderInstList();
+        const where = other ? TRACKS[state.track === 0 ? 1 : 0].name : "this track";
+        status("Added " + added + " echo" + (added === 1 ? "" : "es") + " on " + where + ", " + delay + " row" + (delay === 1 ? "" : "s") + " later, using " + names.join(", ") + ". Change " + (names.length === 1 ? "that instrument's" : "those instruments'") + " volume to make the echo louder or quieter." +
+            (cut ? " " + cut + " longer note" + (cut === 1 ? " was" : "s were") + " shortened to make room." : "") + (lost ? " " + lost + " didn't fit." : ""));
+    }
+
+    function echoMenu(kind) {
+        const rpb = state.song.rowsPerBeat;
+        const delays = [1, 2, 3];
+        if (rpb > 3) delays.push(rpb);
+        const label = d => (d === rpb ? "1 beat later (" + d + " rows)" : d + " row" + (d === 1 ? "" : "s") + " later");
+        const items = [];
+        if (kind === "pulse") {
+            items.push({ head: "On " + TRACKS[state.track === 0 ? 1 : 0].name });
+            delays.forEach(d => items.push({ label: label(d), action: () => echoSel(true, d) }));
+            items.push({ sep: true });
+        }
+        items.push({ head: "On this track, in the gaps" });
+        delays.forEach(d => items.push({ label: label(d), action: () => echoSel(false, d) }));
+        return items;
+    }
+
     const VOLUMES = [{ label: "100%", y: 15 }, { label: "75%", y: 11 }, { label: "50%", y: 8 }, { label: "25%", y: 4 }, { label: "12%", y: 2 }];
     const FX_DEFAULT = { 0x0: 0x47, 0x4: 0x43, 0xc: 0x08, 0x3: 0x20, 0x7: 0x02, 0xe: 0x02, 0x5: 0x77, 0x8: 0xff };
 
     function fxDefault(code) {
         return FX_DEFAULT[code] !== undefined ? FX_DEFAULT[code] : 0x01;
+    }
+
+    function setSwell(on) {
+        applySel(n => {
+            if (on) n.swell = true;
+            else delete n.swell;
+        }, on ? "Swell on: these notes fade in and out over their length when the song plays." : "Swell off.");
+    }
+
+    function swellIssue(n) {
+        const inst = instById(n.inst);
+        if (!inst || UGE.swellPlan(n, inst.type, inst, speedNow(), ROWS)) return "";
+        if (inst.type === "wave") return inst.level ? "Swell needs a note at least 2 rows long." : "This instrument is muted, so there's nothing to swell.";
+        if (inst.envPace) return "Swell needs an instrument whose envelope is set to Hold (" + inst.name + " fades on its own).";
+        return "Swell needs a note at least 3 rows long.";
     }
 
     function setFx(code, param) {
@@ -1962,6 +2152,8 @@
             "<li>Shift-drag, or the Select tool, draws a box to select several. Shift- or Ctrl-click adds or removes one.</li>" +
             "<li>Right-click for options. Alt-click or the Erase tool deletes.</li>" +
             "<li><span class=\"kbd\">Space</span> play · <span class=\"kbd\">1</span>–<span class=\"kbd\">4</span> tracks · <span class=\"kbd\">D</span> <span class=\"kbd\">S</span> <span class=\"kbd\">E</span> tools</li>" +
+            "<li><span class=\"kbd\">`</span> keyboard piano: the letter and number rows play " + (kind === "noise" ? "the drum lanes" : "the chosen scale") + " (and take over D, S, E and 1–4 until you press <span class=\"kbd\">`</span> again).</li>" +
+            (kind === "noise" ? "" : "<li>Select notes and pick Echo (right-click or the note panel) to add quieter repeats a few rows later.</li>") +
             "<li><span class=\"kbd\">Ctrl</span>+<span class=\"kbd\">A</span> <span class=\"kbd\">C</span> <span class=\"kbd\">X</span> <span class=\"kbd\">V</span> <span class=\"kbd\">D</span> select, copy, cut, paste, duplicate · <span class=\"kbd\">↑↓</span> transpose · <span class=\"kbd\">←→</span> nudge</li>" +
             "</ul>";
     }
@@ -2027,9 +2219,21 @@
             h += "<div class=\"nib\">" + nibSelect("fxx", x, "x · " + fxDef.x) + nibSelect("fxy", y, "y · " + fxDef.y) + "</div>";
             h += "<p class=\"hint\">" + (x >= 0 && y >= 0 ? "<b style=\"font-family:var(--f-mono)\">" + hex(fxDef.code, 1) + hex((x << 4) | y, 2) + "</b> " : "") + fxDef.hint + "</p>";
         }
+        if (kind !== "noise") {
+            const all = sel.every(n => n.swell);
+            const any = sel.some(n => n.swell);
+            h += "<div class=\"field\"><span>Swell <b>fades in and out over the note</b></span><div class=\"seg\" role=\"group\"><button type=\"button\" data-f=\"swell\" data-v=\"0\" aria-pressed=\"" + !any + "\">Off</button><button type=\"button\" data-f=\"swell\" data-v=\"1\" aria-pressed=\"" + all + "\">On</button></div></div>";
+            if (any) {
+                const issues = [...new Set(sel.filter(n => n.swell).map(swellIssue).filter(Boolean))];
+                h += issues.length ? issues.map(t => "<p class=\"hint warn\">" + esc(t) + "</p>").join("") :
+                    "<p class=\"hint\">" + (kind === "pulse" ? "Fades up to the instrument's volume by mid-note and out by the end. A fade can't take longer than about 1.6 s, so long notes hold at the peak, and notes under about 6 rows can't fade out fully. The restarts at the peak can click a little. For a swelling arp, use an arp instrument like Major Arp." : "Steps through the wave channel's four volume levels, up to mid-note and back down.") +
+                    (sel.some(n => n.swell && n.fx) ? " The note's own effect pauses on the rows where the volume changes." : "") + " You'll hear it when the song plays, not in the click preview.</p>";
+            }
+        }
         h += "<div class=\"field\"><span>Volume <b>sets C0y</b></span><div class=\"seg\" role=\"group\">" +
             VOLUMES.map(v => "<button type=\"button\" data-f=\"vol\" data-v=\"" + v.y + "\" aria-pressed=\"" + sel.every(n => n.fx && n.fx.code === 0xc && n.fx.param === v.y) + "\">" + v.label + "</button>").join("") + "</div></div>";
-        h += "<div><button type=\"button\" class=\"btn small\" data-f=\"delete\">Delete " + (one ? (kind === "noise" ? "hit" : "note") : sel.length + " " + noun(sel.length)) + "</button></div>";
+        h += "<div class=\"chips\">" + (kind === "noise" ? "" : "<button type=\"button\" class=\"btn small\" data-f=\"echo\" title=\"Repeat " + (one ? "this note" : "these notes") + " a little later and quieter\">Echo ▾</button>") +
+            "<button type=\"button\" class=\"btn small\" data-f=\"delete\">Delete " + (one ? (kind === "noise" ? "hit" : "note") : sel.length + " " + noun(sel.length)) + "</button></div>";
         el.innerHTML = h;
     }
 
@@ -2042,8 +2246,10 @@
         if (!sel.length || !pat) return;
         if (e.type === "click") {
             if (f === "delete") deleteSel();
+            else if (f === "echo") showMenu(anchor(t), echoMenu(trackKind(state.track)));
             else if (f === "tr") transposeSel(parseInt(t.dataset.v, 10));
             else if (f === "vol") setFx(0xc, parseInt(t.dataset.v, 10));
+            else if (f === "swell") setSwell(t.dataset.v === "1");
             return;
         }
         const v = t.value;
@@ -2278,6 +2484,8 @@
                 if (G.drum) n.note = i.note;
             }, "Instrument set to " + i.name + ".") })) },
             has && { label: "Effect", sub: fxMenu(kind) },
+            has && !G.drum && { label: "Echo", sub: echoMenu(kind) },
+            has && !G.drum && { label: "Swell over the note", checked: sel.every(n => n.swell), action: () => setSwell(!sel.every(n => n.swell)) },
             has && { label: "Volume", sub: VOLUMES.map(v => ({ label: v.label + "  C0" + hex(v.y, 1), checked: has && sel.every(n => n.fx && n.fx.code === 0xc && n.fx.param === v.y), action: () => setFx(0xc, v.y) })) },
             has && { label: G.drum ? "Pitch" : "Transpose", sub: [{ label: "Up a semitone", kbd: "↑", action: () => transposeSel(1) }, { label: "Down a semitone", kbd: "↓", action: () => transposeSel(-1) }, { label: "Up an octave", kbd: "Shift+↑", action: () => transposeSel(12) }, { label: "Down an octave", kbd: "Shift+↓", action: () => transposeSel(-12) }] },
             has && !G.drum && { label: "Length", sub: [1, 2, 3, 4, 6, 8, 16].map(l => ({ label: l + (l === 1 ? " row" : " rows"), checked: has && sel.every(n => n.len === l), action: () => applySel(n => {
@@ -2428,6 +2636,7 @@
         if (kind === "noise") t = "Noise track: click a lane to place that drum.";
         else if (inst && inst.type === kind) t = "Drawing with " + KIND_LABEL[kind] + " " + pad2(instNum(inst)) + " · " + inst.name;
         else t = "Pick a " + KIND_LABEL[kind] + " instrument to draw on " + TRACKS[state.track].name + ".";
+        if (state.kb) t = "⌨ Piano" + (kind === "noise" ? "" : " Z = " + noteName(kbBase())) + " · " + t;
         $("drawHint").textContent = t;
     }
 
@@ -2471,13 +2680,13 @@
         $("status").textContent = msg;
     }
 
-    function addInstrument(type, preset) {
+    function addInstrument(type, preset, quiet) {
         const list = instsOf(type);
         if (list.length >= MAX_INST) {
             toast("hUGETracker allows 15 " + KIND_LABEL[type] + " instruments per song.");
             return null;
         }
-        checkpoint();
+        if (!quiet) checkpoint();
         const inst = Presets.make(type, preset || { name: KIND_LABEL[type] + " " + (list.length + 1), data: {} });
         inst.id = uid();
         const last = list[list.length - 1];
@@ -3223,6 +3432,16 @@
         }
         if (typing(e)) return;
         if (!e.ctrlKey && !e.metaKey && controlKey(e)) return;
+        if (!mod && !e.altKey && e.code === "Backquote") {
+            e.preventDefault();
+            if (!e.repeat) setKb(!state.kb);
+            return;
+        }
+        if (state.kb && !mod && !e.altKey && KB_CODES.has(e.code)) {
+            e.preventDefault();
+            kbDown(e);
+            return;
+        }
         if (mod) {
             if (k === "z") {
                 e.preventDefault();
@@ -3275,6 +3494,139 @@
                 selectSlot(state.track, state.ord + (e.key === "ArrowLeft" ? -1 : 1));
             }
         }
+    }
+
+    function kbBase() {
+        const sc = state.song.scale;
+        return 12 * state.kbOct + (SCALES[sc.name] && trackKind(state.track) !== "noise" ? sc.root : 0);
+    }
+
+    function kbValue(code) {
+        if (G.drum) {
+            const i = KB_FLAT.indexOf(code);
+            return i >= 0 && i < G.lanes.length ? i : -1;
+        }
+        const sc = state.song.scale;
+        let n = -1;
+        if (!SCALES[sc.name]) {
+            if (KB_FREE[code] !== undefined) n = kbBase() + KB_FREE[code];
+        } else {
+            const steps = SCALES[sc.name].steps;
+            KB_ROWS.forEach((row, r) => {
+                const k = row.indexOf(code);
+                if (k < 0) return;
+                n = kbBase() + 12 * r;
+                for (let i = 0; i < k; i++) n += steps[i % steps.length];
+            });
+        }
+        return n >= 0 && n <= NOTE_MAX ? n : -1;
+    }
+
+    function kbSound(v) {
+        if (state.playing) return;
+        let inst = null;
+        let note = v;
+        let ch = state.track;
+        if (G.drum) {
+            inst = G.lanes[v];
+            note = inst.note;
+            ch = 3;
+        } else {
+            inst = curInst();
+            if (!inst || inst.type !== trackKind(state.track)) {
+                if (!KB.warned) toast("Pick a " + KIND_LABEL[trackKind(state.track)] + " instrument to play it from the keyboard.");
+                KB.warned = true;
+                return;
+            }
+        }
+        GBAudio.start().then(sendMute).catch(() => toast("Couldn't start audio in this browser."));
+        GBAudio.send({ type: "preview", ch, inst: audioSpec(inst), note, fx: null, dur: G.drum ? 0.9 : 12 });
+        KB.ch = ch;
+    }
+
+    function kbRelease() {
+        if (KB.ch >= 0 && KB.ch !== 3) GBAudio.send({ type: "release", ch: KB.ch });
+        KB.ch = -1;
+    }
+
+    function kbReveal(v) {
+        if (G.drum) return;
+        const sc = $("rollScroll");
+        const view = sc.clientHeight - RULER_H;
+        const y = (NOTE_MAX - v) * PITCH_H;
+        if (y < sc.scrollTop || y + PITCH_H > sc.scrollTop + view) sc.scrollTop = Math.max(0, y - view / 2);
+    }
+
+    function kbDraw() {
+        drawGrid();
+        drawKeys();
+    }
+
+    function kbDown(e) {
+        if (e.repeat) return;
+        const v = kbValue(e.code);
+        if (v < 0) return;
+        KB.held.delete(e.code);
+        KB.held.set(e.code, v);
+        KB.sound = e.code;
+        kbSound(v);
+        kbReveal(v);
+        kbDraw();
+    }
+
+    function kbUp(e) {
+        if (!KB.held.has(e.code)) return;
+        KB.held.delete(e.code);
+        if (KB.sound === e.code) {
+            const rest = [...KB.held.entries()].pop();
+            if (rest) {
+                KB.sound = rest[0];
+                kbSound(rest[1]);
+            } else {
+                KB.sound = null;
+                kbRelease();
+            }
+        }
+        kbDraw();
+    }
+
+    function kbStopAll() {
+        if (!KB.held.size && KB.ch < 0) return;
+        KB.held.clear();
+        KB.sound = null;
+        kbRelease();
+        kbDraw();
+    }
+
+    function kbHeld(v) {
+        for (const x of KB.held.values()) if (x === v) return true;
+        return false;
+    }
+
+    function kbSummary() {
+        const sc = state.song.scale;
+        if (trackKind(state.track) === "noise") return "Z, X, C… play the drum lanes from the top";
+        const base = kbBase();
+        return SCALES[sc.name] ? "the Z, A, Q and 1 rows play " + ROOT_NAMES[sc.root] + " " + SCALES[sc.name].label + " an octave apart, from " + noteName(base) + " on Z" : "no scale chosen, so it's a tracker layout (Z and Q rows white keys, S and 2 rows black) from " + noteName(base) + " on Z";
+    }
+
+    function setKb(on) {
+        state.kb = on;
+        kbStopAll();
+        KB.warned = false;
+        renderPatBar();
+        renderHint();
+        status(on ? "Keyboard piano on: " + kbSummary() + ". Press ` to turn it off." : "Keyboard piano off. D, S, E and 1–4 are shortcuts again.");
+    }
+
+    function shiftKbOct(d) {
+        const v = clamp(state.kbOct + d, 0, KB_OCT_MAX);
+        if (v === state.kbOct) return;
+        kbStopAll();
+        state.kbOct = v;
+        renderPatBar();
+        renderHint();
+        status("Keyboard piano: " + kbSummary() + ".");
     }
 
     function setTool(t) {
@@ -3532,6 +3884,11 @@
         });
         insp.addEventListener("click", onInspector);
         document.addEventListener("keydown", onKey);
+        document.addEventListener("keyup", kbUp);
+        window.addEventListener("blur", kbStopAll);
+        $("btnKb").onclick = () => setKb(!state.kb);
+        $("kbDown").onclick = () => shiftKbOct(-1);
+        $("kbUp").onclick = () => shiftKbOct(1);
         document.addEventListener("change", e => {
             const t = e.target;
             if (t.tagName === "SELECT" || (t.tagName === "INPUT" && !isTextEntry(t))) t.blur();

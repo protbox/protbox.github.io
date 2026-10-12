@@ -90,8 +90,7 @@
         --ch4: #e8a160;
         --roll-bg: #171a23;
         --roll-alt: #12141c;
-    --roll-out: #07080c;
-        --roll-out: #07080c;
+        --roll-out: #0d0f15;
         --roll-beat: #252a38;
         --roll-bar: #3d4459;
         --key-white: #c9cdd8;
@@ -123,6 +122,7 @@
     --ch4: #e8a160;
     --roll-bg: #171a23;
     --roll-alt: #12141c;
+    --roll-out: #0d0f15;
     --roll-beat: #252a38;
     --roll-bar: #3d4459;
     --key-white: #c9cdd8;
@@ -329,6 +329,30 @@ input[type="range"] {
 
 #scaleName {
     width: 132px;
+}
+
+.kb-ctl,
+.kb-oct {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.kb-oct[hidden] {
+    display: none;
+}
+
+.kb-oct .btn.icon {
+    min-width: 24px;
+    padding: 2px 6px;
+}
+
+#kbBase {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    min-width: 46px;
+    text-align: center;
+    white-space: nowrap;
 }
 
 #patSelect {

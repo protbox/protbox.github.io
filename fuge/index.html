@@ -88,6 +88,14 @@
                         <select id="scaleRoot" aria-label="Scale key"></select>
                         <select id="scaleName" aria-label="Scale"></select>
                     </div>
+                    <div class="kb-ctl">
+                        <button class="btn small" id="btnKb" type="button" aria-pressed="false" title="Keyboard piano (`): play the chosen scale on your computer keyboard">⌨ Keys</button>
+                        <span class="kb-oct" id="kbOct" hidden>
+                            <button class="btn small icon" id="kbDown" type="button" title="Lower octave" aria-label="Lower octave">−</button>
+                            <span id="kbBase" title="The note on the Z key"></span>
+                            <button class="btn small icon" id="kbUp" type="button" title="Higher octave" aria-label="Higher octave">+</button>
+                        </span>
+                    </div>
                     <div class="spacer"></div>
                     <div class="seg" role="group" aria-label="Tool">
                         <button type="button" id="toolDraw" aria-pressed="true" title="Draw (D)">✎ Draw</button>

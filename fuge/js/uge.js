@@ -40,7 +40,43 @@
         return cells;
     }
 
-    function buildCells(pattern, kind, instIndex, rows, sfx) {
+    const ENV_TICKS = 59.7275 / 64;
+    const WAVE_STEPS = [[0, 0], [3.75, 3], [7.5, 7], [15, 15]];
+
+    function swellPlan(n, kind, inst, speed, len) {
+        const L = Math.min(n.len, len - n.row);
+        if (!inst || kind === "noise") return null;
+        const out = [];
+        if (kind === "wave") {
+            if (L < 2 || !inst.level) return null;
+            const top = [0, 15, 7.5, 3.75][inst.level];
+            let last = -1;
+            for (let r = 0; r < L; r++) {
+                const tri = 1 - Math.abs(2 * (r + 0.5) / L - 1);
+                const want = tri * top;
+                const step = WAVE_STEPS.filter(s => s[0] <= top).reduce((a, s) => Math.abs(s[0] - want) < Math.abs(a[0] - want) ? s : a);
+                if (step[1] !== last) out.push({ row: n.row + r, fx: 0xC, fp: step[1] });
+                last = step[1];
+            }
+            return out;
+        }
+        if (L < 3 || inst.envPace) return null;
+        const peakWant = inst.vol || 15;
+        const mid = Math.max(1, Math.min(L - 2, Math.round((L - 1) / 2)));
+        const up = Math.max(1, Math.min(7, Math.round(mid * speed / (peakWant * ENV_TICKS))));
+        const slow = peakWant * up * ENV_TICKS;
+        const ra = slow < mid * speed ? Math.max(1, Math.min(mid, Math.round(slow / speed))) : mid;
+        const peak = Math.max(1, Math.min(15, Math.round(ra * speed / (up * ENV_TICKS))));
+        const fallAvail = (L - ra - 1) * speed;
+        const down = Math.max(1, Math.min(7, Math.round(fallAvail / (peak * ENV_TICKS))));
+        const rc = Math.max(ra + 1, L - Math.ceil(peak * down * ENV_TICKS / speed));
+        out.push({ row: n.row, fx: 0xC, fp: (8 | up) << 4 });
+        out.push({ row: n.row + ra, fx: 0xA, fp: peak << 4 });
+        out.push({ row: n.row + rc, fx: 0xC, fp: (down << 4) | peak });
+        return out;
+    }
+
+    function buildCells(pattern, kind, instIndex, rows, sfx, speed, insts) {
         const fxOf = n => n.fx || null;
         const len = rows || ROWS;
         const cells = emptyCells();
@@ -74,6 +110,14 @@
                         cells[r].fx = fx.code;
                         cells[r].fp = fx.param & 0xff;
                     }
+                }
+            }
+            for (const n of notes) {
+                if (!n.swell || !insts) continue;
+                const plan = swellPlan(n, kind, insts.get(n.inst), speed || 6, len);
+                if (plan) for (const s of plan) {
+                    cells[s.row].fx = s.fx;
+                    cells[s.row].fp = s.fp;
                 }
             }
             for (const n of notes) {
@@ -225,6 +269,7 @@
                 byType[t] = byType[t].slice(0, 15);
             }
         }
+        const instById = new Map(doc.instruments.map(i => [i.id, i]));
         const instIndex = new Map();
         for (const t of Object.keys(byType)) byType[t].forEach((inst, k) => instIndex.set(inst.id, k + 1));
 
@@ -250,7 +295,7 @@
                 if (!cache.has(key)) {
                     const pat = idx >= 0 ? doc.tracks[c].patterns[idx] : null;
                     cache.set(key, patterns.length);
-                    patterns.push({ id: patterns.length, cells: buildCells(pat, KINDS[c], instIndex, rows, !!sfx) });
+                    patterns.push({ id: patterns.length, cells: buildCells(pat, KINDS[c], instIndex, rows, !!sfx, sfx ? sfx.speed : doc.speed, instById) });
                 }
                 orders[c].push(cache.get(key));
             }
@@ -278,5 +323,5 @@
         return { bytes: writeBytes(res.song), warnings: res.warnings };
     }
 
-    root.UGE = { compile, compileSub, exportSong, NO_NOTE, TABLE_ROWS };
+    root.UGE = { compile, compileSub, exportSong, swellPlan, NO_NOTE, TABLE_ROWS };
 })(typeof window !== "undefined" ? window : globalThis);
