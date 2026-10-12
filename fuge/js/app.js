@@ -336,7 +336,7 @@
         waveMirror: true,
         subOpen: false,
         kb: false,
-        kbOct: 1,
+        kbOct: 0,
         mute: [false, false, false, false],
         solo: [false, false, false, false],
         playing: false,
