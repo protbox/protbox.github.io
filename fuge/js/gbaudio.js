@@ -347,6 +347,7 @@ function GBAudioCore() {
         }
 
         start(order, row) {
+            this.cutPending = false;
             this.resetState();
             this.powerOn();
             const count = this.song.orders[0].length;
@@ -357,12 +358,18 @@ function GBAudioCore() {
 
         finish() {
             this.playing = false;
-            if (!this.cutAtEnd) return;
+            this.cutPending = !!this.cutAtEnd;
+        }
+
+        flushCut() {
+            if (!this.cutPending) return;
+            this.cutPending = false;
             for (let c = 0; c < 4; c++) if (!this.song.used || this.song.used[c]) this.cut(c);
         }
 
         stop() {
             this.playing = false;
+            this.cutPending = false;
             this.powerOn();
             this.curWave = -1;
         }
@@ -724,16 +731,22 @@ function GBAudioCore() {
                 apu.frac += apu.cps;
                 const cyc = Math.floor(apu.frac);
                 apu.frac -= cyc;
-                if (d.playing) {
+                if (d.playing || d.cutPending) {
                     this.frameLeft -= cyc;
                     if (this.frameLeft <= 0) {
                         this.frameLeft += FRAME_CYCLES;
-                        d.tickOnce();
-                        if (!d.playing) this.post({ type: "ended" });
-                        else if (d.row !== this.lastRow || d.order !== this.lastOrder) {
-                            this.lastRow = d.row;
-                            this.lastOrder = d.order;
-                            this.post({ type: "pos", order: d.order, row: d.row, tick: d.tick, speed: d.speed });
+                        if (d.cutPending) {
+                            d.flushCut();
+                            this.post({ type: "ended", at: i });
+                        } else {
+                            d.tickOnce();
+                            if (!d.playing) {
+                                if (!d.cutPending) this.post({ type: "ended", at: i });
+                            } else if (d.row !== this.lastRow || d.order !== this.lastOrder) {
+                                this.lastRow = d.row;
+                                this.lastOrder = d.order;
+                                this.post({ type: "pos", order: d.order, row: d.row, tick: d.tick, speed: d.speed });
+                            }
                         }
                     }
                 }
@@ -776,6 +789,7 @@ function GBAudioCore() {
         while (d.playing && frames < limit) {
             apu.log = [];
             d.tickOnce();
+            d.flushCut();
             const log = apu.log;
             for (let i = 0; i < log.length; i += 2) {
                 const c = regChannel(log[i]);
@@ -831,9 +845,10 @@ function GBAudioCore() {
     function renderWav(song, opts) {
         const o = opts || {};
         const rate = 44100;
-        let done = false;
+        let end = -1;
+        let n = 0;
         const e = new Engine(rate, m => {
-            if (m.type === "ended") done = true;
+            if (m.type === "ended" && end < 0) end = n + (m.at || 0);
         });
         if (o.mask) e.handle({ type: "mute", mask: o.mask });
         e.handle({ type: "song", song });
@@ -842,9 +857,7 @@ function GBAudioCore() {
         const block = 1024;
         let L = new Float32Array(rate * 4);
         let R = new Float32Array(rate * 4);
-        let n = 0;
-        let tail = -1;
-        while (n < max) {
+        while (n < max && (end < 0 || n < end + Math.round((o.tail || 0) * rate))) {
             if (n + block > L.length) {
                 const L2 = new Float32Array(L.length * 2);
                 const R2 = new Float32Array(R.length * 2);
@@ -855,13 +868,9 @@ function GBAudioCore() {
             }
             e.render(L.subarray(n, n + block), R.subarray(n, n + block), block);
             n += block;
-            if (done && tail < 0) tail = Math.round((o.tail || 0) * rate);
-            if (tail >= 0) {
-                tail -= block;
-                if (tail <= 0) break;
-            }
         }
-        return { bytes: wavFile(L, R, n, rate), seconds: n / rate };
+        const len = end < 0 ? n : Math.min(n, end + Math.round((o.tail || 0) * rate));
+        return { bytes: wavFile(L, R, len, rate), seconds: len / rate };
     }
 
     return { Engine, APU, Driver, notePoly, PERIODS, renderVgm, renderWav };

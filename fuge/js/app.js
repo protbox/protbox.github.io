@@ -3278,7 +3278,7 @@
                 const name = fileNames([s.name], ".wav")[0];
                 deliver(name, res.bytes, "audio/wav", "Exported " + name + " (" + res.seconds.toFixed(2) + " s).");
             } else {
-                const res = core().renderWav(UGE.compile(state.song).song, { tail: 1.5, mask: wavMask() });
+                const res = core().renderWav(UGE.compile(state.song).song, { cutAtEnd: true, mask: wavMask() });
                 const name = slug(state.song.name) + ".wav";
                 deliver(name, res.bytes, "audio/wav", "Exported " + name + " (" + Math.floor(res.seconds / 60) + ":" + pad2(Math.round(res.seconds % 60)) + ")" + (state.mute.some(Boolean) || state.solo.some(Boolean) ? ", without the muted tracks." : "."));
             }
