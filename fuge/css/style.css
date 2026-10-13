@@ -328,7 +328,7 @@ input[type="range"] {
 }
 
 #scaleName {
-    width: 132px;
+    width: 122px;
 }
 
 .kb-ctl,
@@ -743,7 +743,11 @@ input[type="range"] {
 }
 
 .pattern .bar {
-    column-gap: 8px;
+    column-gap: 6px;
+}
+
+.pattern .bar .seg button {
+    padding: 3px 7px;
 }
 
 .arr-body {

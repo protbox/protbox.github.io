@@ -40,6 +40,41 @@
         return cells;
     }
 
+    const PERIODS = [44, 156, 262, 363, 457, 547, 631, 710, 786, 854, 923, 986, 1046, 1102, 1155, 1205, 1253, 1297, 1339, 1379, 1417, 1452, 1486, 1517, 1546, 1575, 1602, 1627, 1650, 1673, 1694, 1714, 1732, 1750, 1767, 1783, 1798, 1812, 1825, 1837, 1849, 1860, 1871, 1881, 1890, 1899, 1907, 1915, 1923, 1930, 1936, 1943, 1949, 1954, 1959, 1964, 1969, 1974, 1978, 1982, 1985, 1988, 1992, 1995, 1998, 2001, 2004, 2006, 2009, 2011, 2013, 2015];
+    const periodOf = n => PERIODS[Math.max(0, Math.min(71, n))];
+
+    function slidePlan(n, kind, speed, len, taken, steady) {
+        if (kind === "noise" || !n.slide || speed < 2) return null;
+        const L = Math.min(n.len, len - n.row);
+        const target = Math.max(0, Math.min(71, n.note + n.slide));
+        if (target === n.note || L < 1) return null;
+        const start = n.row + Math.max(0, Math.min(L - 1, n.slideAt || 0));
+        const dist = Math.abs(periodOf(target) - periodOf(n.note));
+        const fx = target > n.note ? 0x1 : 0x2;
+        if (steady) {
+            const free = [];
+            for (let r = start; r < n.row + L; r++) if (!taken.has(r)) free.push(r);
+            if (!free.length) return null;
+            const units = Math.round(dist / (speed - 1));
+            const base = Math.floor(units / free.length);
+            const extra = units - base * free.length;
+            return free.map((r, k) => ({ row: r, fx, fp: Math.min(255, base + (k < extra ? 1 : 0)) })).filter(s => s.fp > 0);
+        }
+        const first = !taken.has(start);
+        const glide = [];
+        for (let r = start + 1; r < n.row + L; r++) if (!taken.has(r)) glide.push(r);
+        if (!glide.length) {
+            if (!first) return null;
+            return [{ row: start, fx, fp: Math.max(1, Math.min(255, Math.round(dist / (speed - 1)))) }];
+        }
+        const steps = ((first ? 1 : 0) + glide.length) * (speed - 1);
+        const xy = Math.max(1, Math.min(255, Math.ceil(dist / steps)));
+        const out = [];
+        if (first) out.push({ row: start, fx, fp: xy });
+        glide.forEach((r, k) => out.push({ row: r, fx: 0x3, fp: xy, note: k === 0 ? target : undefined }));
+        return out;
+    }
+
     const ENV_TICKS = 59.7275 / 64;
     const WAVE_STEPS = [[0, 0], [3.75, 3], [7.5, 7], [15, 15]];
 
@@ -104,7 +139,8 @@
             for (const n of notes) {
                 const fx = fxOf(n);
                 if (!fx || !SUSTAIN.has(fx.code)) continue;
-                for (let r = n.row + 1; r < Math.min(len, n.row + n.len); r++) {
+                const stop = n.slide ? n.row + Math.max(0, Math.min(n.len - 1, n.slideAt || 0)) : n.row + n.len;
+                for (let r = n.row + 1; r < Math.min(len, stop); r++) {
                     if (starts.has(r)) break;
                     if (cells[r].fx === 0 && cells[r].fp === 0) {
                         cells[r].fx = fx.code;
@@ -113,11 +149,22 @@
                 }
             }
             for (const n of notes) {
-                if (!n.swell || !insts) continue;
-                const plan = swellPlan(n, kind, insts.get(n.inst), speed || 6, len);
+                const taken = new Set();
+                const plan = n.swell && insts ? swellPlan(n, kind, insts.get(n.inst), speed || 6, len) : null;
                 if (plan) for (const s of plan) {
                     cells[s.row].fx = s.fx;
                     cells[s.row].fp = s.fp;
+                    taken.add(s.row);
+                }
+                const slide = n.slide ? slidePlan(n, kind, speed || 6, len, taken, kind === "pulse" && !!plan) : null;
+                if (slide) for (const s of slide) {
+                    const c = cells[s.row];
+                    c.fx = s.fx;
+                    c.fp = s.fp;
+                    if (s.note !== undefined) {
+                        c.note = s.note;
+                        c.inst = 0;
+                    }
                 }
             }
             for (const n of notes) {
@@ -323,5 +370,5 @@
         return { bytes: writeBytes(res.song), warnings: res.warnings };
     }
 
-    root.UGE = { compile, compileSub, exportSong, swellPlan, NO_NOTE, TABLE_ROWS };
+    root.UGE = { compile, compileSub, exportSong, swellPlan, slidePlan, NO_NOTE, TABLE_ROWS };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -243,6 +243,12 @@
                     const fx = n.fx && Number.isFinite(Number(n.fx.code)) ? { code: num(n.fx.code, 0, 15, 0), param: num(n.fx.param, 0, 255, 0) } : null;
                     const out = { row, len: num(n.len, 1, MAX_ROWS - row, 1), note: num(n.note, 0, t.kind === "noise" ? NOISE_MAX : NOTE_MAX, 24), inst: n.inst, fx };
                     if (n.swell && t.kind !== "noise") out.swell = true;
+                    const sl = parseInt(n.slide, 10);
+                    if (t.kind !== "noise" && Number.isFinite(sl) && sl && Math.abs(sl) <= NOTE_MAX) {
+                        out.slide = sl;
+                        const at = num(n.slideAt, 0, out.len - 1, 0);
+                        if (at) out.slideAt = at;
+                    }
                     return out;
                 });
                 return { notes };
@@ -1312,6 +1318,34 @@
         return { x: n.row * G.colW, y: (NOTE_MAX - n.note) * PITCH_H, w: n.len * G.colW, h: PITCH_H };
     }
 
+    const slideTo = n => clamp(n.note + (n.slide || 0), 0, NOTE_MAX);
+
+    function drawSlide(ctx, n, color, alpha) {
+        const at = Math.min(n.slideAt || 0, n.len - 1);
+        const sx = (n.row + at) * G.colW;
+        const x1 = (n.row + n.len) * G.colW - 1;
+        const ym = (NOTE_MAX - n.note) * PITCH_H + PITCH_H / 2;
+        const yt = (NOTE_MAX - slideTo(n)) * PITCH_H + PITCH_H / 2;
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = alpha * 0.3;
+        ctx.beginPath();
+        ctx.moveTo(sx, ym);
+        ctx.lineTo(x1, yt);
+        ctx.lineTo(x1, ym);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = alpha;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(sx, ym);
+        ctx.lineTo(x1, yt);
+        ctx.stroke();
+        ctx.fillRect(x1 - 3, yt - PITCH_H / 2 + 2, 3, PITCH_H - 4);
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 1;
+    }
+
     function drawGrid() {
         const cv = $("roll");
         const ctx = prep(cv, G.w, G.h);
@@ -1404,6 +1438,12 @@
                     ctx.fillRect(r.x + 1, r.y + 1, r.w - 2, PITCH_H - 2);
                     ctx.globalAlpha = 0.5;
                     ctx.strokeRect(r.x + 1.5, r.y + 1.5, r.w - 3, PITCH_H - 3);
+                    if (n.slide) {
+                        drawSlide(ctx, n, P.ch[t], 0.35);
+                        ctx.strokeStyle = P.ch[t];
+                        ctx.fillStyle = P.ch[t];
+                        ctx.globalAlpha = 0.12;
+                    }
                 }
             });
             ctx.globalAlpha = 1;
@@ -1479,6 +1519,9 @@
                     ctx.lineWidth = 1;
                 }
             }
+        }
+        if (pat) {
+            for (const n of pat.notes) if (n.slide) drawSlide(ctx, n, isSel(n) ? P.accent : P.ch[state.track], 0.9);
         }
         if (G.drag && G.drag.mode === "box") {
             const d = G.drag;
@@ -1627,6 +1670,16 @@
             eraseAt(p);
             return;
         }
+        if (G.slideKey && !G.drum) {
+            const target = noteUnder(p);
+            if (!target) return;
+            checkpoint();
+            if (!isSel(target)) state.sel = [target];
+            G.drag = { mode: "slide", note: target, orig: target.slide || 0, origAt: target.slideAt || 0, at: clamp(p.row - target.row, 0, target.len - 1), heard: slideTo(target) };
+            drawGrid();
+            renderInspector();
+            return;
+        }
         const hit = noteUnder(p);
         if (hit) {
             if (add) {
@@ -1723,6 +1776,25 @@
             return;
         }
         G.hover = p;
+        if (d.mode === "slide") {
+            const n = d.note;
+            const off = clamp(p.pitch, 0, NOTE_MAX) - n.note;
+            if (off) {
+                n.slide = off;
+                if (d.at) n.slideAt = d.at;
+                else delete n.slideAt;
+            } else {
+                delete n.slide;
+                delete n.slideAt;
+            }
+            if (slideTo(n) !== d.heard) {
+                d.heard = slideTo(n);
+                preview(instById(n.inst), d.heard, state.track);
+            }
+            drawGrid();
+            drawKeys();
+            return;
+        }
         if (d.mode === "erase") {
             eraseAt(p);
             return;
@@ -1797,6 +1869,13 @@
         if (!d) return;
         G.drag = null;
         const pat = curPat();
+        if (d.mode === "slide") {
+            const now = d.note.slide || 0;
+            if (now === d.orig && (d.note.slideAt || 0) === d.origAt) history.undo.pop();
+            else status(now ? "Slides " + (now > 0 ? "up " : "down ") + Math.abs(now) + " semitone" + (Math.abs(now) === 1 ? "" : "s") + " to " + noteName(slideTo(d.note)) + "." : "Slide removed.");
+            afterEdit();
+            return;
+        }
         if (d.mode === "box") {
             drawGrid();
             renderInspector();
@@ -1828,10 +1907,14 @@
         }
         const n = noteUnder(p);
         if (!n) {
-            cv.style.cursor = state.tool === "select" || (e && e.shiftKey) ? "default" : G.drum ? "pointer" : "crosshair";
+            cv.style.cursor = state.tool === "select" || (G.slideKey && !G.drum) || (e && e.shiftKey) ? "default" : G.drum ? "pointer" : "crosshair";
             return;
         }
         const r = noteRect(n);
+        if (G.slideKey && !G.drum) {
+            cv.style.cursor = "ns-resize";
+            return;
+        }
         cv.style.cursor = !G.drum && p.x >= r.x + r.w - 6 && r.w >= 12 ? "ew-resize" : "grab";
     }
 
@@ -1920,7 +2003,7 @@
         const min = Math.min(...sel.map(n => n.row));
         state.clip = {
             kind: trackKind(state.track),
-            notes: sel.map(n => ({ dr: n.row - min, len: n.len, note: n.note, inst: n.inst, fx: n.fx ? { code: n.fx.code, param: n.fx.param } : null, swell: !!n.swell })),
+            notes: sel.map(n => ({ dr: n.row - min, len: n.len, note: n.note, inst: n.inst, fx: n.fx ? { code: n.fx.code, param: n.fx.param } : null, swell: !!n.swell, slide: n.slide || 0, slideAt: n.slideAt || 0 })),
             span: Math.max(...sel.map(noteEnd)) - min
         };
         if (!quiet) status("Copied " + sel.length + " " + noun(sel.length) + ".");
@@ -1956,6 +2039,8 @@
             }
             const n = { row: r, len: Math.min(c.len, ROWS - r), note: c.note, inst: c.inst, fx: c.fx ? { code: c.fx.code, param: c.fx.param } : null };
             if (c.swell) n.swell = true;
+            if (c.slide) n.slide = c.slide;
+            if (c.slide && c.slideAt) n.slideAt = Math.min(c.slideAt, n.len - 1);
             pat.notes.push(n);
             added.push(n);
         }
@@ -2089,6 +2174,8 @@
             const pat = slotPat(dest, p.o);
             const e = { row: p.row, len: p.len, note: p.n.note, inst: map.get(p.n.inst) || p.n.inst, fx: p.n.fx ? { code: p.n.fx.code, param: p.n.fx.param } : null };
             if (p.n.swell) e.swell = true;
+            if (p.n.slide) e.slide = p.n.slide;
+            if (p.n.slide && p.n.slideAt) e.slideAt = Math.min(p.n.slideAt, Math.max(0, e.len - 1));
             pat.notes.push(e);
             if (!groups.has(pat)) groups.set(pat, []);
             groups.get(pat).push(e);
@@ -2133,6 +2220,40 @@
         }, on ? "Swell on: these notes fade in and out over their length when the song plays." : "Swell off.");
     }
 
+    const SLIDES = [[1, "a semitone"], [2, "a tone"], [3, "a minor third"], [4, "a major third"], [5, "a fourth"], [7, "a fifth"], [12, "an octave"]];
+
+    function setSlide(off) {
+        applySel(n => {
+            const v = clamp(n.note + off, 0, NOTE_MAX) - n.note;
+            if (off && v) n.slide = v;
+            else {
+                delete n.slide;
+                delete n.slideAt;
+            }
+        }, off ? "Slide set: " + (off > 0 ? "up " : "down ") + Math.abs(off) + " semitone" + (Math.abs(off) === 1 ? "" : "s") + "." : "Slide removed.");
+    }
+
+    function slideMenu(sel) {
+        const item = (off, label) => ({ label, checked: sel.every(n => (n.slide || 0) === off), action: () => setSlide(off) });
+        return [{ head: "Slide up" }].concat(SLIDES.map(s => item(s[0], "Up " + s[1])), [{ head: "Slide down" }], SLIDES.map(s => item(-s[0], "Down " + s[1])), [{ sep: true }, { label: "No slide", disabled: !sel.some(n => n.slide), action: () => setSlide(0) }]);
+    }
+
+    function pitchMoves(sub) {
+        return !!(sub && sub.rows.some(r => typeof r.note === "number" || (r.fx && [0x0, 0x1, 0x2, 0x4].includes(r.fx.code) && (r.fx.code || r.fx.param))));
+    }
+
+    function slideIssues(sel) {
+        const out = [];
+        const slid = sel.filter(n => n.slide);
+        if (!slid.length) return out;
+        if (speedNow() < 2) out.push("Slides need a speed of 2 or more: the driver moves the pitch on every tick except a row's first, so at speed 1 nothing moves.");
+        const moving = [...new Set(slid.map(n => instById(n.inst)).filter(i => i && pitchMoves(i.sub)).map(i => i.name))];
+        if (moving.length) out.push(moving.join(", ") + (moving.length === 1 ? " has" : " have") + " a subpattern that moves the pitch (arpeggio or vibrato), which pulls the note back to its own pitch and fights the slide.");
+        if (slid.some(n => n.fx)) out.push("The slide uses the effect column, so the note's own effect stops where the slide starts.");
+        if (slid.some(n => n.len - Math.min(n.slideAt || 0, n.len - 1) < 2)) out.push("A slide that lasts one row can't land exactly on the target; start it earlier or make the note longer.");
+        return out;
+    }
+
     function swellIssue(n) {
         const inst = instById(n.inst);
         if (!inst || UGE.swellPlan(n, inst.type, inst, speedNow(), ROWS)) return "";
@@ -2154,9 +2275,10 @@
                 : "<li>Click to place a note with the selected instrument. Drag right to make it longer.</li><li>Drag a note to move it, or its right edge to resize.</li><li>Each channel plays one note at a time. Overlapping notes are trimmed.</li>") +
             "<li>Shift-drag, or the Select tool, draws a box to select several. Shift- or Ctrl-click adds or removes one.</li>" +
             "<li>Right-click for options. Alt-click or the Erase tool deletes.</li>" +
-            "<li><span class=\"kbd\">Space</span> play · <span class=\"kbd\">1</span>–<span class=\"kbd\">4</span> tracks · <span class=\"kbd\">D</span> <span class=\"kbd\">S</span> <span class=\"kbd\">E</span> tools</li>" +
-            "<li><span class=\"kbd\">`</span> keyboard piano: the letter and number rows play " + (kind === "noise" ? "the drum lanes" : "the chosen scale") + " (and take over D, S, E and 1–4 until you press <span class=\"kbd\">`</span> again).</li>" +
+            "<li><span class=\"kbd\">Space</span> play · <span class=\"kbd\">1</span>–<span class=\"kbd\">4</span> tracks · <span class=\"kbd\">D</span> <span class=\"kbd\">M</span> <span class=\"kbd\">E</span> tools</li>" +
+            "<li><span class=\"kbd\">`</span> keyboard piano: the letter and number rows play " + (kind === "noise" ? "the drum lanes" : "the chosen scale") + " (and take over D, M, E, S and 1–4 until you press <span class=\"kbd\">`</span> again).</li>" +
             (kind === "noise" ? "" : "<li>Select notes and pick Echo (right-click or the note panel) to add quieter repeats a few rows later.</li>") +
+            (kind === "noise" ? "" : "<li>Hold <span class=\"kbd\">S</span> and drag a note up or down to make it slide to that pitch. Click partway along a note to slide just its tail.</li>") +
             "<li><span class=\"kbd\">F1</span> or <b>?</b> opens the full guide.</li>" +
             "<li><span class=\"kbd\">Ctrl</span>+<span class=\"kbd\">A</span> <span class=\"kbd\">C</span> <span class=\"kbd\">X</span> <span class=\"kbd\">V</span> <span class=\"kbd\">D</span> select, copy, cut, paste, duplicate · <span class=\"kbd\">↑↓</span> transpose · <span class=\"kbd\">←→</span> nudge</li>" +
             "</ul>";
@@ -2224,6 +2346,29 @@
             h += "<p class=\"hint\">" + (x >= 0 && y >= 0 ? "<b style=\"font-family:var(--f-mono)\">" + hex(fxDef.code, 1) + hex((x << 4) | y, 2) + "</b> " : "") + fxDef.hint + "</p>";
         }
         if (kind !== "noise") {
+            const offs = new Set(sel.map(n => n.slide || 0));
+            const cur = offs.size === 1 ? [...offs][0] : null;
+            let so = (cur === null ? "<option value=\"keep\" selected>— mixed —</option>" : "") + "<option value=\"0\"" + (cur === 0 ? " selected" : "") + ">None</option>";
+            const range = new Set();
+            for (let d = 24; d >= -24; d--) if (d) range.add(d);
+            if (cur) range.add(cur);
+            [...range].sort((a, b) => b - a).forEach(d => {
+                const name = one ? " → " + noteName(clamp(one.note + d, 0, NOTE_MAX)) : "";
+                so += "<option value=\"" + d + "\"" + (d === cur ? " selected" : "") + ">" + (d > 0 ? "Up " : "Down ") + Math.abs(d) + name + "</option>";
+            });
+            h += "<label class=\"field\"><span>Slide <b>to another pitch</b></span><select data-f=\"slide\">" + so + "</select></label>";
+            if (sel.some(n => n.slide)) {
+                const ats = new Set(sel.filter(n => n.slide).map(n => n.slideAt || 0));
+                const at = ats.size === 1 ? [...ats][0] : null;
+                const maxLen = Math.max(...sel.map(n => n.len));
+                let ao = at === null ? "<option value=\"keep\" selected>— mixed —</option>" : "";
+                for (let k = 0; k < maxLen; k++) ao += "<option value=\"" + k + "\"" + (k === at ? " selected" : "") + ">" + (k ? "After " + k + " row" + (k === 1 ? "" : "s") : "From the start") + "</option>";
+                h += "<label class=\"field\"><span>Slide starts</span><select data-f=\"slideAt\">" + ao + "</select></label>";
+            }
+            if (sel.some(n => n.slide)) {
+                const issues = slideIssues(sel);
+                h += issues.length ? issues.map(t => "<p class=\"hint warn\">" + esc(t) + "</p>").join("") : "<p class=\"hint\">Slides from the note's pitch to the target, landing on it by the end of the note. Hold <span class=\"kbd\">S</span> and drag a note up or down to set a slide; where you click is where it starts.</p>";
+            }
             const all = sel.every(n => n.swell);
             const any = sel.some(n => n.swell);
             h += "<div class=\"field\"><span>Swell <b>fades in and out over the note</b></span><div class=\"seg\" role=\"group\"><button type=\"button\" data-f=\"swell\" data-v=\"0\" aria-pressed=\"" + !any + "\">Off</button><button type=\"button\" data-f=\"swell\" data-v=\"1\" aria-pressed=\"" + all + "\">On</button></div></div>";
@@ -2290,6 +2435,22 @@
             if (v === "") return;
             applySel(n => {
                 n.len = clamp(parseInt(v, 10) || 1, 1, ROWS - n.row);
+            });
+            return;
+        }
+        if (f === "slide") {
+            if (v === "keep") return;
+            setSlide(parseInt(v, 10));
+            return;
+        }
+        if (f === "slideAt") {
+            if (v === "keep") return;
+            const k = parseInt(v, 10);
+            applySel(n => {
+                if (!n.slide) return;
+                const at = clamp(k, 0, n.len - 1);
+                if (at) n.slideAt = at;
+                else delete n.slideAt;
             });
             return;
         }
@@ -2493,7 +2654,7 @@
             has && { label: "Duplicate", kbd: "Ctrl+D", action: duplicateSel },
             { sep: true },
             !has && { label: "Draw tool", kbd: "D", checked: state.tool === "draw", action: () => setTool("draw") },
-            !has && { label: "Select tool", kbd: "S", checked: state.tool === "select", action: () => setTool("select") },
+            !has && { label: "Select tool", kbd: "M", checked: state.tool === "select", action: () => setTool("select") },
             !has && { label: "Erase tool", kbd: "E", checked: state.tool === "erase", action: () => setTool("erase") },
             has && { label: "Instrument", disabled: !insts.length, sub: insts.map(i => ({ label: pad2(instNum(i)) + "  " + i.name, checked: has && sel.every(n => n.inst === i.id), action: () => applySel(n => {
                 n.inst = i.id;
@@ -2501,6 +2662,7 @@
             }, "Instrument set to " + i.name + ".") })) },
             has && { label: "Effect", sub: fxMenu(kind) },
             has && !G.drum && { label: "Echo", sub: echoMenu(kind) },
+            has && !G.drum && { label: "Slide", sub: slideMenu(sel) },
             has && !G.drum && { label: "Swell over the note", checked: sel.every(n => n.swell), action: () => setSwell(!sel.every(n => n.swell)) },
             has && { label: "Volume", sub: VOLUMES.map(v => ({ label: v.label + "  C0" + hex(v.y, 1), checked: has && sel.every(n => n.fx && n.fx.code === 0xc && n.fx.param === v.y), action: () => setFx(0xc, v.y) })) },
             has && { label: G.drum ? "Pitch" : "Transpose", sub: [{ label: "Up a semitone", kbd: "↑", action: () => transposeSel(1) }, { label: "Down a semitone", kbd: "↓", action: () => transposeSel(-1) }, { label: "Up an octave", kbd: "Shift+↑", action: () => transposeSel(12) }, { label: "Down an octave", kbd: "Shift+↓", action: () => transposeSel(-12) }] },
@@ -3569,7 +3731,13 @@
         }
         const has = liveSel().length > 0;
         if (k === "d") setTool("draw");
-        else if (k === "s") setTool("select");
+        else if (k === "m") setTool("select");
+        else if (k === "s") {
+            if (!e.repeat && !G.slideKey) {
+                G.slideKey = true;
+                if (G.hover) setRollCursor(G.hover);
+            }
+        }
         else if (k === "e") setTool("erase");
         else if (["1", "2", "3", "4"].includes(k)) selectSlot(parseInt(k, 10) - 1, state.ord);
         else if (e.key === "Escape") clearSel();
@@ -3981,6 +4149,14 @@
         insp.addEventListener("click", onInspector);
         document.addEventListener("keydown", onKey);
         document.addEventListener("keyup", kbUp);
+        document.addEventListener("keyup", e => {
+            if (e.key.toLowerCase() !== "s" || !G.slideKey) return;
+            G.slideKey = false;
+            if (G.hover) setRollCursor(G.hover);
+        });
+        window.addEventListener("blur", () => {
+            G.slideKey = false;
+        });
         window.addEventListener("blur", kbStopAll);
         $("btnKb").onclick = () => setKb(!state.kb);
         $("kbDown").onclick = () => shiftKbOct(-1);

@@ -60,6 +60,7 @@
                 <div class="group">
                     <p>Techniques</p>
                     <ul>
+                        <li><a href="#slides">Slides</a></li>
                         <li><a href="#swell">Swell</a></li>
                         <li><a href="#echo">Echo</a></li>
                         <li><a href="#keyboard-piano">Keyboard piano</a></li>
@@ -177,6 +178,7 @@
                     <li>Each channel plays one note at a time, so a note that overlaps another trims or replaces it.</li>
                     <li>Click the piano keys on the left to hear a pitch.</li>
                     <li><b>Ghosts</b> shows the other pitched channels' notes faintly behind your own, so you can line parts up.</li>
+                    <li>Hold <kbd>S</kbd> and drag a note up or down to make it slide to another pitch. See <a href="#slides">Slides</a>.</li>
                     <li>A note ends where you drew it: fUGE adds a note cut there for you on export, unless another note starts on that row.</li>
                 </ul>
             </section>
@@ -184,7 +186,7 @@
             <section id="editing">
                 <h2>Selecting and editing</h2>
                 <ul>
-                    <li><b>Select several:</b> drag a box with the <b>Select</b> tool (<kbd>S</kbd>), or <kbd>Shift</kbd>-drag with any tool. <kbd>Shift</kbd>- or <kbd>Ctrl</kbd>-click adds or removes single notes; <kbd>Ctrl</kbd>+<kbd>A</kbd> selects the whole pattern.</li>
+                    <li><b>Select several:</b> drag a box with the <b>Select</b> tool (<kbd>M</kbd>), or <kbd>Shift</kbd>-drag with any tool. <kbd>Shift</kbd>- or <kbd>Ctrl</kbd>-click adds or removes single notes; <kbd>Ctrl</kbd>+<kbd>A</kbd> selects the whole pattern.</li>
                     <li><b>Move and transpose:</b> <kbd>←</kbd> <kbd>→</kbd> nudge by a row (<kbd>Shift</kbd> for a beat); <kbd>↑</kbd> <kbd>↓</kbd> transpose by a semitone (<kbd>Shift</kbd> for an octave).</li>
                     <li><b>Copy and paste:</b> <kbd>Ctrl</kbd>+<kbd>C</kbd>, <kbd>X</kbd>, <kbd>V</kbd>. Paste goes where the mouse is, and works across tracks of the same kind (between Pulse 1 and Pulse 2, for example). <kbd>Ctrl</kbd>+<kbd>D</kbd> duplicates the selection straight after itself.</li>
                     <li><b>Delete:</b> <kbd>Delete</kbd>, the <b>Erase</b> tool (<kbd>E</kbd>), or <kbd>Alt</kbd>-click.</li>
@@ -195,7 +197,7 @@
                     <img class="dark" src="img/note-menu-dark.webp" alt="The right-click menu on a note, with the Effect submenu open" width="445" height="541" loading="lazy">
                     <figcaption>Right-click a note for quick edits.</figcaption>
                 </figure>
-                <p><b>Right-click</b> a note (or a selection) for a menu of everything you can do to it: change its instrument, effect, volume, length or pitch, add an <a href="#echo">echo</a>, turn on <a href="#swell">swell</a>, select every note with the same instrument, and more. Right-click empty space to switch tools or paste.</p>
+                <p><b>Right-click</b> a note (or a selection) for a menu of everything you can do to it: change its instrument, effect, volume, length or pitch, add an <a href="#echo">echo</a>, a <a href="#slides">slide</a> or <a href="#swell">swell</a>, select every note with the same instrument, and more. Right-click empty space to switch tools or paste.</p>
                 <p>fUGE uses its own right-click menus everywhere except text boxes.</p>
                 <div class="clear"></div>
             </section>
@@ -352,6 +354,26 @@
                 <p>hUGEDriver applies most effects only on the row they're written on, so fUGE repeats ongoing effects (arpeggio, slides, glide and vibrato) on every row the note covers. The full list is in the <a href="#fx-ref">effects reference</a>.</p>
             </section>
 
+            <section id="slides">
+                <h2>Slides</h2>
+                <figure>
+                    <img class="light" src="img/slide-light.webp" alt="Notes with translucent wedges showing slides up and down, one starting partway along its note" width="1150" height="569" loading="lazy">
+                    <img class="dark" src="img/slide-dark.webp" alt="Notes with translucent wedges showing slides up and down, one starting partway along its note" width="1150" height="569" loading="lazy">
+                    <figcaption>A wedge shows where each slide goes. The last note holds its pitch, then slides on its tail.</figcaption>
+                </figure>
+                <p>A slide bends a note from its own pitch to another one, like a guitar slide or a synth's portamento. To add one, <b>hold <kbd>S</kbd>, click a note and drag up or down</b> to the pitch it should end on. The note stays where it is, and a translucent wedge shows the slide. Drag back to the note's own pitch to remove it.</p>
+                <ul>
+                    <li><b>Where you click is where the slide starts.</b> Click a note's first row to slide the whole note, or further along to hold the pitch first and slide just the tail.</li>
+                    <li>Changed your mind? Just let go: <kbd>S</kbd> only ever slides, so nothing else changes. In <a href="#keyboard-piano">keyboard piano</a> mode, <kbd>S</kbd> plays a note instead.</li>
+                    <li>For several notes at once, right-click and choose <b>Slide ▸</b>: up or down by a semitone, a tone, a third, a fourth, a fifth or an octave.</li>
+                    <li>The note panel has a <b>Slide</b> menu that shows the note it lands on, and <b>Slide starts</b> to set exactly where it begins.</li>
+                    <li>Moving or transposing a note keeps its slide.</li>
+                </ul>
+                <p>The slide lands on its target pitch by the end of the note. fUGE works out the speed from where the slide starts and how long the note is when the song plays or exports. Like the hardware, it slides evenly in the Game Boy's frequency steps rather than in semitones, so the same interval moves a little differently low down than high up.</p>
+                <div class="note"><p>Slides work best with instruments whose subpattern doesn't move the pitch: an arpeggio or vibrato subpattern pulls the note back to its own pitch and fights the slide, and the note panel warns you when that happens. The slide uses the effect column, so a note's own effect (a vibrato, say) plays until the slide starts and then stops. Slides need a speed of 2 or more.</p></div>
+                <p>For a slide from the previous note into this one, there's also the <b>Glide to note</b> effect (<code>3xy</code>) in <a href="#effects">Note effects</a>.</p>
+            </section>
+
             <section id="swell">
                 <h2>Swell</h2>
                 <figure>
@@ -399,7 +421,7 @@
                     <li><b>− and +</b> next to the button change the octave. The note shown is the one on <kbd>Z</kbd>; it starts at C-3, the lowest note hUGE can play.</li>
                     <li><b>On the noise track</b>, the keys play the drum lanes in order: <kbd>Z</kbd> is the first lane, <kbd>X</kbd> the second, and so on.</li>
                 </ul>
-                <p>While it's on, letter and number keys play notes instead of their shortcuts (such as <kbd>D</kbd>, <kbd>S</kbd>, <kbd>E</kbd> and <kbd>1</kbd>–<kbd>4</kbd>). <kbd>Space</kbd>, the arrow keys, <kbd>Delete</kbd>, <kbd>Esc</kbd> and <kbd>Ctrl</kbd> shortcuts still work. Keys go by their position, not the letter printed on them, so the layout is the same on any keyboard. A note sounds until you let go, and it's silent while the song plays, because the song is using the channels.</p>
+                <p>While it's on, letter and number keys play notes instead of their shortcuts (such as <kbd>D</kbd>, <kbd>M</kbd>, <kbd>E</kbd>, <kbd>S</kbd> and <kbd>1</kbd>–<kbd>4</kbd>). <kbd>Space</kbd>, the arrow keys, <kbd>Delete</kbd>, <kbd>Esc</kbd> and <kbd>Ctrl</kbd> shortcuts still work. Keys go by their position, not the letter printed on them, so the layout is the same on any keyboard. A note sounds until you let go, and it's silent while the song plays, because the song is using the channels.</p>
             </section>
 
             <section id="sfx">
@@ -475,7 +497,7 @@
                     <tr><th>Keys</th><th>Action</th></tr>
                     <tr><td><kbd>Space</kbd></td><td>Play / stop</td></tr>
                     <tr><td><kbd>1</kbd> – <kbd>4</kbd></td><td>Edit Pulse 1, Pulse 2, Wave or Noise</td></tr>
-                    <tr><td><kbd>D</kbd> <kbd>S</kbd> <kbd>E</kbd></td><td>Draw, Select and Erase tools</td></tr>
+                    <tr><td><kbd>D</kbd> <kbd>M</kbd> <kbd>E</kbd></td><td>Draw, Select (marquee) and Erase tools</td></tr>
                     <tr><td><kbd>`</kbd></td><td>Keyboard piano on/off</td></tr>
                     <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Select all notes in the pattern</td></tr>
                     <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>X</kbd> / <kbd>V</kbd></td><td>Copy, cut, paste</td></tr>
@@ -497,6 +519,7 @@
                     <tr><td><kbd>Shift</kbd>-drag</td><td>Box select with any tool</td></tr>
                     <tr><td><kbd>Shift</kbd>- or <kbd>Ctrl</kbd>-click</td><td>Add a note to the selection, or remove it</td></tr>
                     <tr><td><kbd>Alt</kbd>-click</td><td>Delete a note</td></tr>
+                    <tr><td>Hold <kbd>S</kbd> and drag a note</td><td>Slide it up or down from where you clicked</td></tr>
                     <tr><td>Right-click</td><td>Menu for notes, slots, orders, channels and instruments</td></tr>
                     <tr><td>Double-click an empty slot</td><td>Give it a new pattern</td></tr>
                 </table>
