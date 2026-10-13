@@ -350,7 +350,7 @@ input[type="range"] {
 #kbBase {
     font-family: var(--f-mono);
     font-size: 12px;
-    min-width: 46px;
+    min-width: 30px;
     text-align: center;
     white-space: nowrap;
 }
@@ -740,6 +740,10 @@ input[type="range"] {
     padding: 6px 10px;
     border-bottom: 1px solid var(--line);
     background: var(--panel);
+}
+
+.pattern .bar {
+    column-gap: 8px;
 }
 
 .arr-body {

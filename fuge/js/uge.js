@@ -16,7 +16,7 @@
 
     function compileSub(sub) {
         if (!sub || !sub.rows || !sub.rows.length) return null;
-        const loop = sub.loop >= 0 && sub.loop < sub.rows.length ? sub.loop : -1;
+        const loop = sub.loop >= 0 && sub.loop < sub.rows.length ? Math.min(sub.loop, TABLE_ROWS - 2) : -1;
         const len = Math.max(1, Math.min(loop >= 0 ? TABLE_ROWS : TABLE_ROWS - 2, sub.rows.length));
         const cells = [];
         for (let r = 0; r < TABLE_ROWS; r++) cells.push({ note: NO_NOTE, jump: 0, fx: 0, fp: 0 });

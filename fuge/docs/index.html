@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>fUGE docs</title>
+    <link rel="stylesheet" href="docs.css">
+    <script src="docs.js"></script>
+</head>
+<body>
+    <div class="topbar">
+        <a class="brand" href="#welcome"><b>f</b>UGE <small>docs</small></a>
+        <button class="icon-btn" id="menu" type="button" aria-label="Show contents">☰</button>
+    </div>
+    <div class="layout">
+        <aside class="side" aria-label="Contents">
+            <a class="brand" href="#welcome"><b>f</b>UGE <small>docs</small></a>
+            <div class="side-tools">
+                <input type="search" id="search" placeholder="Search  ( / )" aria-label="Search the docs">
+                <button class="icon-btn" id="theme" type="button" title="Switch light/dark" aria-label="Switch light or dark theme"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg></button>
+            </div>
+            <nav class="nav">
+                <p class="none" id="noResults" hidden>Nothing matches. Try another word.</p>
+                <div class="group">
+                    <p>Getting started</p>
+                    <ul>
+                        <li><a href="#welcome">Welcome</a></li>
+                        <li><a href="#running">Running fUGE</a></li>
+                        <li><a href="#screen">A tour of the screen</a></li>
+                        <li><a href="#first-song">Your first song</a></li>
+                    </ul>
+                </div>
+                <div class="group">
+                    <p>Writing music</p>
+                    <ul>
+                        <li><a href="#arrangement">Arrangement and orders</a></li>
+                        <li><a href="#patterns">Patterns</a></li>
+                        <li><a href="#drawing">Drawing notes</a></li>
+                        <li><a href="#editing">Selecting and editing</a></li>
+                        <li><a href="#note-panel">The note panel</a></li>
+                        <li><a href="#drums">Drums on the noise track</a></li>
+                        <li><a href="#scales">Scale highlighting</a></li>
+                        <li><a href="#tempo">Speed and tempo</a></li>
+                        <li><a href="#playback">Playing back</a></li>
+                    </ul>
+                </div>
+                <div class="group">
+                    <p>Sound</p>
+                    <ul>
+                        <li><a href="#channels">The four channels</a></li>
+                        <li><a href="#instruments">Instruments</a></li>
+                        <li><a href="#presets">Presets</a></li>
+                        <li><a href="#pulse">Pulse instruments</a></li>
+                        <li><a href="#wave">Wave instruments</a></li>
+                        <li><a href="#noise">Noise instruments</a></li>
+                        <li><a href="#subpatterns">Subpatterns</a></li>
+                        <li><a href="#effects">Note effects</a></li>
+                    </ul>
+                </div>
+                <div class="group">
+                    <p>Techniques</p>
+                    <ul>
+                        <li><a href="#swell">Swell</a></li>
+                        <li><a href="#echo">Echo</a></li>
+                        <li><a href="#keyboard-piano">Keyboard piano</a></li>
+                    </ul>
+                </div>
+                <div class="group">
+                    <p>Sound effects</p>
+                    <ul>
+                        <li><a href="#sfx">Sound effect projects</a></li>
+                        <li><a href="#sfx-export">Exporting sound effects</a></li>
+                    </ul>
+                </div>
+                <div class="group">
+                    <p>Files</p>
+                    <ul>
+                        <li><a href="#saving">Saving and autosave</a></li>
+                        <li><a href="#export">Exporting songs</a></li>
+                        <li><a href="#gb-studio">Using fUGE with GB Studio</a></li>
+                        <li><a href="#hugetracker">hUGETracker and GBDK</a></li>
+                    </ul>
+                </div>
+                <div class="group">
+                    <p>Reference</p>
+                    <ul>
+                        <li><a href="#shortcuts">Keyboard shortcuts</a></li>
+                        <li><a href="#fx-ref">Effects reference</a></li>
+                        <li><a href="#limits">Limits and hardware quirks</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <main>
+            <section id="welcome">
+                <h1>fUGE</h1>
+                <p class="lead">A small DAW for Game Boy music and sound effects.</p>
+                <p>fUGE (short for <i>subterfUGE</i>) lets you write Game Boy music on a piano roll instead of in a tracker. Underneath, it works the way the Game Boy does: the sound you hear comes from an emulation of the Game Boy's sound chip, driven by a port of hUGEDriver, the same music driver GB Studio and GBDK games use. What you hear in fUGE is what plays in your game.</p>
+                <p>Songs export as hUGETracker <code>.uge</code> files, which open in hUGETracker and drop straight into GB Studio. Sound effects export as <code>.vgm</code> for GB Studio, or <code>.wav</code> for any other engine.</p>
+                <div class="tip"><p>Use the search box (or press <kbd>/</kbd>) to find a topic quickly. In fUGE, the <b>?</b> button or <kbd>F1</kbd> opens this page.</p></div>
+            </section>
+
+            <section id="running">
+                <h2>Running fUGE</h2>
+                <p>fUGE runs in your browser, either online or by opening <code>index.html</code> from the download. There's nothing to install, and the download works offline because everything it needs, fonts included, comes with it. Chrome, Edge, Firefox and Safari all work.</p>
+                <p>Browsers only allow sound after you've clicked or pressed a key on the page, so the first note you play starts the audio.</p>
+            </section>
+
+            <section id="screen">
+                <h2>A tour of the screen</h2>
+                <figure>
+                    <img class="light" src="img/overview-light.webp" alt="The whole fUGE window" width="1440" height="900" loading="lazy">
+                    <img class="dark" src="img/overview-dark.webp" alt="The whole fUGE window" width="1440" height="900" loading="lazy">
+                </figure>
+                <ul>
+                    <li><b>Top bar:</b> New, Open, Save and Export; undo and redo; stop, play and loop; the position display; output volume; the song's speed and rows per beat; the light/dark switch and help.</li>
+                    <li><b>Instruments</b> (left): every instrument in the song, grouped by channel type, with the editor for the selected one underneath.</li>
+                    <li><b>Arrangement</b> (top): the song's structure. Each column is an <i>order</i>, and each row is one of the Game Boy's four channels.</li>
+                    <li><b>Pattern editor</b> (bottom): the piano roll for the slot you've selected in the arrangement, with its toolbar above.</li>
+                    <li><b>Note panel</b> (right): details of the selected notes, or tips when nothing is selected.</li>
+                    <li><b>Status bar</b> (bottom): what just happened on the left, and what you're drawing with on the right.</li>
+                </ul>
+                <p>Drag the bar between the arrangement and the pattern editor to give either one more room.</p>
+            </section>
+
+            <section id="first-song">
+                <h2>Your first song</h2>
+                <p>The first time you open fUGE it loads a demo song, <i>Forest</i> by Polter. Press <kbd>Space</kbd> to hear it, and click around the arrangement to see how it's built.</p>
+                <ol>
+                    <li>Choose <b>New ▾ → New song</b>. A blank song comes with a few starter instruments.</li>
+                    <li>Click the first slot in the <b>Pulse 1</b> row of the arrangement.</li>
+                    <li>Pick an instrument in the sidebar, then click in the piano roll to place a note. Drag right while placing it to make it longer.</li>
+                    <li>Press <kbd>Space</kbd> to play. Press it again to stop.</li>
+                    <li>Click <b>+ Order</b> to add the next section, and fill the other channels in the same way: a bass line on <b>Wave</b>, drums on <b>Noise</b>.</li>
+                    <li><b>Save</b> keeps the project as a <code>.fuge.json</code> file; <b>Export</b> writes the <code>.uge</code> for your game.</li>
+                </ol>
+            </section>
+
+            <section id="arrangement">
+                <h2>Arrangement and orders</h2>
+                <figure>
+                    <img class="light" src="img/arrangement-light.webp" alt="The arrangement panel" width="1150" height="252" loading="lazy">
+                    <img class="dark" src="img/arrangement-dark.webp" alt="The arrangement panel" width="1150" height="252" loading="lazy">
+                </figure>
+                <p>A song is a list of <b>orders</b>, played left to right. Each order holds one pattern (or nothing) for each of the four channels, and lasts 64 rows. The arrangement shows the orders as columns and the channels as rows, with a small preview of each pattern.</p>
+                <ul>
+                    <li>Click a slot to edit its pattern below. Double-click an empty slot to give it a new pattern.</li>
+                    <li><b>+ Order</b> inserts an empty order after the selected one; the <b>+</b> at the end of the row adds one at the end.</li>
+                    <li><b>Repeat</b> inserts a copy of the selected order that uses the same patterns, so an edit to one changes both.</li>
+                    <li><b>◀ ▶</b> move the selected order; <b>Delete</b> removes it.</li>
+                    <li><b>M</b> and <b>S</b> on each channel mute or solo it. Muted channels are also left out of <code>.wav</code> exports, so you can bounce separate stems.</li>
+                    <li>Right-click a slot, an order number or a channel name for more options.</li>
+                </ul>
+                <p>The info next to the buttons shows how many orders there are and how long the song lasts.</p>
+            </section>
+
+            <section id="patterns">
+                <h2>Patterns</h2>
+                <p>A pattern is 64 rows of notes for one channel. The same pattern can appear in several orders; the slot shows <b>×2</b>, <b>×3</b> and so on when it does, and the pattern editor shows <b>Shared</b>. Editing a shared pattern changes every place it's used, which is handy for repeated drum loops and choruses.</p>
+                <ul>
+                    <li>The menu in the pattern toolbar picks which pattern a slot plays, makes a <b>+ New pattern</b>, or empties the slot.</li>
+                    <li><b>Make unique</b> gives this slot its own copy, so you can change it without touching the others.</li>
+                    <li><b>Clear</b> removes every note in the pattern.</li>
+                </ul>
+            </section>
+
+            <section id="drawing">
+                <h2>Drawing notes</h2>
+                <figure>
+                    <img class="light" src="img/pattern-light.webp" alt="The pattern editor with a pattern selected" width="1150" height="569" loading="lazy">
+                    <img class="dark" src="img/pattern-dark.webp" alt="The pattern editor with a pattern selected" width="1150" height="569" loading="lazy">
+                </figure>
+                <p>With the <b>Draw</b> tool (<kbd>D</kbd>), click the piano roll to place a note with the selected instrument. Drag right as you place it to set its length; the next note you draw uses the same length. The number on each note is its instrument.</p>
+                <ul>
+                    <li>Drag a note to move it, or drag its right edge to resize it.</li>
+                    <li>Each channel plays one note at a time, so a note that overlaps another trims or replaces it.</li>
+                    <li>Click the piano keys on the left to hear a pitch.</li>
+                    <li><b>Ghosts</b> shows the other pitched channels' notes faintly behind your own, so you can line parts up.</li>
+                    <li>A note ends where you drew it: fUGE adds a note cut there for you on export, unless another note starts on that row.</li>
+                </ul>
+            </section>
+
+            <section id="editing">
+                <h2>Selecting and editing</h2>
+                <ul>
+                    <li><b>Select several:</b> drag a box with the <b>Select</b> tool (<kbd>S</kbd>), or <kbd>Shift</kbd>-drag with any tool. <kbd>Shift</kbd>- or <kbd>Ctrl</kbd>-click adds or removes single notes; <kbd>Ctrl</kbd>+<kbd>A</kbd> selects the whole pattern.</li>
+                    <li><b>Move and transpose:</b> <kbd>←</kbd> <kbd>→</kbd> nudge by a row (<kbd>Shift</kbd> for a beat); <kbd>↑</kbd> <kbd>↓</kbd> transpose by a semitone (<kbd>Shift</kbd> for an octave).</li>
+                    <li><b>Copy and paste:</b> <kbd>Ctrl</kbd>+<kbd>C</kbd>, <kbd>X</kbd>, <kbd>V</kbd>. Paste goes where the mouse is, and works across tracks of the same kind (between Pulse 1 and Pulse 2, for example). <kbd>Ctrl</kbd>+<kbd>D</kbd> duplicates the selection straight after itself.</li>
+                    <li><b>Delete:</b> <kbd>Delete</kbd>, the <b>Erase</b> tool (<kbd>E</kbd>), or <kbd>Alt</kbd>-click.</li>
+                    <li><b>Undo:</b> <kbd>Ctrl</kbd>+<kbd>Z</kbd>, and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> to redo.</li>
+                </ul>
+                <figure class="side-shot">
+                    <img class="light" src="img/note-menu-light.webp" alt="The right-click menu on a note, with the Effect submenu open" width="445" height="541" loading="lazy">
+                    <img class="dark" src="img/note-menu-dark.webp" alt="The right-click menu on a note, with the Effect submenu open" width="445" height="541" loading="lazy">
+                    <figcaption>Right-click a note for quick edits.</figcaption>
+                </figure>
+                <p><b>Right-click</b> a note (or a selection) for a menu of everything you can do to it: change its instrument, effect, volume, length or pitch, add an <a href="#echo">echo</a>, turn on <a href="#swell">swell</a>, select every note with the same instrument, and more. Right-click empty space to switch tools or paste.</p>
+                <p>fUGE uses its own right-click menus everywhere except text boxes.</p>
+                <div class="clear"></div>
+            </section>
+
+            <section id="note-panel">
+                <h2>The note panel</h2>
+                <p>The panel on the right of the piano roll edits the selected notes. With several selected, every change applies to all of them, and fields that differ show <i>mixed</i>.</p>
+                <ul>
+                    <li><b>Pitch, instrument, row and length</b> for a single note; <b>transpose</b> buttons for several.</li>
+                    <li><b>Effect:</b> one hUGE effect per note, with its two settings (<code>x</code> and <code>y</code>). See <a href="#effects">Note effects</a>.</li>
+                    <li><b>Swell:</b> fades the note in and out over its length. See <a href="#swell">Swell</a>.</li>
+                    <li><b>Volume:</b> one click to set the note's volume (it writes a <code>C0y</code> effect).</li>
+                    <li><b>Echo ▾</b> adds quieter repeats. See <a href="#echo">Echo</a>.</li>
+                </ul>
+                <p>With nothing selected, the panel shows a short list of tips and shortcuts.</p>
+            </section>
+
+            <section id="drums">
+                <h2>Drums on the noise track</h2>
+                <figure>
+                    <img class="light" src="img/drums-light.webp" alt="The noise track as drum lanes" width="1150" height="528" loading="lazy">
+                    <img class="dark" src="img/drums-dark.webp" alt="The noise track as drum lanes" width="1150" height="528" loading="lazy">
+                </figure>
+                <p>The noise track works like a drum machine. Each lane is one noise instrument (kick, snare, hat and so on). Click a lane to place that hit, or drag along it to paint several. Only one hit can sound at a time, so a new hit on a row replaces any other hit there. A hit keeps sounding until the next hit or until its own envelope fades out.</p>
+                <p>Each hit plays its instrument's default pitch. To change one hit's pitch, select it and use the <b>Pitch</b> slider in the note panel; hits with a changed pitch show a small dot.</p>
+            </section>
+
+            <section id="scales">
+                <h2>Scale highlighting</h2>
+                <figure>
+                    <img class="light" src="img/pattern-bar-light.webp" alt="The pattern toolbar with the key and scale menus" width="1150" height="41" loading="lazy">
+                    <img class="dark" src="img/pattern-bar-dark.webp" alt="The pattern toolbar with the key and scale menus" width="1150" height="41" loading="lazy">
+                </figure>
+                <p>The key and scale menus in the pattern toolbar darken every row that isn't in the chosen scale, so it's easy to stay in key. They only change the display, never your notes, and the choice is saved with the project. Choose <b>Free</b> to turn it off.</p>
+                <p>The scales include the seven modes (Major/Ionian, Dorian, Phrygian, Lydian, Mixolydian, Minor/Aeolian and Locrian), harmonic and melodic minor, Phrygian dominant, minor blues, Chinese, Romanian, and major and minor bebop. The <a href="#keyboard-piano">keyboard piano</a> follows the same scale.</p>
+            </section>
+
+            <section id="tempo">
+                <h2>Speed and tempo</h2>
+                <p>Game Boy music runs on <i>ticks</i>, about 60 per second (59.73 to be exact). <b>Speed</b> is how many ticks each row lasts, so a lower number plays faster. At speed 7, a row lasts about 0.12 s.</p>
+                <p><b>Rows/beat</b> only changes the grid lines and the <b>BPM</b> readout next to it. It doesn't change the sound. With 4 rows per beat, speed 7 is about 128 BPM.</p>
+                <p>To change speed partway through a song, use the <b>Set speed</b> effect (<code>Fxx</code>) on a note.</p>
+            </section>
+
+            <section id="playback">
+                <h2>Playing back</h2>
+                <ul>
+                    <li><kbd>Space</kbd> or <b>▶</b> plays from the selected order; press again to stop. The arrangement and piano roll follow the playhead.</li>
+                    <li>Click the ruler above the piano roll to start from that row (a small marker shows it). <b>■</b> with nothing playing resets it to the start.</li>
+                    <li><b>Loop order</b> keeps repeating the selected order, which is handy while you work on one section.</li>
+                    <li>The green display shows the current order and row. <b>VOL</b> sets fUGE's output volume (not the song's).</li>
+                </ul>
+            </section>
+
+            <section id="channels">
+                <h2>The four channels</h2>
+                <p>The Game Boy has four sound channels, and each plays one note at a time:</p>
+                <table>
+                    <tr><th>Channel</th><th>Sound</th><th>Good for</th></tr>
+                    <tr><td><span class="ch" style="background:var(--ch1)"></span>Pulse 1</td><td>Square wave with four pulse widths, a volume envelope and a pitch sweep.</td><td>Leads, chords as arpeggios, sweeping sound effects</td></tr>
+                    <tr><td><span class="ch" style="background:var(--ch2)"></span>Pulse 2</td><td>The same, without the sweep.</td><td>Harmony, counter-melody, echoes</td></tr>
+                    <tr><td><span class="ch" style="background:var(--ch3)"></span>Wave</td><td>Plays a 32-step waveform you draw, at four volume levels.</td><td>Bass, soft leads, pads</td></tr>
+                    <tr><td><span class="ch" style="background:var(--ch4)"></span>Noise</td><td>Noise with an envelope, smooth or metallic.</td><td>Drums, explosions, hits</td></tr>
+                </table>
+                <p>Pulse instruments play on either pulse channel; wave and noise instruments only play on their own. Pitched notes run from C-3 to B-8, following hUGETracker's note names.</p>
+            </section>
+
+            <section id="instruments">
+                <h2>Instruments</h2>
+                <figure class="side-shot">
+                    <img class="light" src="img/instrument-light.webp" alt="The instrument list and editor" width="290" height="827" loading="lazy">
+                    <img class="dark" src="img/instrument-dark.webp" alt="The instrument list and editor" width="290" height="827" loading="lazy">
+                </figure>
+                <p>The sidebar lists the song's instruments by type: pulse, wave and noise. A song can have up to 15 of each, as in hUGETracker. A small tag shows when an instrument has a <a href="#subpatterns">subpattern</a>: <b>ARP</b>, <b>VIB</b> or <b>SUB</b>.</p>
+                <ul>
+                    <li>Click an instrument to draw with it and edit it below. Picking an instrument of another type switches to its track.</li>
+                    <li><b>+ New</b> adds a blank instrument; <b>Presets…</b> adds a ready-made one.</li>
+                    <li><b>▶ Hear</b> plays it; most changes in the editor also play it so you hear the difference.</li>
+                    <li><b>Duplicate</b> and <b>Delete</b> are at the bottom of the editor, and in the right-click menu. Deleting an instrument also removes its notes.</li>
+                </ul>
+                <p>Editing an instrument changes every note that uses it, across the whole song.</p>
+                <h3>Copying instruments between projects</h3>
+                <p>Right-click an instrument and choose <b>Copy instrument</b>. fUGE remembers it even after you open another project or reload the page. Then, in any project:</p>
+                <ul>
+                    <li><b>Paste instrument</b> (right-click the instrument list or any instrument) adds it as a new instrument, subpattern and waveform included. If the name is already taken, it gets a number on the end.</li>
+                    <li><b>Paste settings into …</b> (right-click an instrument of the same type) replaces that instrument's sound but keeps its name, so every note already using it plays the new sound. <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes it.</li>
+                </ul>
+                <div class="clear"></div>
+            </section>
+
+            <section id="presets">
+                <h2>Presets</h2>
+                <figure>
+                    <img class="light" src="img/presets-light.webp" alt="The presets dialog" width="760" height="640" loading="lazy">
+                    <img class="dark" src="img/presets-dark.webp" alt="The presets dialog" width="760" height="640" loading="lazy">
+                </figure>
+                <p><b>Presets…</b> opens a library of instruments for each channel type, split into <b>Music</b> and <b>Sound effects</b>. Press <b>▶ Listen</b> to try one, and <b>+ Add</b> to put a copy in your song. Presets are a starting point: once added, they're ordinary instruments you can change.</p>
+                <p>Some highlights: leads, plucks, bells, swells and echoes for pulse; triangle and deep basses, saw, organ, flute and pads for wave; kicks, snares, hats, toms and crashes for noise; and jumps, coins, lasers, explosions and menu blips in the sound-effect group.</p>
+            </section>
+
+            <section id="pulse">
+                <h2>Pulse instruments</h2>
+                <ul>
+                    <li><b>Duty cycle:</b> the pulse width. 50% is the full, hollow square; 25% and 12.5% get thinner and more nasal; 75% sounds the same as 25%.</li>
+                    <li><b>Volume and envelope:</b> <b>Hold</b> keeps the volume steady; <b>Fade out</b> and <b>Fade in</b> step the volume down or up at the <b>Fade speed</b>. The graph shows the volume over the first second.</li>
+                    <li><b>Stop after a set time:</b> uses the hardware length counter to end each note after up to a quarter of a second, for short blips.</li>
+                    <li><b>Pitch sweep</b> (Pulse 1 only): bends every note up or down automatically. Pulse 2 has no sweep hardware, so it ignores these settings.</li>
+                </ul>
+            </section>
+
+            <section id="wave">
+                <h2>Wave instruments</h2>
+                <figure class="side-shot">
+                    <img class="light" src="img/wave-light.webp" alt="The wave instrument editor" width="289" height="504" loading="lazy">
+                    <img class="dark" src="img/wave-dark.webp" alt="The wave instrument editor" width="289" height="504" loading="lazy">
+                </figure>
+                <p>A wave instrument plays a waveform of 32 steps, each from 0 to 15. Drag on the grid to draw one, or start from a shape: triangle, sine, saw, square, pulse, organ, flute, hollow, buzz or deep.</p>
+                <ul>
+                    <li><b>Draw both halves together</b> keeps the two halves identical, which keeps the pitch right. A waveform that holds a single cycle across all 32 steps sounds an octave lower than the notes you write; the editor warns you when that's the case.</li>
+                    <li><b>Volume</b> has only four levels: 100%, 50%, 25% and mute.</li>
+                    <li><b>Stop after a set time</b> can end notes after up to a second.</li>
+                </ul>
+                <p>On export, identical waveforms are shared, so several instruments can use one waveform slot.</p>
+                <div class="clear"></div>
+            </section>
+
+            <section id="noise">
+                <h2>Noise instruments</h2>
+                <ul>
+                    <li><b>Noise type:</b> <b>Smooth</b> is white noise, good for snares, hats and explosions. <b>Metallic</b> uses a short repeating pattern that sounds tonal and buzzy, good for kicks and toms.</li>
+                    <li><b>Default pitch</b> sets the pitch new hits use. Lower is deeper.</li>
+                    <li>The volume, envelope and length work as on pulse instruments.</li>
+                </ul>
+            </section>
+
+            <section id="subpatterns">
+                <h2>Subpatterns</h2>
+                <figure class="side-shot">
+                    <img class="light" src="img/subpattern-light.webp" alt="The subpattern editor showing one vibrato row" width="277" height="353" loading="lazy">
+                    <img class="dark" src="img/subpattern-dark.webp" alt="The subpattern editor showing one vibrato row" width="277" height="353" loading="lazy">
+                    <figcaption>Edit rows opens the subpattern grid.</figcaption>
+                </figure>
+                <p>A subpattern is a tiny pattern inside an instrument that runs on every note it plays, one row per tick (1/60 s). It's how you get arpeggiated chords, vibrato, pitch drops and other movement without writing effects on every note. Subpatterns export as hUGE v6 instrument subpatterns, so they work unchanged in hUGETracker and GB Studio.</p>
+                <p>Pick a preset from the <b>Subpattern</b> menu in the instrument editor: vibratos (natural, delayed, deep), arpeggios (major, minor, major 7, power, lazy, swell), octave flutter, trill, scoop in, pitch drop, pluck lead, duty shimmer and thin attack for pulse; kick drop, metallic snap, rattle and rising or falling hiss for noise.</p>
+                <h3>Editing the rows</h3>
+                <p><b>Edit rows</b> opens the grid. Each row can shift the note by some semitones and run one effect. Set how many <b>Rows</b> there are (up to 32), and what happens <b>At the end</b>: <b>Stop</b> holds where it finished, and <b>Loop from</b> repeats from a row until the next note.</p>
+                <p>Only effects that work inside hUGEDriver's subpatterns are offered: arpeggio, slides, vibrato, duty, volume step and set volume (on noise: duty and the two volume effects). Pitch shifts and duty changes are click-free. The volume effects restart the note, which can click a little.</p>
+                <div class="clear"></div>
+            </section>
+
+            <section id="effects">
+                <h2>Note effects</h2>
+                <p>Each note can carry one hUGE effect, set in the note panel or from the right-click menu (<b>Effect ▸</b>). Effects show as a small triangle in the note's corner. The right-click menu has ready-made settings, like a major chord arpeggio or a natural vibrato; the note panel lets you set <code>x</code> and <code>y</code> yourself.</p>
+                <p>hUGEDriver applies most effects only on the row they're written on, so fUGE repeats ongoing effects (arpeggio, slides, glide and vibrato) on every row the note covers. The full list is in the <a href="#fx-ref">effects reference</a>.</p>
+            </section>
+
+            <section id="swell">
+                <h2>Swell</h2>
+                <figure>
+                    <img class="light" src="img/swell-light.webp" alt="A note with Swell turned on, showing the ∧ marker and the Swell switch in the note panel" width="1150" height="528" loading="lazy">
+                    <img class="dark" src="img/swell-dark.webp" alt="A note with Swell turned on, showing the ∧ marker and the Swell switch in the note panel" width="1150" height="528" loading="lazy">
+                    <figcaption>A swelling note shows a faint ∧.</figcaption>
+                </figure>
+                <p>Swell fades a note in from silence, peaks in the middle, then fades it out by its end, whatever its length. Select notes and set <b>Swell</b> to <b>On</b> in the note panel, or choose <b>Swell over the note</b> from the right-click menu.</p>
+                <ul>
+                    <li><b>On pulse</b>, the Game Boy's own volume envelope does the fading, so it's smooth. It rises to the instrument's volume. A hardware fade can't take longer than about 1.6 s, so long notes hold at the peak in the middle, and very short ones (under about 6 rows at speed 7) can't fade out completely.</li>
+                    <li><b>On wave</b>, the volume steps through the channel's four levels, up and back down.</li>
+                    <li>For a swelling chord, use an arpeggio instrument such as <b>Major Arp</b> with Swell on.</li>
+                </ul>
+                <div class="note"><p>Swell needs a pulse instrument whose envelope is set to <b>Hold</b>; the note panel warns you otherwise. Turning the fade around restarts the note twice at the peak, which can click a little. Swell uses the effect column on the rows where the volume changes, so a note's own effect pauses on those rows. You hear it on playback, not when you click a note to preview it.</p></div>
+                <p>There's also a <b>Swell Arp</b> preset with a fixed swell of about a second, which suits short notes.</p>
+            </section>
+
+            <section id="echo">
+                <h2>Echo</h2>
+                <figure class="side-shot">
+                    <img class="light" src="img/echo-light.webp" alt="The Echo menu" width="237" height="345" loading="lazy">
+                    <img class="dark" src="img/echo-dark.webp" alt="The Echo menu" width="237" height="345" loading="lazy">
+                </figure>
+                <p>The classic Game Boy echo repeats each note a little later, more quietly. To add one, select the notes (<kbd>Ctrl</kbd>+<kbd>A</kbd> for the whole pattern) and choose <b>Echo ▾</b> in the note panel, or <b>Echo</b> in the right-click menu. Then pick where and how late:</p>
+                <ul>
+                    <li><b>On the other pulse channel</b> (from a pulse track): the echo plays alongside your melody. Echoes that run past the end of the pattern carry on into the next order.</li>
+                    <li><b>On this track, in the gaps</b>: for a single channel, or the wave channel. Notes longer than the delay are shortened so the echo can sound, and notes with no gap after them get no echo.</li>
+                </ul>
+                <p>Echoes use a quieter copy of each instrument, named after it with "echo" on the end (half the volume, or one wave level lower). fUGE reuses that copy next time, so to make every echo louder or softer, just change its volume.</p>
+                <div class="note"><p>Echoes are ordinary notes, so they don't follow later changes to your melody. Instruments that fade in from silence can't be made quieter this way.</p></div>
+                <div class="clear"></div>
+            </section>
+
+            <section id="keyboard-piano">
+                <h2>Keyboard piano</h2>
+                <figure>
+                    <img class="light" src="img/piano-light.webp" alt="Keyboard piano on, with the row of the note being played lit up" width="1150" height="569" loading="lazy">
+                    <img class="dark" src="img/piano-dark.webp" alt="Keyboard piano on, with the row of the note being played lit up" width="1150" height="569" loading="lazy">
+                    <figcaption>The row of the note you're playing lights up.</figcaption>
+                </figure>
+                <p>Press <kbd>`</kbd> (the key left of <kbd>1</kbd>) or <b>⌨ Keys</b> in the pattern toolbar to play the current instrument from your computer keyboard. Press it again to turn it off.</p>
+                <ul>
+                    <li><b>With a scale chosen</b>, each keyboard row climbs through the scale, starting on its key note, one octave apart: <kbd>Z</kbd> row, <kbd>A</kbd> row, <kbd>Q</kbd> row, then the number row.</li>
+                    <li><b>With no scale (Free)</b>, it's the usual tracker layout: the <kbd>Z</kbd> and <kbd>Q</kbd> rows are white keys, and the <kbd>S</kbd> and <kbd>2</kbd> rows the black keys between them.</li>
+                    <li><b>− and +</b> next to the button change the octave. The note shown is the one on <kbd>Z</kbd>; it starts at C-3, the lowest note hUGE can play.</li>
+                    <li><b>On the noise track</b>, the keys play the drum lanes in order: <kbd>Z</kbd> is the first lane, <kbd>X</kbd> the second, and so on.</li>
+                </ul>
+                <p>While it's on, letter and number keys play notes instead of their shortcuts (such as <kbd>D</kbd>, <kbd>S</kbd>, <kbd>E</kbd> and <kbd>1</kbd>–<kbd>4</kbd>). <kbd>Space</kbd>, the arrow keys, <kbd>Delete</kbd>, <kbd>Esc</kbd> and <kbd>Ctrl</kbd> shortcuts still work. Keys go by their position, not the letter printed on them, so the layout is the same on any keyboard. A note sounds until you let go, and it's silent while the song plays, because the song is using the channels.</p>
+            </section>
+
+            <section id="sfx">
+                <h2>Sound effect projects</h2>
+                <figure>
+                    <img class="light" src="img/sfx-light.webp" alt="A sound effects project, one sound per column" width="1150" height="252" loading="lazy">
+                    <img class="dark" src="img/sfx-dark.webp" alt="A sound effects project, one sound per column" width="1150" height="252" loading="lazy">
+                </figure>
+                <p><b>New ▾ → New sound effects</b> starts a set of sound effects instead of a song. Choose <b>with examples</b> for 13 ready-made sounds to learn from or adapt: jump, coin, power-up, laser, hit, explosion, magic, menu select, sword, error, teleport, charge and footsteps.</p>
+                <ul>
+                    <li>Each column in the top panel is one sound. Click its name to select it; rename it and set its length (2–64 rows) in the pattern toolbar, and its speed in the top bar.</li>
+                    <li><kbd>Space</kbd> plays the selected sound once. <b>Loop sound</b> keeps repeating it while you tweak.</li>
+                    <li><b>+ Sound</b> adds a new one; <b>Duplicate</b> copies one so you can make a variation.</li>
+                    <li>The <b>Sound effects</b> group in <b>Presets…</b> has instruments made for this: sweeps, zaps, booms, hits, slashes and more. Sweeps only work on Pulse 1.</li>
+                </ul>
+            </section>
+
+            <section id="sfx-export">
+                <h2>Exporting sound effects</h2>
+                <figure class="side-shot">
+                    <img class="light" src="img/sfx-export-light.webp" alt="The Export menu in a sound effects project" width="312" height="209" loading="lazy">
+                    <img class="dark" src="img/sfx-export-dark.webp" alt="The Export menu in a sound effects project" width="312" height="209" loading="lazy">
+                </figure>
+                <p>In a sound effects project, <b>Export ▾</b> offers:</p>
+                <ul>
+                    <li><b>.vgm</b> for GB Studio. It only writes to the channels the sound uses, one frame per tick, and ends with a note cut on those channels. Copy it into your GB Studio project's <code>assets/sounds</code> folder.</li>
+                    <li><b>.wav</b>, rendered through fUGE's sound chip emulation, for games made with other engines.</li>
+                    <li>Either format for every sound at once, as a <code>.zip</code>.</li>
+                </ul>
+                <p>Because a <code>.vgm</code> never touches the channels it doesn't use, your music keeps playing on those channels while the sound plays.</p>
+                <div class="clear"></div>
+            </section>
+
+            <section id="saving">
+                <h2>Saving and autosave</h2>
+                <ul>
+                    <li><b>Save</b> (<kbd>Ctrl</kbd>+<kbd>S</kbd>) writes the whole project as a <code>.fuge.json</code> file. <kbd>Shift</kbd>-click Save, or press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>, to save a copy.</li>
+                    <li><b>Open</b> (<kbd>Ctrl</kbd>+<kbd>O</kbd>) loads a <code>.fuge.json</code>. You can also drag the file onto the window.</li>
+                    <li>fUGE also saves your work in the browser as you go, and restores it next time you open it. Save to a file as well, though: clearing the browser's data clears the autosave too.</li>
+                </ul>
+                <p>Saving downloads the file, so it lands wherever your browser keeps downloads.</p>
+            </section>
+
+            <section id="export">
+                <h2>Exporting songs</h2>
+                <p><b>Export ▾</b> (or <kbd>Ctrl</kbd>+<kbd>E</kbd> for the first option) offers:</p>
+                <ul>
+                    <li><b>Song as .uge:</b> a hUGETracker v6 song with your patterns, orders, instruments, waveforms and subpatterns.</li>
+                    <li><b>Song as .wav:</b> the song rendered through fUGE's sound chip emulation. It ends where the song ends, with every channel cut, just like hUGETracker's export. Muted or soloed channels are left out, so you can export stems.</li>
+                </ul>
+                <p>Playback and both exports use exactly the same compiled song, so what you hear is what you get.</p>
+            </section>
+
+            <section id="gb-studio">
+                <h2>Using fUGE with GB Studio</h2>
+                <ol>
+                    <li>Export the song as <code>.uge</code>.</li>
+                    <li>Copy it into your GB Studio project's <code>assets/music</code> folder.</li>
+                    <li>Pick the song in a <i>Play Music</i> event. GB Studio plays <code>.uge</code> songs with hUGEDriver, the driver fUGE is built around. If your project is set to the older GBT Player format, switch it to hUGETracker in the project's settings.</li>
+                </ol>
+                <p>For sound effects, export <code>.vgm</code> files into <code>assets/sounds</code> and play them with a <i>Play Sound Effect</i> event.</p>
+            </section>
+
+            <section id="hugetracker">
+                <h2>hUGETracker and GBDK</h2>
+                <p>A fUGE <code>.uge</code> opens in hUGETracker like any other song, so you can finish a song there, or use hUGETracker's own export to assembly or C for a GBDK or assembly project with hUGEDriver.</p>
+                <p>fUGE's sound engine is checked tick by tick against the real hUGEDriver running in an emulator, so songs sound the same in all of them.</p>
+            </section>
+
+            <section id="shortcuts">
+                <h2>Keyboard shortcuts</h2>
+                <table>
+                    <tr><th>Keys</th><th>Action</th></tr>
+                    <tr><td><kbd>Space</kbd></td><td>Play / stop</td></tr>
+                    <tr><td><kbd>1</kbd> – <kbd>4</kbd></td><td>Edit Pulse 1, Pulse 2, Wave or Noise</td></tr>
+                    <tr><td><kbd>D</kbd> <kbd>S</kbd> <kbd>E</kbd></td><td>Draw, Select and Erase tools</td></tr>
+                    <tr><td><kbd>`</kbd></td><td>Keyboard piano on/off</td></tr>
+                    <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Select all notes in the pattern</td></tr>
+                    <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>X</kbd> / <kbd>V</kbd></td><td>Copy, cut, paste</td></tr>
+                    <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Duplicate the selection</td></tr>
+                    <tr><td><kbd>Delete</kbd></td><td>Delete the selection</td></tr>
+                    <tr><td><kbd>↑</kbd> <kbd>↓</kbd></td><td>Transpose by a semitone (<kbd>Shift</kbd>: an octave)</td></tr>
+                    <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Nudge by a row (<kbd>Shift</kbd>: a beat), or change order when nothing is selected</td></tr>
+                    <tr><td><kbd>Esc</kbd></td><td>Clear the selection, close a menu</td></tr>
+                    <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo</td></tr>
+                    <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>, <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Redo</td></tr>
+                    <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>Save (<kbd>Shift</kbd>: save a copy)</td></tr>
+                    <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Open</td></tr>
+                    <tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>Export (.uge for songs, .vgm for the selected sound)</td></tr>
+                    <tr><td><kbd>F1</kbd></td><td>Open these docs</td></tr>
+                </table>
+                <table>
+                    <tr><th>Mouse</th><th>Action</th></tr>
+                    <tr><td>Click / drag</td><td>Place a note / set its length as you place it</td></tr>
+                    <tr><td><kbd>Shift</kbd>-drag</td><td>Box select with any tool</td></tr>
+                    <tr><td><kbd>Shift</kbd>- or <kbd>Ctrl</kbd>-click</td><td>Add a note to the selection, or remove it</td></tr>
+                    <tr><td><kbd>Alt</kbd>-click</td><td>Delete a note</td></tr>
+                    <tr><td>Right-click</td><td>Menu for notes, slots, orders, channels and instruments</td></tr>
+                    <tr><td>Double-click an empty slot</td><td>Give it a new pattern</td></tr>
+                </table>
+                <p>On a Mac, use <kbd>⌘</kbd> wherever it says <kbd>Ctrl</kbd>.</p>
+            </section>
+
+            <section id="fx-ref">
+                <h2>Effects reference</h2>
+                <p>Effects are written <code>Exy</code> in hUGETracker: one hex digit for the effect and two for its settings.</p>
+                <table>
+                    <tr><th>Effect</th><th>Name</th><th>What it does</th></tr>
+                    <tr><td><code>0xy</code></td><td>Arpeggio</td><td>Cycles the note, +y and +x semitones every tick. <code>047</code> is a major chord, <code>037</code> minor.</td></tr>
+                    <tr><td><code>1xy</code></td><td>Slide up</td><td>Bends the pitch up by <code>xy</code> every tick.</td></tr>
+                    <tr><td><code>2xy</code></td><td>Slide down</td><td>Bends the pitch down by <code>xy</code> every tick.</td></tr>
+                    <tr><td><code>3xy</code></td><td>Glide to note</td><td>Slides from the previous note to this one at speed <code>xy</code>.</td></tr>
+                    <tr><td><code>4xy</code></td><td>Vibrato</td><td>Wobbles the pitch by depth <code>y</code> at rate <code>x</code>. <code>43</code>-ish is natural; a lower <code>x</code> is faster.</td></tr>
+                    <tr><td><code>5xy</code></td><td>Master volume</td><td>Overall left (<code>x</code>) and right (<code>y</code>) volume, 0–7.</td></tr>
+                    <tr><td><code>7xy</code></td><td>Note delay</td><td>Starts the note <code>xy</code> ticks into the row. Must be less than the speed.</td></tr>
+                    <tr><td><code>8xy</code></td><td>Panning</td><td>Which channels play in the left (<code>x</code>) and right (<code>y</code>) speaker: 1 = pulse 1, 2 = pulse 2, 4 = wave, 8 = noise.</td></tr>
+                    <tr><td><code>9xy</code></td><td>Set duty</td><td>Pulse width: <code>00</code> 12.5%, <code>40</code> 25%, <code>80</code> 50%, <code>C0</code> 75%.</td></tr>
+                    <tr><td><code>Axy</code></td><td>Volume step</td><td>Restarts the note <code>x</code> louder or <code>y</code> quieter.</td></tr>
+                    <tr><td><code>C0y</code></td><td>Set volume</td><td>Restarts the note at volume <code>y</code> (0–F). On wave, picks the nearest of its four levels.</td></tr>
+                    <tr><td><code>Exy</code></td><td>Note cut</td><td>Silences the channel <code>xy</code> ticks into the row.</td></tr>
+                    <tr><td><code>Fxy</code></td><td>Set speed</td><td>Changes the song speed from here on.</td></tr>
+                </table>
+                <p>Arpeggio, slides, glide and vibrato are for pulse and wave notes only. The jump effects (<code>B</code> and <code>D</code>) aren't offered, because fUGE's arrangement already decides what plays next.</p>
+            </section>
+
+            <section id="limits">
+                <h2>Limits and hardware quirks</h2>
+                <p>fUGE aims to sound exactly like the hardware, including its quirks:</p>
+                <ul>
+                    <li>Each channel plays one note at a time.</li>
+                    <li>Up to 15 instruments of each type per song, 64 rows per pattern, and pitches from C-3 to B-8.</li>
+                    <li>Subpatterns can have up to 32 rows when they loop, or 30 when they stop.</li>
+                    <li>Changing the volume of a pulse or noise note means restarting it, which can click a little. That applies to the volume effects, and to the turnaround in <a href="#swell">Swell</a>. Use the instrument's envelope for smooth fades.</li>
+                    <li>The wave channel only has four volume levels.</li>
+                    <li>Only Pulse 1 has the pitch sweep.</li>
+                    <li>The same vibrato depth sounds wider on high notes, because the Game Boy works in frequency steps, not semitones.</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

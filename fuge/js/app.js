@@ -43,6 +43,7 @@
         { code: 0xF, name: "Set speed", kinds: ["pulse", "wave", "noise"], x: "ticks", y: "ticks", hint: "Changes the song speed (ticks per row) from here on." }
     ];
     const SUB_MAX = 32;
+    const LOOP_MAX = 30;
     const TABLE_FX = { pulse: [0x0, 0x1, 0x2, 0x4, 0x9, 0xA, 0xC], wave: [0x0, 0x1, 0x2, 0x4, 0xC], noise: [0x9, 0xA, 0xC] };
     const TABLE_HINT = {
         0x0: "Plays +y, +x or the note itself on this tick, in turn. Loop a single row for a steady chord.",
@@ -89,6 +90,7 @@
     const THEME_KEY = "fuge.theme";
     const VOL_KEY = "fuge.volume";
     const PATH_KEY = "fuge.path";
+    const INST_CLIP_KEY = "fuge.instclip";
     const OLD_KEYS = { "fuge.autosave": "gbdaw.autosave", "fuge.theme": "gbdaw.theme", "fuge.volume": "gbdaw.volume" };
 
     const $ = id => document.getElementById(id);
@@ -174,7 +176,7 @@
                 return { note: Number.isFinite(n) ? clamp(n, -36, 35) : null, fx: fx && (TABLE_FX[type] || []).includes(fx.code) ? fx : null };
             });
             let loop = parseInt(raw.loop, 10);
-            loop = Number.isFinite(loop) && loop >= 0 && loop < rows.length ? loop : -1;
+            loop = Number.isFinite(loop) && loop >= 0 && loop < rows.length ? Math.min(loop, LOOP_MAX) : -1;
             return { name: String(raw.name || "Custom").slice(0, 32), loop, rows: rows.slice(0, subLimit(loop)) };
         }
         if (oldFx && Number.isFinite(Number(oldFx.code))) {
@@ -855,7 +857,7 @@
             Array.from({ length: max }, (_, k) => "<option value=\"" + (k + 1) + "\"" + (k + 1 === len ? " selected" : "") + ">" + (k + 1) + "</option>").join("") +
             (len ? "" : "<option value=\"0\" selected>0</option>") + "</select></label>";
         h += "<label class=\"field\"><span>At the end</span><select data-sp=\"loop\"><option value=\"-1\"" + (sub.loop < 0 ? " selected" : "") + (len > SUB_MAX - 2 ? " disabled" : "") + ">Stop</option>" +
-            Array.from({ length: len }, (_, k) => "<option value=\"" + k + "\"" + (k === sub.loop ? " selected" : "") + ">Loop from " + pad2(k + 1) + "</option>").join("") + "</select></label></div>";
+            Array.from({ length: Math.min(len, LOOP_MAX + 1) }, (_, k) => "<option value=\"" + k + "\"" + (k === sub.loop ? " selected" : "") + ">Loop from " + pad2(k + 1) + "</option>").join("") + "</select></label></div>";
         if (!len) return h + "<p class=\"hint\">Pick how many rows (ticks) to start with.</p>";
         const codes = TABLE_FX[inst.type] || [];
         let notes = "<option value=\"\">—</option>";
@@ -894,6 +896,7 @@
         const sub = inst.sub ? clone(inst.sub) : { name: "Custom", loop: -1, rows: [] };
         fn(sub);
         if (sub.loop >= sub.rows.length) sub.loop = sub.rows.length ? 0 : -1;
+        if (sub.loop > LOOP_MAX) sub.loop = LOOP_MAX;
         if (sub.loop < 0 && sub.rows.length > SUB_MAX - 2) sub.rows.length = SUB_MAX - 2;
         if (!subPresetNameOf(inst.type, sub)) sub.name = "Custom";
         setSub(inst, sub.rows.length ? sub : null);
@@ -1136,7 +1139,7 @@
         $("scaleName").disabled = t.kind === "noise";
         $("btnKb").setAttribute("aria-pressed", String(state.kb));
         $("kbOct").hidden = !state.kb || t.kind === "noise";
-        $("kbBase").textContent = "Z = " + noteName(kbBase());
+        $("kbBase").textContent = noteName(kbBase());
         $("kbDown").disabled = state.kbOct <= 0;
         $("kbUp").disabled = state.kbOct >= KB_OCT_MAX;
         $("toolDraw").setAttribute("aria-pressed", String(state.tool === "draw"));
@@ -2154,6 +2157,7 @@
             "<li><span class=\"kbd\">Space</span> play · <span class=\"kbd\">1</span>–<span class=\"kbd\">4</span> tracks · <span class=\"kbd\">D</span> <span class=\"kbd\">S</span> <span class=\"kbd\">E</span> tools</li>" +
             "<li><span class=\"kbd\">`</span> keyboard piano: the letter and number rows play " + (kind === "noise" ? "the drum lanes" : "the chosen scale") + " (and take over D, S, E and 1–4 until you press <span class=\"kbd\">`</span> again).</li>" +
             (kind === "noise" ? "" : "<li>Select notes and pick Echo (right-click or the note panel) to add quieter repeats a few rows later.</li>") +
+            "<li><span class=\"kbd\">F1</span> or <b>?</b> opens the full guide.</li>" +
             "<li><span class=\"kbd\">Ctrl</span>+<span class=\"kbd\">A</span> <span class=\"kbd\">C</span> <span class=\"kbd\">X</span> <span class=\"kbd\">V</span> <span class=\"kbd\">D</span> select, copy, cut, paste, duplicate · <span class=\"kbd\">↑↓</span> transpose · <span class=\"kbd\">←→</span> nudge</li>" +
             "</ul>";
     }
@@ -2246,7 +2250,7 @@
         if (!sel.length || !pat) return;
         if (e.type === "click") {
             if (f === "delete") deleteSel();
-            else if (f === "echo") showMenu(anchor(t), echoMenu(trackKind(state.track)));
+            else if (f === "echo") ownMenu(t, () => showMenu(anchor(t), echoMenu(trackKind(state.track))));
             else if (f === "tr") transposeSel(parseInt(t.dataset.v, 10));
             else if (f === "vol") setFx(0xc, parseInt(t.dataset.v, 10));
             else if (f === "swell") setSwell(t.dataset.v === "1");
@@ -2313,20 +2317,23 @@
     }
 
     let menuRoot = null;
+    let menuOwner = null;
+    let menuSkip = null;
 
     function hideMenu() {
+        menuOwner = null;
         document.querySelectorAll(".ctx").forEach(m => m.remove());
         menuRoot = null;
     }
 
-    function placeMenu(m, x, y, alt) {
+    function placeMenu(m, x, y, alt, above) {
         m.style.left = "0px";
         m.style.top = "0px";
         const r = m.getBoundingClientRect();
         let left = x;
         let top = y;
         if (left + r.width > innerWidth - 8) left = alt !== undefined ? alt - r.width : innerWidth - 8 - r.width;
-        if (top + r.height > innerHeight - 8) top = Math.max(8, innerHeight - 8 - r.height);
+        if (top + r.height > innerHeight - 8) top = above !== undefined && above - r.height >= 8 ? above - r.height : Math.max(8, innerHeight - 8 - r.height);
         m.style.left = Math.max(8, left) + "px";
         m.style.top = Math.max(8, top) + "px";
     }
@@ -2421,13 +2428,22 @@
         return m;
     }
 
+    function ownMenu(btn, fn) {
+        if (menuSkip === btn) {
+            menuSkip = null;
+            return;
+        }
+        fn();
+        if (menuRoot) menuOwner = btn;
+    }
+
     function showMenu(e, items) {
         hideMenu();
         const m = buildMenu(items);
         if (!m.children.length) return;
         menuRoot = m;
         document.body.appendChild(m);
-        placeMenu(m, e.clientX, e.clientY);
+        placeMenu(m, e.clientX, e.clientY, undefined, e.above);
         const first = m.querySelector(".ctx-item:not(:disabled)");
         if (first) first.focus({ preventScroll: true });
     }
@@ -2582,6 +2598,71 @@
         ]);
     }
 
+    function copyInstrument(inst) {
+        const data = clone(inst);
+        delete data.id;
+        const text = JSON.stringify({ format: "fuge-instrument", version: 1, instrument: data });
+        if (!storeSet(INST_CLIP_KEY, text)) {
+            toast("Couldn't copy the instrument: this browser isn't letting fUGE save anything.");
+            return;
+        }
+        status("Copied " + inst.name + ". Right-click in the instrument list to paste it, here or in another project.");
+    }
+
+    function instClip() {
+        try {
+            const raw = JSON.parse(storeGet(INST_CLIP_KEY) || "null");
+            if (!raw || raw.format !== "fuge-instrument" || !raw.instrument) return null;
+            const s = normalize({ instruments: [raw.instrument], tracks: [], order: [] });
+            return s.instruments[0] || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function clipData(inst) {
+        const data = clone(inst);
+        delete data.id;
+        delete data.type;
+        delete data.name;
+        return data;
+    }
+
+    function pasteInstrument() {
+        const clip = instClip();
+        if (!clip) return;
+        const taken = new Set(instsOf(clip.type).map(i => i.name));
+        let name = clip.name;
+        for (let k = 2; taken.has(name); k++) name = (clip.name.slice(0, 29) + " " + k).slice(0, 32);
+        const inst = addInstrument(clip.type, { name, data: clipData(clip) });
+        if (!inst) return;
+        selectInst(inst.id);
+        renderAll();
+        status("Pasted " + inst.name + " as " + KIND_LABEL[inst.type] + " " + pad2(instNum(inst)) + ".");
+    }
+
+    function pasteInstrumentOver(target) {
+        const clip = instClip();
+        if (!clip || clip.type !== target.type) return;
+        checkpoint();
+        const keep = { id: target.id, type: target.type, name: target.name };
+        Object.keys(target).forEach(k => delete target[k]);
+        Object.assign(target, clipData(clip), keep);
+        renderAll();
+        preview(target);
+        const uses = instUseCount(target.id);
+        status("Pasted " + clip.name + "'s settings into " + target.name + (uses ? ", so its " + uses + " note" + (uses === 1 ? "" : "s") + " now use the new sound." : "."));
+    }
+
+    function pasteItems(target) {
+        const clip = instClip();
+        const full = clip && instsOf(clip.type).length >= MAX_INST;
+        return [
+            { label: clip ? "Paste instrument (" + clip.name + ")" : "Paste instrument", disabled: !clip || full, action: pasteInstrument },
+            target && { label: "Paste settings into " + target.name, disabled: !clip || clip.type !== target.type, action: () => pasteInstrumentOver(target) }
+        ];
+    }
+
     function openInstMenu(e, id) {
         const inst = instById(id);
         if (!inst) return;
@@ -2592,9 +2673,12 @@
             { label: "Draw with it", action: () => selectInst(inst.id) },
             { label: "Select its notes in this pattern", disabled: !here, action: () => selectSameInst(inst.id) },
             { sep: true },
+            { label: "Copy instrument", action: () => copyInstrument(inst) }
+        ].concat(pasteItems(inst), [
+            { sep: true },
             { label: "Duplicate", disabled: instsOf(inst.type).length >= MAX_INST, action: () => duplicateInstrument(inst) },
             { label: "Delete", danger: true, action: () => deleteInstrument(inst) }
-        ]);
+        ]));
     }
 
     function onContextMenu(e) {
@@ -2624,6 +2708,10 @@
         const inst = e.target.closest(".inst");
         if (inst) {
             openInstMenu(e, inst.dataset.id);
+            return;
+        }
+        if (e.target.closest("#instList")) {
+            showMenu(e, [{ head: "Instruments" }].concat(pasteItems(null), [{ sep: true }, { label: "Presets…", action: () => openPresets() }]));
             return;
         }
         hideMenu();
@@ -3300,7 +3388,7 @@
 
     function anchor(el) {
         const r = el.getBoundingClientRect();
-        return { clientX: r.left, clientY: r.bottom + 4 };
+        return { clientX: r.left, clientY: r.bottom + 4, above: r.top - 4 };
     }
 
     function openExportMenu() {
@@ -3405,6 +3493,11 @@
     }
 
     function onKey(e) {
+        if (e.key === "F1") {
+            e.preventDefault();
+            Desktop.openDocs();
+            return;
+        }
         if (document.querySelector(".ctx")) {
             if (e.key === "Escape") hideMenu();
             return;
@@ -3659,7 +3752,7 @@
     }
 
     function bind() {
-        $("btnNew").onclick = openNewMenu;
+        $("btnNew").onclick = () => ownMenu($("btnNew"), openNewMenu);
         $("btnOpen").onclick = openProject;
         $("fileInput").onchange = e => {
             const f = e.target.files[0];
@@ -3671,7 +3764,7 @@
             storeSet(STORE_KEY, JSON.stringify(state.song));
             return state.dirty ? Desktop.ask("You have unsaved changes. Quit anyway? fUGE will restore them the next time you open it.") : true;
         });
-        $("btnExport").onclick = openExportMenu;
+        $("btnExport").onclick = () => ownMenu($("btnExport"), openExportMenu);
         $("sfxName").oninput = e => {
             const sx = curSfx();
             if (!sx) return;
@@ -3715,6 +3808,7 @@
         };
         GBAudio.on(onAudio);
         $("btnTheme").onclick = toggleTheme;
+        $("btnHelp").onclick = () => Desktop.openDocs();
         $("speed").onchange = e => {
             checkpoint();
             const v = parseInt(e.target.value, 10);
@@ -3842,7 +3936,9 @@
         });
         document.addEventListener("contextmenu", onContextMenu);
         document.addEventListener("pointerdown", e => {
-            if (!e.target.closest(".ctx")) hideMenu();
+            if (e.target.closest(".ctx")) return;
+            menuSkip = menuOwner && menuOwner.contains(e.target) ? menuOwner : null;
+            hideMenu();
         }, true);
         window.addEventListener("blur", hideMenu);
         window.addEventListener("resize", hideMenu);

@@ -86,5 +86,25 @@ const Desktop = (function () {
         });
     }
 
-    return { desktop, save, write, openProject, ask, setTitle, onClose, baseName };
+    async function openDocs(hash) {
+        const url = "docs/index.html" + (hash ? "#" + hash : "");
+        if (desktop && T.webviewWindow) {
+            try {
+                const W = T.webviewWindow.WebviewWindow;
+                const open = await W.getByLabel("docs");
+                if (open) {
+                    await open.setFocus();
+                    return;
+                }
+                new W("docs", { url, title: "fUGE docs", width: 1100, height: 820, center: true });
+                return;
+            } catch (e) {
+                window.open(url, "_blank");
+                return;
+            }
+        }
+        window.open(url, "_blank", "noopener");
+    }
+
+    return { desktop, save, write, openProject, ask, setTitle, onClose, baseName, openDocs };
 })();

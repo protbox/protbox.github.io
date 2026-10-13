@@ -57,6 +57,7 @@
         { name: "Pulse Bass", desc: "Full volume, slow fade. Bass on a pulse channel.", data: { duty: 2, vol: 15, envDir: "down", envPace: 6 } },
         { name: "Swell", desc: "Fades in from silence.", data: { duty: 2, vol: 0, envDir: "up", envPace: 3 } },
         { name: "Echo", desc: "Quiet copy of a lead, for a delayed echo on Pulse 2.", data: { duty: 1, vol: 5, envDir: "down", envPace: 2 } },
+        { name: "Pluck Lead", desc: "Square lead with a plucked attack: a few ticks of full 50% square, then a thinner 25% tone, with a gentle vibrato on the tail. A Game Boy staple.", data: { duty: 2, vol: 12, envDir: "down", envPace: 0 }, sub: "Pluck lead" },
         { name: "Violin Lead", desc: "Thin, bowed-sounding lead. The vibrato eases in after the note starts.", data: { duty: 1, vol: 11, envDir: "down", envPace: 0 }, sub: "Delayed vibrato" },
         { name: "Vibrato Lead", desc: "Square lead with a natural vibrato.", data: { duty: 2, vol: 12, envDir: "down", envPace: 0 }, sub: "Natural vibrato" },
         { name: "Major Arp", desc: "Every note plays a major chord as a fast arpeggio.", data: { duty: 1, vol: 12, envDir: "down", envPace: 0 }, sub: "Major arp" },
@@ -159,6 +160,7 @@
     }
     const SUBS = {
         pulse: PITCHED.concat([
+            { name: "Pluck lead", desc: "Plucked attack from a quick duty change (50% for three ticks, then 25%), then a gentle vibrato on the tail.", loop: 9, rows: [[E, 0x9, 0x80], [E], [E], [E, 0x9, 0x40], [E], [E], [E], [E], [E], [E, 0x4, 0x43], [E], [E]] },
             { name: "Swell arp", desc: "Major arpeggio that fades in, peaks after about half a second, then fades out. The hardware envelope does the fading; the two restarts at the peak can click a little.", loop: 29, rows: swellArp({ 0: [0xC, 0xA0], 27: [0xA, 0xE0], 28: [0xC, 0x2E] }) },
             { name: "Duty shimmer", desc: "Turns the duty cycle around for a chorus-like movement.", loop: 0, rows: [[E, 0x9, 0x80], [E], [E], [E, 0x9, 0x40], [E], [E], [E, 0x9, 0x00], [E], [E], [E, 0x9, 0x40], [E], [E]] },
             { name: "Thin attack", desc: "Starts thin and opens up to a full square.", loop: -1, rows: [[E, 0x9, 0x00], [E], [E, 0x9, 0x40], [E], [E, 0x9, 0x80]] }
