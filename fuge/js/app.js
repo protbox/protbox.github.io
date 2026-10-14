@@ -248,6 +248,8 @@
                         out.slide = sl;
                         const at = num(n.slideAt, 0, out.len - 1, 0);
                         if (at) out.slideAt = at;
+                        const slen = num(n.slideLen, 0, out.len - at, 0);
+                        if (slen && at + slen < out.len) out.slideLen = slen;
                     }
                     return out;
                 });
@@ -262,6 +264,8 @@
             }));
         }
         if (!s.order.length) s.order.push([-1, -1, -1, -1]);
+        const lens = Array.isArray(raw.orderRows) ? raw.orderRows : [];
+        s.orderRows = s.order.map((r, k) => num(lens[k], 1, MAX_ROWS, MAX_ROWS));
         s.mode = raw.mode === "sfx" ? "sfx" : "song";
         const sc = raw.scale || {};
         s.scale = { root: num(sc.root, 0, 11, 0), name: SCALES[sc.name] ? sc.name : "Free" };
@@ -483,8 +487,40 @@
         return sc && SCALES[sc.name] ? sc.root : 0;
     }
 
+    function ordRows(o) {
+        if (isSfx()) return state.song.sfx[o] ? state.song.sfx[o].rows : 16;
+        const v = state.song.orderRows && state.song.orderRows[o];
+        return v > 0 ? v : MAX_ROWS;
+    }
+
+    function lengthChoices(cur) {
+        const bar = state.song.rowsPerBeat * state.song.beatsPerBar;
+        const set = new Set([cur, MAX_ROWS]);
+        for (let v = bar; v <= MAX_ROWS; v += bar) set.add(v);
+        [16, 32, 48].forEach(v => set.add(v));
+        return [...set].sort((a, b) => a - b);
+    }
+
+    function setOrderRows(o, rows, all) {
+        checkpoint();
+        if (!state.song.orderRows) state.song.orderRows = state.song.order.map(() => MAX_ROWS);
+        const list = all ? state.song.orderRows.map((v, k) => k) : [o];
+        let hidden = 0;
+        for (const k of list) {
+            state.song.orderRows[k] = rows;
+            state.song.order[k].forEach((idx, t) => {
+                if (idx >= 0) hidden += state.song.tracks[t].patterns[idx].notes.filter(n => n.row >= rows).length;
+            });
+        }
+        state.startRow = Math.min(state.startRow, rows - 1);
+        if (state.playing) pushSong();
+        renderAll();
+        const bar = state.song.rowsPerBeat * state.song.beatsPerBar;
+        status((all ? "Every order is now " : "Order " + pad2(o) + " is now ") + rows + " rows" + (rows % bar === 0 ? " (" + rows / bar + " bar" + (rows / bar === 1 ? "" : "s") + ")" : "") + "." + (hidden ? " " + hidden + " note" + (hidden === 1 ? " is" : "s are") + " past the end and won't play; lengthen the order to bring " + (hidden === 1 ? "it" : "them") + " back." : ""));
+    }
+
     function syncRows() {
-        ROWS = isSfx() && curSfx() ? curSfx().rows : MAX_ROWS;
+        ROWS = ordRows(state.ord);
     }
 
     function compileNow() {
@@ -1029,7 +1065,7 @@
         const sfx = isSfx();
         let h = "<div class=\"ord-head\">" + order.map((r, o) => {
             const label = sfx ? esc(state.song.sfx[o].name) : pad2(o);
-            const title = sfx ? esc(state.song.sfx[o].name) + " · " + state.song.sfx[o].rows + " rows · " + sfxSeconds(state.song.sfx[o]).toFixed(2) + " s" : "Order " + pad2(o);
+            const title = sfx ? esc(state.song.sfx[o].name) + " · " + state.song.sfx[o].rows + " rows · " + sfxSeconds(state.song.sfx[o]).toFixed(2) + " s" : "Order " + pad2(o) + " · " + ordRows(o) + " rows";
             return "<button type=\"button\" class=\"ord-num" + (sfx ? " sfx" : "") + (o === state.ord ? " active" : "") + "\" data-o=\"" + o + "\" title=\"" + title + "\">" + label + "</button>";
         }).join("") +
             "<button type=\"button\" class=\"ord-add\" data-add=\"1\" title=\"" + (sfx ? "Add a sound effect" : "Add an order at the end") + "\">+</button></div>";
@@ -1054,7 +1090,7 @@
         if (sfx) {
             $("arrInfo").textContent = order.length + " sound" + (order.length === 1 ? "" : "s");
         } else {
-            const secs = order.length * MAX_ROWS * state.song.speed / VBLANK_HZ;
+            const secs = order.reduce((a, r, k) => a + ordRows(k), 0) * state.song.speed / VBLANK_HZ;
             $("arrInfo").textContent = order.length + " order" + (order.length === 1 ? "" : "s") + " · " + Math.floor(secs / 60) + ":" + pad2(Math.round(secs % 60)) + " long";
         }
         $("arrLabel").textContent = sfx ? "Sound effects" : "Arrangement";
@@ -1072,7 +1108,7 @@
         const h = 36;
         const ctx = prep(cv, w, h);
         const src = state.song.tracks[t].patterns[idx];
-        const rows = isSfx() && state.song.sfx[o] ? state.song.sfx[o].rows : MAX_ROWS;
+        const rows = ordRows(o);
         const pat = src ? { notes: src.notes.filter(n => n.row < rows) } : null;
         if (!pat || !pat.notes.length) return;
         ctx.fillStyle = P.ch[t];
@@ -1110,7 +1146,7 @@
             return;
         }
         pl.style.display = "block";
-        pl.style.transform = "translate3d(" + Math.round(state.playOrd * SLOT_W + Math.floor(state.playRow) / ROWS * SLOT_W) + "px, 0, 0)";
+        pl.style.transform = "translate3d(" + Math.round(state.playOrd * SLOT_W + Math.floor(state.playRow) / ordRows(state.playOrd) * SLOT_W) + "px, 0, 0)";
     }
 
     function revealSlot() {
@@ -1153,6 +1189,14 @@
         $("toolErase").setAttribute("aria-pressed", String(state.tool === "erase"));
         $("btnGhost").setAttribute("aria-pressed", String(state.ghost));
         $("btnGhost").disabled = t.kind === "noise";
+        const songLen = !isSfx();
+        $("ordRows").hidden = !songLen;
+        if (songLen) {
+            const cur = ordRows(state.ord);
+            const bar = state.song.rowsPerBeat * state.song.beatsPerBar;
+            $("ordRows").innerHTML = lengthChoices(cur).map(v => "<option value=\"" + v + "\">" + v + " rows" + (v % bar ? "" : " · " + v / bar + " bar" + (v / bar === 1 ? "" : "s")) + "</option>").join("");
+            $("ordRows").value = String(cur);
+        }
         const sx = curSfx();
         $("sfxCtl").hidden = !sx;
         if (sx) {
@@ -1323,7 +1367,8 @@
     function drawSlide(ctx, n, color, alpha) {
         const at = Math.min(n.slideAt || 0, n.len - 1);
         const sx = (n.row + at) * G.colW;
-        const x1 = (n.row + n.len) * G.colW - 1;
+        const xe = (n.row + n.len) * G.colW - 1;
+        const x1 = n.slideLen > 0 ? Math.min(xe, (n.row + at + n.slideLen) * G.colW - 1) : xe;
         const ym = (NOTE_MAX - n.note) * PITCH_H + PITCH_H / 2;
         const yt = (NOTE_MAX - slideTo(n)) * PITCH_H + PITCH_H / 2;
         ctx.fillStyle = color;
@@ -1341,7 +1386,13 @@
         ctx.moveTo(sx, ym);
         ctx.lineTo(x1, yt);
         ctx.stroke();
-        ctx.fillRect(x1 - 3, yt - PITCH_H / 2 + 2, 3, PITCH_H - 4);
+        if (x1 < xe) {
+            ctx.beginPath();
+            ctx.moveTo(x1, yt);
+            ctx.lineTo(xe, yt);
+            ctx.stroke();
+        }
+        ctx.fillRect(xe - 3, yt - PITCH_H / 2 + 2, 3, PITCH_H - 4);
         ctx.lineWidth = 1;
         ctx.globalAlpha = 1;
     }
@@ -1786,6 +1837,7 @@
             } else {
                 delete n.slide;
                 delete n.slideAt;
+                delete n.slideLen;
             }
             if (slideTo(n) !== d.heard) {
                 d.heard = slideTo(n);
@@ -2003,7 +2055,7 @@
         const min = Math.min(...sel.map(n => n.row));
         state.clip = {
             kind: trackKind(state.track),
-            notes: sel.map(n => ({ dr: n.row - min, len: n.len, note: n.note, inst: n.inst, fx: n.fx ? { code: n.fx.code, param: n.fx.param } : null, swell: !!n.swell, slide: n.slide || 0, slideAt: n.slideAt || 0 })),
+            notes: sel.map(n => ({ dr: n.row - min, len: n.len, note: n.note, inst: n.inst, fx: n.fx ? { code: n.fx.code, param: n.fx.param } : null, swell: !!n.swell, slide: n.slide || 0, slideAt: n.slideAt || 0, slideLen: n.slideLen || 0 })),
             span: Math.max(...sel.map(noteEnd)) - min
         };
         if (!quiet) status("Copied " + sel.length + " " + noun(sel.length) + ".");
@@ -2041,6 +2093,7 @@
             if (c.swell) n.swell = true;
             if (c.slide) n.slide = c.slide;
             if (c.slide && c.slideAt) n.slideAt = Math.min(c.slideAt, n.len - 1);
+            if (c.slide && c.slideLen) n.slideLen = c.slideLen;
             pat.notes.push(n);
             added.push(n);
         }
@@ -2176,6 +2229,7 @@
             if (p.n.swell) e.swell = true;
             if (p.n.slide) e.slide = p.n.slide;
             if (p.n.slide && p.n.slideAt) e.slideAt = Math.min(p.n.slideAt, Math.max(0, e.len - 1));
+            if (p.n.slide && p.n.slideLen) e.slideLen = p.n.slideLen;
             pat.notes.push(e);
             if (!groups.has(pat)) groups.set(pat, []);
             groups.get(pat).push(e);
@@ -2229,6 +2283,7 @@
             else {
                 delete n.slide;
                 delete n.slideAt;
+                delete n.slideLen;
             }
         }, off ? "Slide set: " + (off > 0 ? "up " : "down ") + Math.abs(off) + " semitone" + (Math.abs(off) === 1 ? "" : "s") + "." : "Slide removed.");
     }
@@ -2250,7 +2305,7 @@
         const moving = [...new Set(slid.map(n => instById(n.inst)).filter(i => i && pitchMoves(i.sub)).map(i => i.name))];
         if (moving.length) out.push(moving.join(", ") + (moving.length === 1 ? " has" : " have") + " a subpattern that moves the pitch (arpeggio or vibrato), which pulls the note back to its own pitch and fights the slide.");
         if (slid.some(n => n.fx)) out.push("The slide uses the effect column, so the note's own effect stops where the slide starts.");
-        if (slid.some(n => n.len - Math.min(n.slideAt || 0, n.len - 1) < 2)) out.push("A slide that lasts one row can't land exactly on the target; start it earlier or make the note longer.");
+        if (slid.some(n => Math.min(n.slideLen || n.len, n.len - Math.min(n.slideAt || 0, n.len - 1)) < 2)) out.push("A slide that lasts one row can't land exactly on the target; start it earlier or make the note longer.");
         return out;
     }
 
@@ -2364,10 +2419,15 @@
                 let ao = at === null ? "<option value=\"keep\" selected>— mixed —</option>" : "";
                 for (let k = 0; k < maxLen; k++) ao += "<option value=\"" + k + "\"" + (k === at ? " selected" : "") + ">" + (k ? "After " + k + " row" + (k === 1 ? "" : "s") : "From the start") + "</option>";
                 h += "<label class=\"field\"><span>Slide starts</span><select data-f=\"slideAt\">" + ao + "</select></label>";
+                const lens = new Set(sel.filter(n => n.slide).map(n => n.slideLen || 0));
+                const sl = lens.size === 1 ? [...lens][0] : null;
+                let lo = (sl === null ? "<option value=\"keep\" selected>— mixed —</option>" : "") + "<option value=\"0\"" + (sl === 0 ? " selected" : "") + ">To the end of the note</option>";
+                for (let k = 1; k < maxLen; k++) lo += "<option value=\"" + k + "\"" + (k === sl ? " selected" : "") + ">Over " + k + " row" + (k === 1 ? "" : "s") + ", then hold</option>";
+                h += "<label class=\"field\"><span>Slide length</span><select data-f=\"slideLen\">" + lo + "</select></label>";
             }
             if (sel.some(n => n.slide)) {
                 const issues = slideIssues(sel);
-                h += issues.length ? issues.map(t => "<p class=\"hint warn\">" + esc(t) + "</p>").join("") : "<p class=\"hint\">Slides from the note's pitch to the target, landing on it by the end of the note. Hold <span class=\"kbd\">S</span> and drag a note up or down to set a slide; where you click is where it starts.</p>";
+                h += issues.length ? issues.map(t => "<p class=\"hint warn\">" + esc(t) + "</p>").join("") : "<p class=\"hint\">Slides from the note's pitch to the target, landing on it by the end of the note, or after the slide length and then holding. Hold <span class=\"kbd\">S</span> and drag a note up or down to set a slide; where you click is where it starts.</p>";
             }
             const all = sel.every(n => n.swell);
             const any = sel.some(n => n.swell);
@@ -2441,6 +2501,17 @@
         if (f === "slide") {
             if (v === "keep") return;
             setSlide(parseInt(v, 10));
+            return;
+        }
+        if (f === "slideLen") {
+            if (v === "keep") return;
+            const k = parseInt(v, 10);
+            applySel(n => {
+                if (!n.slide) return;
+                const at = Math.min(n.slideAt || 0, n.len - 1);
+                if (k && at + k < n.len) n.slideLen = k;
+                else delete n.slideLen;
+            });
             return;
         }
         if (f === "slideAt") {
@@ -2707,7 +2778,10 @@
                 { label: count > 1 ? "Delete " + name : "Clear " + name, danger: true, action: at(() => orderOp("del")) }
             ];
         }
+        const cur = ordRows(o);
         return [
+            { label: "Length", sub: lengthChoices(cur).map(v => ({ label: v + " rows" + (v % (state.song.rowsPerBeat * state.song.beatsPerBar) ? "" : " · " + v / (state.song.rowsPerBeat * state.song.beatsPerBar) + " bar" + (v / (state.song.rowsPerBeat * state.song.beatsPerBar) === 1 ? "" : "s")), checked: v === cur, action: () => setOrderRows(o, v) })).concat([{ sep: true }, { label: "Use " + cur + " rows for every order", action: () => setOrderRows(o, cur, true) }]) },
+            { sep: true },
             { label: "Insert order after", action: at(() => orderOp("add")) },
             { label: "Repeat order", action: at(() => orderOp("dup")) },
             { label: "Move order left", disabled: o === 0, action: at(() => orderOp("left")) },
@@ -3182,13 +3256,16 @@
         const o = state.ord;
         const order = state.song.order;
         const sfx = isSfx() ? state.song.sfx : null;
+        const lens = sfx ? null : (state.song.orderRows = state.song.orderRows || order.map(() => MAX_ROWS));
         checkpoint();
         if (op === "add") {
             if (sfx) sfx.splice(o + 1, 0, newSfxEntry());
+            else lens.splice(o + 1, 0, ordRows(o));
             order.splice(o + 1, 0, [-1, -1, -1, -1]);
             state.ord = o + 1;
         } else if (op === "append") {
             if (sfx) sfx.push(newSfxEntry());
+            else lens.push(ordRows(order.length - 1));
             order.push([-1, -1, -1, -1]);
             state.ord = order.length - 1;
         } else if (op === "dup") {
@@ -3203,20 +3280,24 @@
                 sfx.splice(o + 1, 0, Object.assign({}, sfx[o], { name: (sfx[o].name + " 2").slice(0, 32) }));
             } else {
                 order.splice(o + 1, 0, order[o].slice());
+                lens.splice(o + 1, 0, ordRows(o));
             }
             state.ord = o + 1;
         } else if (op === "left" && o > 0) {
             [order[o - 1], order[o]] = [order[o], order[o - 1]];
             if (sfx) [sfx[o - 1], sfx[o]] = [sfx[o], sfx[o - 1]];
+            else [lens[o - 1], lens[o]] = [lens[o], lens[o - 1]];
             state.ord = o - 1;
         } else if (op === "right" && o < order.length - 1) {
             [order[o + 1], order[o]] = [order[o], order[o + 1]];
             if (sfx) [sfx[o + 1], sfx[o]] = [sfx[o], sfx[o + 1]];
+            else [lens[o + 1], lens[o]] = [lens[o], lens[o + 1]];
             state.ord = o + 1;
         } else if (op === "del") {
             if (order.length > 1) {
                 order.splice(o, 1);
                 if (sfx) sfx.splice(o, 1);
+                else lens.splice(o, 1);
                 state.ord = Math.min(o, order.length - 1);
             } else {
                 order[0] = [-1, -1, -1, -1];
@@ -3577,14 +3658,72 @@
             { label: "New song", action: () => newSong("song") },
             { sep: true },
             { label: "New sound effects (with examples)", action: () => newSong("examples") },
-            { label: "New sound effects (empty)", action: () => newSong("sfx") }
+            { label: "New sound effects (empty)", action: () => newSong("sfx") },
+            { sep: true },
+            { label: "Import MIDI file…", action: () => confirmDiscard().then(ok => {
+                if (ok) $("fileInput").click();
+            }) }
         ]);
     }
 
     function openFile(file) {
         const reader = new FileReader();
-        reader.onload = () => loadText(reader.result, file.name, null);
-        reader.readAsText(file);
+        reader.onload = () => {
+            const bytes = new Uint8Array(reader.result);
+            const head = String.fromCharCode(...bytes.subarray(0, 4));
+            if (head === "MThd" || head === "RIFF" || /\.midi?$/i.test(file.name)) importMidi(bytes, file.name);
+            else loadText(new TextDecoder().decode(bytes), file.name, null);
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function showInfo(title, html) {
+        $("infoTitle").textContent = title;
+        $("infoBody").innerHTML = html;
+        $("infoModal").classList.add("open");
+        $("infoClose").focus();
+    }
+
+    function closeInfo() {
+        $("infoModal").classList.remove("open");
+    }
+
+    function importMidi(bytes, file) {
+        let res;
+        try {
+            res = MIDI.toSong(MIDI.parse(bytes), { name: file.replace(/\.(midi?|rmi)$/i, ""), file });
+        } catch (err) {
+            toast("Couldn't import " + file + ": " + err.message);
+            return;
+        }
+        const r = res.report;
+        if (!r.notes) {
+            toast(file + " has no notes to import.");
+            return;
+        }
+        loadSong(normalize(res.doc));
+        state.dirty = true;
+        updateTitle();
+        scheduleAutosave();
+        const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
+        let h = "<table>" + TRACKS.map((t, k) => "<tr><td>" + t.name + "</td><td>" + (r.used[k] ? esc(r.used[k]) : "<i>nothing</i>") + "</td></tr>").join("") + "</table>";
+        h += "<p>" + plural(r.orders, "order") + " · " + state.song.rowsPerBeat + " rows per beat · speed " + state.song.speed + " (≈ " + bpm().toFixed(0) + " BPM; the MIDI file is " + Math.round(r.bpm) + " BPM" + (r.tempoChanges ? " to start with" : "") + ").</p>";
+        const notes = [];
+        if (r.ignored.length) notes.push("Left out " + plural(r.ignored.length, "more track") + ": " + r.ignored.map(esc).join(", ") + ". fUGE takes the first four.");
+        if (r.chords) notes.push("Dropped " + plural(r.chords, "chord note") + ": each Game Boy channel plays one note at a time, so pulse tracks keep the top note of a chord and Wave the bottom.");
+        if (r.drums) notes.push("Dropped " + plural(r.drums, "drum hit") + " that landed on the same row as another; the kick or snare wins over hats and cymbals.");
+        r.shifted.forEach(s => notes.push("Moved " + esc(s.track) + " " + (s.octaves > 0 ? "up " : "down ") + plural(Math.abs(s.octaves), "octave") + " to fit the Game Boy's range."));
+        if (r.folded) notes.push(plural(r.folded, "note") + " still out of range " + (r.folded === 1 ? "was" : "were") + " moved by an octave.");
+        if (r.melodicNoise) notes.push(esc(r.melodicNoise) + " went to the noise track but isn't a drum track, so its notes became drum hits by pitch.");
+        if (r.drumsOnPitched) notes.push(r.drumsOnPitched.map(esc).join(", ") + " looks like drums but landed on a pitched channel.");
+        if (r.quantised) notes.push(plural(r.quantised, "note") + " didn't sit on the grid and " + (r.quantised === 1 ? "was" : "were") + " moved to the nearest row.");
+        if (r.volumes) notes.push(plural(r.volumes, "note") + " got a volume (C0y) from " + (r.volumes === 1 ? "its" : "their") + " velocity; the loudest notes use the instrument's own volume.");
+        if (r.slides) notes.push("Turned " + plural(r.slides, "pitch bend") + " into slides.");
+        if (r.bendsSimplified) notes.push(plural(r.bendsSimplified, "bend") + " went up and back down or wobbled, which a single slide can't follow, so " + (r.bendsSimplified === 1 ? "it was" : "they were") + " simplified to where the bend ends.");
+        if (r.tempoChanges) notes.push("The file changes tempo partway through; fUGE used the first tempo. Add a Set speed effect (Fxx) where it changes.");
+        if (notes.length) h += "<ul>" + notes.map(t => "<li>" + t + "</li>").join("") + "</ul>";
+        showInfo("Imported " + file, h);
+        status("Imported " + file + ". Save it as a project to keep it.");
     }
 
     function loadSong(song) {
@@ -3679,6 +3818,13 @@
         if (mod && k === "o") {
             e.preventDefault();
             openProject();
+            return;
+        }
+        if ($("infoModal").classList.contains("open")) {
+            if (e.key === "Escape" || e.key === "Enter") {
+                e.preventDefault();
+                closeInfo();
+            }
             return;
         }
         if ($("presetModal").classList.contains("open")) {
@@ -3942,6 +4088,7 @@
             if (b) b.textContent = sx.name;
         };
         $("sfxName").onchange = () => renderArrange();
+        $("ordRows").onchange = e => setOrderRows(state.ord, parseInt(e.target.value, 10));
         $("sfxRows").onchange = e => {
             const sx = curSfx();
             if (!sx) return;
@@ -3991,6 +4138,13 @@
             state.song.rowsPerBeat = parseInt(e.target.value, 10);
             renderTop();
             renderRoll();
+            renderPatBar();
+            const bar = state.song.rowsPerBeat * state.song.beatsPerBar;
+            if (!isSfx() && state.song.order.some((r, k) => ordRows(k) % bar)) {
+                let fit = Math.min(bar, MAX_ROWS);
+                while (fit * 2 <= MAX_ROWS) fit *= 2;
+                status("A bar is now " + bar + " rows, so some orders end partway through a bar. Set them to a whole number of bars (" + fit + " rows is " + fit / bar + " bar" + (fit / bar === 1 ? "" : "s") + ") with the length menu in the arrangement bar, or right-click an order number → Length → Use for every order.");
+            }
         };
         $("songName").oninput = e => {
             checkpoint("name");
@@ -4002,6 +4156,10 @@
         };
         $("btnPresets").onclick = () => openPresets();
         $("presetClose").onclick = closePresets;
+        $("infoClose").onclick = closeInfo;
+        $("infoModal").addEventListener("click", e => {
+            if (e.target.id === "infoModal") closeInfo();
+        });
         $("presetModal").addEventListener("click", e => {
             if (e.target.id === "presetModal") closePresets();
             else onPresetClick(e);

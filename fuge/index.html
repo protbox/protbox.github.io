@@ -16,7 +16,7 @@
                 <button class="btn" id="btnOpen" type="button">Open</button>
                 <button class="btn" id="btnSave" type="button" title="Save project (Ctrl+S). Shift-click or Ctrl+Shift+S to save a copy.">Save</button>
                 <button class="btn accent" id="btnExport" type="button" title="Export (Ctrl+E for the main format)">Export ▾</button>
-                <input type="file" id="fileInput" accept=".json,application/json" hidden>
+                <input type="file" id="fileInput" accept=".json,application/json,.mid,.midi,audio/midi,audio/x-midi" hidden>
             </div>
             <div class="group">
                 <button class="btn icon" id="btnUndo" type="button" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
@@ -59,6 +59,7 @@
                     <button class="btn small icon" id="ordLeft" type="button" title="Move order left" aria-label="Move order left">◀</button>
                     <button class="btn small icon" id="ordRight" type="button" title="Move order right" aria-label="Move order right">▶</button>
                     <button class="btn small" id="ordDel" type="button" title="Delete the selected order">Delete</button>
+                    <select id="ordRows" aria-label="Length of the selected order" title="How many rows the selected order plays before moving on"></select>
                     <span class="hint" id="arrInfo"></span>
                     <div class="spacer"></div>
                     <div class="group meta">
@@ -140,6 +141,16 @@
         </div>
     </div>
 
+    <div class="modal" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+        <div class="dialog info-dialog">
+            <div class="dialog-head">
+                <h2 id="infoTitle"></h2>
+                <button class="btn small" id="infoClose" type="button">OK</button>
+            </div>
+            <div class="info-body" id="infoBody"></div>
+        </div>
+    </div>
+
     <div class="toast" id="toast" role="alert"></div>
 
     <script src="js/desktop.js"></script>
@@ -147,6 +158,7 @@
     <script src="js/uge.js"></script>
     <script src="js/gbaudio.js"></script>
     <script src="js/demo.js"></script>
+    <script src="js/midi.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

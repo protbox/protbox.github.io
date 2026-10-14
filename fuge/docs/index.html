@@ -77,6 +77,7 @@
                     <p>Files</p>
                     <ul>
                         <li><a href="#saving">Saving and autosave</a></li>
+                        <li><a href="#midi">Importing MIDI</a></li>
                         <li><a href="#export">Exporting songs</a></li>
                         <li><a href="#gb-studio">Using fUGE with GB Studio</a></li>
                         <li><a href="#hugetracker">hUGETracker and GBDK</a></li>
@@ -154,6 +155,14 @@
                     <li>Right-click a slot, an order number or a channel name for more options.</li>
                 </ul>
                 <p>The info next to the buttons shows how many orders there are and how long the song lasts.</p>
+                <h3>Order length</h3>
+                <p>An order is 64 rows unless you make it shorter. The length menu in the arrangement bar sets the selected order's length, and lists whole numbers of bars. Right-click an order number and choose <b>Length</b> to do the same, or <b>Use … rows for every order</b> to set them all at once. New orders take the length of the one before.</p>
+                <ul>
+                    <li>This keeps bars lined up when they don't divide 64 rows, for example in 3/4, or at 3 or 6 rows per beat: use 48 rows (4 bars) instead.</li>
+                    <li>Shorten the last order so a looping song ends right on the beat, with no silence before it starts again.</li>
+                    <li>Notes past the end of a shortened order are kept but don't play; lengthen it again to bring them back.</li>
+                </ul>
+                <p>On export, fUGE ends shorter orders with a <b>pattern break</b> (<code>D01</code>) on their last row, so the song plays the same in hUGETracker and GB Studio. The break needs an empty effect slot on that row in any one channel; fUGE uses the first free one and warns you in the rare case that every channel has an effect there.</p>
             </section>
 
             <section id="patterns">
@@ -238,7 +247,7 @@
             <section id="tempo">
                 <h2>Speed and tempo</h2>
                 <p>Game Boy music runs on <i>ticks</i>, about 60 per second (59.73 to be exact). <b>Speed</b> is how many ticks each row lasts, so a lower number plays faster. At speed 7, a row lasts about 0.12 s.</p>
-                <p><b>Rows/beat</b> only changes the grid lines and the <b>BPM</b> readout next to it. It doesn't change the sound. With 4 rows per beat, speed 7 is about 128 BPM.</p>
+                <p><b>Rows/beat</b> only changes the grid lines and the <b>BPM</b> readout next to it. It doesn't change the sound. With 4 rows per beat, speed 7 is about 128 BPM. If a bar no longer fits evenly into an order (3 rows per beat makes a 12-row bar), change the <a href="#arrangement">order length</a> to a whole number of bars.</p>
                 <p>To change speed partway through a song, use the <b>Set speed</b> effect (<code>Fxx</code>) on a note.</p>
             </section>
 
@@ -366,7 +375,7 @@
                     <li><b>Where you click is where the slide starts.</b> Click a note's first row to slide the whole note, or further along to hold the pitch first and slide just the tail.</li>
                     <li>Changed your mind? Just let go: <kbd>S</kbd> only ever slides, so nothing else changes. In <a href="#keyboard-piano">keyboard piano</a> mode, <kbd>S</kbd> plays a note instead.</li>
                     <li>For several notes at once, right-click and choose <b>Slide ▸</b>: up or down by a semitone, a tone, a third, a fourth, a fifth or an octave.</li>
-                    <li>The note panel has a <b>Slide</b> menu that shows the note it lands on, and <b>Slide starts</b> to set exactly where it begins.</li>
+                    <li>The note panel has a <b>Slide</b> menu that shows the note it lands on, <b>Slide starts</b> to set exactly where it begins, and <b>Slide length</b> to make it arrive early and hold the new pitch (drawn as a flat line after the wedge).</li>
                     <li>Moving or transposing a note keeps its slide.</li>
                 </ul>
                 <p>The slide lands on its target pitch by the end of the note. fUGE works out the speed from where the slide starts and how long the note is when the song plays or exports. Like the hardware, it slides evenly in the Game Boy's frequency steps rather than in semitones, so the same interval moves a little differently low down than high up.</p>
@@ -465,6 +474,41 @@
                 <p>Saving downloads the file, so it lands wherever your browser keeps downloads.</p>
             </section>
 
+            <section id="midi">
+                <h2>Importing MIDI</h2>
+                <p>Choose <b>New ▾ → Import MIDI file…</b>, or open or drag a <code>.mid</code> file onto fUGE, to turn a MIDI file into a new song. fUGE keeps it simple and strict, so you know exactly what you'll get:</p>
+                <table>
+                    <tr><th>MIDI</th><th>becomes</th></tr>
+                    <tr><td>1st track with notes</td><td><span class="ch" style="background:var(--ch1)"></span>Pulse 1 (Square Lead)</td></tr>
+                    <tr><td>2nd track</td><td><span class="ch" style="background:var(--ch2)"></span>Pulse 2 (Bright Lead)</td></tr>
+                    <tr><td>3rd track</td><td><span class="ch" style="background:var(--ch3)"></span>Wave (Triangle Bass)</td></tr>
+                    <tr><td>4th track</td><td><span class="ch" style="background:var(--ch4)"></span>Noise (drums)</td></tr>
+                </table>
+                <ul>
+                    <li>Tracks with no notes, like the tempo track many programs add first, don't count. Anything after the fourth track is left out.</li>
+                    <li>A drum track (MIDI channel 10) always goes to <b>Noise</b>, and the other tracks fill the rest in order. In a single-track MIDI file, each MIDI channel counts as a track.</li>
+                    <li>General MIDI drums become drum presets: kick, snare, clap, rimshot, toms, crash, open and closed hats, and shakers.</li>
+                    <li>fUGE picks the grid (rows per beat) that fits the notes best, and the speed closest to the file's tempo. The time signature sets the bar lines, and the key signature sets the <a href="#scales">scale highlighting</a>.</li>
+                    <li>Orders are a whole number of bars (4 bars, or 2 if bars are long), and the last one ends with the song's last bar, so it loops cleanly. See <a href="#arrangement">Order length</a>.</li>
+                    <li>Repeated sections become shared <a href="#patterns">patterns</a>.</li>
+                </ul>
+                <p>The Game Boy has its limits, so a few things change on the way in, and a summary afterwards lists everything that did:</p>
+                <ul>
+                    <li><b>Chords:</b> each channel plays one note at a time, so pulse tracks keep the top note of a chord, Wave keeps the bottom one, and overlapping notes are trimmed.</li>
+                    <li><b>Drums:</b> one hit at a time; when two land together, the kick or snare wins over hats and cymbals.</li>
+                    <li><b>Range:</b> a track that goes outside C-3 to B-8 moves by whole octaves to fit.</li>
+                    <li><b>Timing:</b> notes move to the nearest row, and if the tempo changes during the file, fUGE uses the first one.</li>
+                </ul>
+                <div class="tip"><p>fUGE uses hUGETracker's note names, which run an octave higher than most DAWs: a DAW's middle C (C4) shows as C-5 in fUGE. The pitch you hear is the same.</p></div>
+                <h3>Velocity and pitch bends</h3>
+                <ul>
+                    <li><b>Velocity</b> becomes note volume. The loudest notes in a track play at the instrument's own volume, and softer ones get a <b>Set volume</b> effect (<code>C0y</code>) scaled from there. On Wave, which only has four levels, only clearly quieter notes change. Drum velocities set each hit's volume the same way.</li>
+                    <li><b>Pitch bends</b> become <a href="#slides">slides</a>. A note that starts already bent plays at the bent pitch; a bend during a note slides from where the bend starts to where it ends, over the same rows, then holds. fUGE reads the bend range a file sets (RPN 0), and uses ±2 semitones otherwise.</li>
+                    <li>A slide is one straight move, so bends that go up and back, or wobble like a vibrato, are simplified to where the bend ends. Bends are rounded to whole semitones. The summary says how many were simplified.</li>
+                </ul>
+                <p>The imported song is a new, unsaved project, so save it to keep it. Instruments and controllers such as volume and expression aren't imported; choose sounds with the instrument list afterwards.</p>
+            </section>
+
             <section id="export">
                 <h2>Exporting songs</h2>
                 <p><b>Export ▾</b> (or <kbd>Ctrl</kbd>+<kbd>E</kbd> for the first option) offers:</p>
@@ -553,7 +597,7 @@
                 <p>fUGE aims to sound exactly like the hardware, including its quirks:</p>
                 <ul>
                     <li>Each channel plays one note at a time.</li>
-                    <li>Up to 15 instruments of each type per song, 64 rows per pattern, and pitches from C-3 to B-8.</li>
+                    <li>Up to 15 instruments of each type per song, 64 rows per pattern (shorter orders end with a pattern break), and pitches from C-3 to B-8.</li>
                     <li>Subpatterns can have up to 32 rows when they loop, or 30 when they stop.</li>
                     <li>Changing the volume of a pulse or noise note means restarting it, which can click a little. That applies to the volume effects, and to the turnaround in <a href="#swell">Swell</a>. Use the instrument's envelope for smooth fades.</li>
                     <li>The wave channel only has four volume levels.</li>

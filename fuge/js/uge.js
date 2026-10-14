@@ -49,11 +49,12 @@
         const target = Math.max(0, Math.min(71, n.note + n.slide));
         if (target === n.note || L < 1) return null;
         const start = n.row + Math.max(0, Math.min(L - 1, n.slideAt || 0));
+        const stop = n.slideLen > 0 ? Math.min(n.row + L, start + n.slideLen) : n.row + L;
         const dist = Math.abs(periodOf(target) - periodOf(n.note));
         const fx = target > n.note ? 0x1 : 0x2;
         if (steady) {
             const free = [];
-            for (let r = start; r < n.row + L; r++) if (!taken.has(r)) free.push(r);
+            for (let r = start; r < stop; r++) if (!taken.has(r)) free.push(r);
             if (!free.length) return null;
             const units = Math.round(dist / (speed - 1));
             const base = Math.floor(units / free.length);
@@ -62,7 +63,7 @@
         }
         const first = !taken.has(start);
         const glide = [];
-        for (let r = start + 1; r < n.row + L; r++) if (!taken.has(r)) glide.push(r);
+        for (let r = start + 1; r < stop; r++) if (!taken.has(r)) glide.push(r);
         if (!glide.length) {
             if (!first) return null;
             return [{ row: start, fx, fp: Math.max(1, Math.min(255, Math.round(dist / (speed - 1)))) }];
@@ -335,18 +336,48 @@
         const patterns = [];
         const orders = [[], [], [], []];
         const cache = new Map();
-        for (let c = 0; c < 4; c++) {
-            for (const row of orderRows) {
-                const idx = row[c];
-                const key = c + ":" + idx;
-                if (!cache.has(key)) {
-                    const pat = idx >= 0 ? doc.tracks[c].patterns[idx] : null;
-                    cache.set(key, patterns.length);
-                    patterns.push({ id: patterns.length, cells: buildCells(pat, KINDS[c], instIndex, rows, !!sfx, sfx ? sfx.speed : doc.speed, instById) });
-                }
-                orders[c].push(cache.get(key));
+        const lens = orderRows.map((r, k) => {
+            if (sfx) return rows;
+            const v = doc.orderRows && doc.orderRows[k];
+            return v > 0 && v < ROWS ? Math.floor(v) : ROWS;
+        });
+        const built = new Map();
+        const cellsFor = (c, idx, len) => {
+            const key = c + ":" + idx + ":" + len;
+            if (!built.has(key)) built.set(key, buildCells(idx >= 0 ? doc.tracks[c].patterns[idx] : null, KINDS[c], instIndex, len, !!sfx, sfx ? sfx.speed : doc.speed, instById));
+            return built.get(key);
+        };
+        const intern = (key, cells) => {
+            if (!cache.has(key)) {
+                cache.set(key, patterns.length);
+                patterns.push({ id: patterns.length, cells });
             }
-        }
+            return cache.get(key);
+        };
+        let crowded = 0;
+        orderRows.forEach((row, k) => {
+            const len = lens[k];
+            const cells = [0, 1, 2, 3].map(c => cellsFor(c, row[c], len));
+            let holder = -1;
+            if (len < ROWS) {
+                holder = [3, 2, 1, 0].find(c => !cells[c][len - 1].fx && !cells[c][len - 1].fp);
+                if (holder === undefined) {
+                    holder = 3;
+                    crowded++;
+                }
+            }
+            for (let c = 0; c < 4; c++) {
+                if (c !== holder) {
+                    orders[c].push(intern(c + ":" + row[c] + ":" + len, cells[c]));
+                    continue;
+                }
+                const copy = cells[c].map(x => Object.assign({}, x));
+                copy[len - 1].fx = 0xD;
+                copy[len - 1].fp = 1;
+                orders[c].push(intern(c + ":" + row[c] + ":" + len + ":D", copy));
+            }
+        });
+        if (crowded) warnings.push(crowded + " order" + (crowded === 1 ? "" : "s") + " had an effect on every channel's last row, so the noise channel's effect there was replaced by the pattern break that ends the order early.");
 
         const song = {
             name: (doc.name || "Untitled").slice(0, 255),
@@ -354,7 +385,7 @@
             comment: (doc.comment || "").slice(0, 255),
             speed: sfx ? sfx.speed : doc.speed,
             rows,
-            used: [0, 1, 2, 3].map(c => orderRows.some(r => r[c] >= 0 && doc.tracks[c].patterns[r[c]] && doc.tracks[c].patterns[r[c]].notes.some(n => n.row < rows))),
+            used: [0, 1, 2, 3].map(c => orderRows.some((r, k) => r[c] >= 0 && doc.tracks[c].patterns[r[c]] && doc.tracks[c].patterns[r[c]].notes.some(n => n.row < lens[k]))),
             duty: byType.pulse.map(withTable),
             wave: waveSpecs,
             noise: byType.noise.map(withTable),
