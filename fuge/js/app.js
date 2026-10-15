@@ -375,6 +375,8 @@
         state.dirty = true;
         scheduleAutosave();
         updateTitle();
+        $("btnUndo").disabled = false;
+        $("btnRedo").disabled = true;
     }
 
     function restore(json) {
@@ -2551,6 +2553,7 @@
     let menuRoot = null;
     let menuOwner = null;
     let menuSkip = null;
+    let menuOpenedAt = 0;
 
     function hideMenu() {
         menuOwner = null;
@@ -2674,6 +2677,7 @@
         const m = buildMenu(items);
         if (!m.children.length) return;
         menuRoot = m;
+        menuOpenedAt = performance.now();
         document.body.appendChild(m);
         placeMenu(m, e.clientX, e.clientY, undefined, e.above);
         const first = m.querySelector(".ctx-item:not(:disabled)");
@@ -3074,12 +3078,32 @@
             refreshIcon(inst);
             return;
         }
+        const was = inst[k];
         inst[k] = parseInt(e.target.value, 10);
+        if (k === "note" && inst.type === "noise") followPitch(inst, was);
         const out = $("instEditor").querySelector("[data-out=\"" + k + "\"]");
         if (out) out.textContent = FMT[k](inst[k]);
         drawEditorCanvases(inst);
         refreshIcon(inst);
         if (G.drum) drawGrid();
+        scheduleAutosave();
+    }
+
+    function followPitch(inst, was) {
+        if (was === inst.note) return;
+        let moved = 0;
+        state.song.tracks.forEach((t, k) => {
+            if (TRACKS[k].kind !== "noise") return;
+            for (const p of t.patterns) {
+                for (const n of p.notes) {
+                    if (n.inst === inst.id && n.note === was) {
+                        n.note = inst.note;
+                        moved++;
+                    }
+                }
+            }
+        });
+        if (moved) drawGrid();
     }
 
     function onEditorChange(e) {
@@ -3662,8 +3686,24 @@
             { sep: true },
             { label: "Import MIDI file…", action: () => confirmDiscard().then(ok => {
                 if (ok) $("fileInput").click();
-            }) }
+            }) },
+            ...demoItems()
         ]);
+    }
+
+    function demoItems() {
+        const list = Array.isArray(window.FUGE_DEMOS) ? window.FUGE_DEMOS.filter(d => d && d.song) : [];
+        if (!list.length) return [];
+        return [{ label: "Demos", sub: list.map(d => ({
+            label: d.name + (d.artist ? " · " + d.artist : "") + (d.mode === "sfx" ? " (SFX)" : ""),
+            action: () => openDemo(d)
+        })) }];
+    }
+
+    function openDemo(d) {
+        confirmDiscard().then(ok => {
+            if (ok) loadText(JSON.stringify(d.song), "demo " + d.name, null);
+        });
     }
 
     function openFile(file) {
@@ -4268,7 +4308,10 @@
         }, true);
         window.addEventListener("blur", hideMenu);
         window.addEventListener("resize", hideMenu);
-        document.addEventListener("scroll", hideMenu, true);
+        document.addEventListener("scroll", e => {
+            if (menuRoot && (menuRoot.contains(e.target) || performance.now() - menuOpenedAt < 250)) return;
+            hideMenu();
+        }, true);
         $("keys").addEventListener("pointerdown", e => {
             const r = $("keys").getBoundingClientRect();
             const y = e.clientY - r.top;
@@ -4370,7 +4413,7 @@
         readPalette();
         renderAll();
         centerRoll(true);
-        status(song ? "Restored your last session." : "Welcome! This demo song, Forest by Polter, shows off each channel and instrument subpatterns. Click a slot in the arrangement to edit it.");
+        status(song ? "Restored your last session." : "Welcome! This demo song, Sprout Village by Polter, shows off each channel, slides and instrument subpatterns. Click a slot in the arrangement to edit it.");
         updateTitle();
         if (document.fonts) document.fonts.ready.then(() => renderAll());
     }

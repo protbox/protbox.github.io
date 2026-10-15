@@ -128,7 +128,7 @@
 
             <section id="first-song">
                 <h2>Your first song</h2>
-                <p>The first time you open fUGE it loads a demo song, <i>Forest</i> by Polter. Press <kbd>Space</kbd> to hear it, and click around the arrangement to see how it's built.</p>
+                <p>The first time you open fUGE it loads a demo song, <i>Sprout Village</i> by Polter. Press <kbd>Space</kbd> to hear it, and click around the arrangement to see how it's built. More demo songs are under <b>New ▾ → Demos</b>; opening one replaces the current project, so save first if you want to keep it.</p>
                 <ol>
                     <li>Choose <b>New ▾ → New song</b>. A blank song comes with a few starter instruments.</li>
                     <li>Click the first slot in the <b>Pulse 1</b> row of the arrangement.</li>
@@ -178,8 +178,8 @@
             <section id="drawing">
                 <h2>Drawing notes</h2>
                 <figure>
-                    <img class="light" src="img/pattern-light.webp" alt="The pattern editor with a pattern selected" width="1150" height="569" loading="lazy">
-                    <img class="dark" src="img/pattern-dark.webp" alt="The pattern editor with a pattern selected" width="1150" height="569" loading="lazy">
+                    <img class="light" src="img/pattern-light.webp" alt="The pattern editor with a pattern selected" width="1150" height="568" loading="lazy">
+                    <img class="dark" src="img/pattern-dark.webp" alt="The pattern editor with a pattern selected" width="1150" height="568" loading="lazy">
                 </figure>
                 <p>With the <b>Draw</b> tool (<kbd>D</kbd>), click the piano roll to place a note with the selected instrument. Drag right as you place it to set its length; the next note you draw uses the same length. The number on each note is its instrument.</p>
                 <ul>
@@ -202,8 +202,8 @@
                     <li><b>Undo:</b> <kbd>Ctrl</kbd>+<kbd>Z</kbd>, and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> to redo.</li>
                 </ul>
                 <figure class="side-shot">
-                    <img class="light" src="img/note-menu-light.webp" alt="The right-click menu on a note, with the Effect submenu open" width="445" height="541" loading="lazy">
-                    <img class="dark" src="img/note-menu-dark.webp" alt="The right-click menu on a note, with the Effect submenu open" width="445" height="541" loading="lazy">
+                    <img class="light" src="img/note-menu-light.webp" alt="The right-click menu on a note, with the Effect submenu open" width="447" height="569" loading="lazy">
+                    <img class="dark" src="img/note-menu-dark.webp" alt="The right-click menu on a note, with the Effect submenu open" width="447" height="569" loading="lazy">
                     <figcaption>Right-click a note for quick edits.</figcaption>
                 </figure>
                 <p><b>Right-click</b> a note (or a selection) for a menu of everything you can do to it: change its instrument, effect, volume, length or pitch, add an <a href="#echo">echo</a>, a <a href="#slides">slide</a> or <a href="#swell">swell</a>, select every note with the same instrument, and more. Right-click empty space to switch tools or paste.</p>
@@ -227,8 +227,8 @@
             <section id="drums">
                 <h2>Drums on the noise track</h2>
                 <figure>
-                    <img class="light" src="img/drums-light.webp" alt="The noise track as drum lanes" width="1150" height="528" loading="lazy">
-                    <img class="dark" src="img/drums-dark.webp" alt="The noise track as drum lanes" width="1150" height="528" loading="lazy">
+                    <img class="light" src="img/drums-light.webp" alt="The noise track as drum lanes" width="1150" height="527" loading="lazy">
+                    <img class="dark" src="img/drums-dark.webp" alt="The noise track as drum lanes" width="1150" height="527" loading="lazy">
                 </figure>
                 <p>The noise track works like a drum machine. Each lane is one noise instrument (kick, snare, hat and so on). Click a lane to place that hit, or drag along it to paint several. Only one hit can sound at a time, so a new hit on a row replaces any other hit there. A hit keeps sounding until the next hit or until its own envelope fades out.</p>
                 <p>Each hit plays its instrument's default pitch. To change one hit's pitch, select it and use the <b>Pitch</b> slider in the note panel; hits with a changed pitch show a small dot.</p>
@@ -277,8 +277,8 @@
             <section id="instruments">
                 <h2>Instruments</h2>
                 <figure class="side-shot">
-                    <img class="light" src="img/instrument-light.webp" alt="The instrument list and editor" width="290" height="827" loading="lazy">
-                    <img class="dark" src="img/instrument-dark.webp" alt="The instrument list and editor" width="290" height="827" loading="lazy">
+                    <img class="light" src="img/instrument-light.webp" alt="The instrument list and editor" width="290" height="826" loading="lazy">
+                    <img class="dark" src="img/instrument-dark.webp" alt="The instrument list and editor" width="290" height="826" loading="lazy">
                 </figure>
                 <p>The sidebar lists the song's instruments by type: pulse, wave and noise. A song can have up to 15 of each, as in hUGETracker. A small tag shows when an instrument has a <a href="#subpatterns">subpattern</a>: <b>ARP</b>, <b>VIB</b> or <b>SUB</b>.</p>
                 <ul>
@@ -337,7 +337,7 @@
                 <h2>Noise instruments</h2>
                 <ul>
                     <li><b>Noise type:</b> <b>Smooth</b> is white noise, good for snares, hats and explosions. <b>Metallic</b> uses a short repeating pattern that sounds tonal and buzzy, good for kicks and toms.</li>
-                    <li><b>Default pitch</b> sets the pitch new hits use. Lower is deeper.</li>
+                    <li><b>Default pitch</b> sets the pitch of this instrument's hits. Lower is deeper. Changing it moves every hit already placed with it, except hits you've given their own pitch (the ones with a dot).</li>
                     <li>The volume, envelope and length work as on pulse instruments.</li>
                 </ul>
             </section>
@@ -345,8 +345,8 @@
             <section id="subpatterns">
                 <h2>Subpatterns</h2>
                 <figure class="side-shot">
-                    <img class="light" src="img/subpattern-light.webp" alt="The subpattern editor showing one vibrato row" width="277" height="353" loading="lazy">
-                    <img class="dark" src="img/subpattern-dark.webp" alt="The subpattern editor showing one vibrato row" width="277" height="353" loading="lazy">
+                    <img class="light" src="img/subpattern-light.webp" alt="The subpattern editor showing one vibrato row" width="277" height="352" loading="lazy">
+                    <img class="dark" src="img/subpattern-dark.webp" alt="The subpattern editor showing one vibrato row" width="277" height="352" loading="lazy">
                     <figcaption>Edit rows opens the subpattern grid.</figcaption>
                 </figure>
                 <p>A subpattern is a tiny pattern inside an instrument that runs on every note it plays, one row per tick (1/60 s). It's how you get arpeggiated chords, vibrato, pitch drops and other movement without writing effects on every note. Subpatterns export as hUGE v6 instrument subpatterns, so they work unchanged in hUGETracker and GB Studio.</p>
@@ -366,8 +366,8 @@
             <section id="slides">
                 <h2>Slides</h2>
                 <figure>
-                    <img class="light" src="img/slide-light.webp" alt="Notes with translucent wedges showing slides up and down, one starting partway along its note" width="1150" height="569" loading="lazy">
-                    <img class="dark" src="img/slide-dark.webp" alt="Notes with translucent wedges showing slides up and down, one starting partway along its note" width="1150" height="569" loading="lazy">
+                    <img class="light" src="img/slide-light.webp" alt="Notes with translucent wedges showing slides up and down, one starting partway along its note" width="1150" height="568" loading="lazy">
+                    <img class="dark" src="img/slide-dark.webp" alt="Notes with translucent wedges showing slides up and down, one starting partway along its note" width="1150" height="568" loading="lazy">
                     <figcaption>A wedge shows where each slide goes. The last note holds its pitch, then slides on its tail.</figcaption>
                 </figure>
                 <p>A slide bends a note from its own pitch to another one, like a guitar slide or a synth's portamento. To add one, <b>hold <kbd>S</kbd>, click a note and drag up or down</b> to the pitch it should end on. The note stays where it is, and a translucent wedge shows the slide. Drag back to the note's own pitch to remove it.</p>
@@ -386,8 +386,8 @@
             <section id="swell">
                 <h2>Swell</h2>
                 <figure>
-                    <img class="light" src="img/swell-light.webp" alt="A note with Swell turned on, showing the ∧ marker and the Swell switch in the note panel" width="1150" height="528" loading="lazy">
-                    <img class="dark" src="img/swell-dark.webp" alt="A note with Swell turned on, showing the ∧ marker and the Swell switch in the note panel" width="1150" height="528" loading="lazy">
+                    <img class="light" src="img/swell-light.webp" alt="A note with Swell turned on, showing the ∧ marker and the Swell switch in the note panel" width="1150" height="527" loading="lazy">
+                    <img class="dark" src="img/swell-dark.webp" alt="A note with Swell turned on, showing the ∧ marker and the Swell switch in the note panel" width="1150" height="527" loading="lazy">
                     <figcaption>A swelling note shows a faint ∧.</figcaption>
                 </figure>
                 <p>Swell fades a note in from silence, peaks in the middle, then fades it out by its end, whatever its length. Select notes and set <b>Swell</b> to <b>On</b> in the note panel, or choose <b>Swell over the note</b> from the right-click menu.</p>
@@ -403,8 +403,8 @@
             <section id="echo">
                 <h2>Echo</h2>
                 <figure class="side-shot">
-                    <img class="light" src="img/echo-light.webp" alt="The Echo menu" width="237" height="345" loading="lazy">
-                    <img class="dark" src="img/echo-dark.webp" alt="The Echo menu" width="237" height="345" loading="lazy">
+                    <img class="light" src="img/echo-light.webp" alt="The Echo menu" width="237" height="344" loading="lazy">
+                    <img class="dark" src="img/echo-dark.webp" alt="The Echo menu" width="237" height="344" loading="lazy">
                 </figure>
                 <p>The classic Game Boy echo repeats each note a little later, more quietly. To add one, select the notes (<kbd>Ctrl</kbd>+<kbd>A</kbd> for the whole pattern) and choose <b>Echo ▾</b> in the note panel, or <b>Echo</b> in the right-click menu. Then pick where and how late:</p>
                 <ul>
@@ -419,8 +419,8 @@
             <section id="keyboard-piano">
                 <h2>Keyboard piano</h2>
                 <figure>
-                    <img class="light" src="img/piano-light.webp" alt="Keyboard piano on, with the row of the note being played lit up" width="1150" height="569" loading="lazy">
-                    <img class="dark" src="img/piano-dark.webp" alt="Keyboard piano on, with the row of the note being played lit up" width="1150" height="569" loading="lazy">
+                    <img class="light" src="img/piano-light.webp" alt="Keyboard piano on, with the row of the note being played lit up" width="1150" height="568" loading="lazy">
+                    <img class="dark" src="img/piano-dark.webp" alt="Keyboard piano on, with the row of the note being played lit up" width="1150" height="568" loading="lazy">
                     <figcaption>The row of the note you're playing lights up.</figcaption>
                 </figure>
                 <p>Press <kbd>`</kbd> (the key left of <kbd>1</kbd>) or <b>⌨ Keys</b> in the pattern toolbar to play the current instrument from your computer keyboard. Press it again to turn it off.</p>
