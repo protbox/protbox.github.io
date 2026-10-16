@@ -16,6 +16,7 @@
       "vol": 12,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -30,6 +31,7 @@
       "vol": 12,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 1,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -44,6 +46,7 @@
       "vol": 6,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -58,6 +61,7 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 0,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -182,6 +186,7 @@
       "vol": 15,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 7,
       "note": 32,
       "sub": null
@@ -194,6 +199,7 @@
       "vol": 5,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 15,
       "note": 58,
       "sub": null
@@ -206,6 +212,7 @@
       "vol": 12,
       "envDir": "down",
       "envPace": 6,
+      "fadeTo": 15,
       "bits": 15,
       "note": 46,
       "sub": null
@@ -218,6 +225,7 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 15,
       "note": 42,
       "sub": null
@@ -1164,10 +1172,12 @@
             },
             {
               "row": 36,
-              "len": 7,
+              "len": 8,
               "note": 38,
               "inst": "midpsquarelead",
-              "fx": null
+              "fx": null,
+              "slide": -5,
+              "slideAt": 7
             }
           ]
         }

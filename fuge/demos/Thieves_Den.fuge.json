@@ -16,6 +16,7 @@
       "vol": 12,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -30,6 +31,7 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 6,
+      "fadeTo": 15,
       "duty": 0,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -44,11 +46,27 @@
       "vol": 15,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "duty": 0,
       "sweepTime": 0,
       "sweepDir": "down",
       "sweepShift": 0,
       "sub": null
+    },
+    {
+      "type": "pulse",
+      "name": "Bright Lead echo",
+      "duty": 0,
+      "vol": 7,
+      "envDir": "down",
+      "envPace": 6,
+      "fadeTo": 15,
+      "length": 0,
+      "sweepTime": 0,
+      "sweepDir": "down",
+      "sweepShift": 0,
+      "sub": null,
+      "id": "okeo1b9e"
     },
     {
       "id": "midwtrianglebass",
@@ -100,6 +118,7 @@
       "vol": 15,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 7,
       "note": 39,
       "sub": null
@@ -112,6 +131,7 @@
       "vol": 5,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 15,
       "note": 58,
       "sub": null
@@ -320,7 +340,15 @@
             },
             {
               "row": 4,
-              "len": 6,
+              "len": 1,
+              "note": 47,
+              "inst": "midpbrightlead",
+              "fx": null,
+              "slide": 1
+            },
+            {
+              "row": 5,
+              "len": 5,
               "note": 48,
               "inst": "midpbrightlead",
               "fx": null
@@ -446,7 +474,7 @@
             },
             {
               "row": 56,
-              "len": 8,
+              "len": 7,
               "note": 32,
               "inst": "midpbrightlead",
               "fx": null
@@ -826,13 +854,15 @@
             },
             {
               "row": 40,
-              "len": 8,
+              "len": 7,
               "note": 41,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 4,
                 "param": 67
-              }
+              },
+              "slide": -3,
+              "slideAt": 6
             },
             {
               "row": 48,
@@ -1389,6 +1419,241 @@
               "len": 1,
               "note": 29,
               "inst": "3634g8rj",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 1,
+              "note": 24,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 1,
+              "len": 1,
+              "note": 28,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 2,
+              "len": 1,
+              "note": 33,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 1,
+              "note": 28,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 1,
+              "note": 24,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 9,
+              "len": 1,
+              "note": 28,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 1,
+              "note": 33,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 14,
+              "len": 1,
+              "note": 33,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 1,
+              "note": 23,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 17,
+              "len": 1,
+              "note": 26,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 1,
+              "note": 31,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 1,
+              "note": 26,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 1,
+              "note": 23,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 25,
+              "len": 1,
+              "note": 26,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 26,
+              "len": 1,
+              "note": 31,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 1,
+              "note": 31,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 1,
+              "note": 21,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 33,
+              "len": 1,
+              "note": 24,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 1,
+              "note": 29,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 1,
+              "note": 24,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 1,
+              "note": 21,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 41,
+              "len": 1,
+              "note": 24,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 1,
+              "note": 29,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 29,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 48,
+              "len": 1,
+              "note": 20,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 49,
+              "len": 1,
+              "note": 23,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 50,
+              "len": 1,
+              "note": 41,
+              "inst": "okeo1b9e",
+              "fx": null
+            },
+            {
+              "row": 52,
+              "len": 1,
+              "note": 40,
+              "inst": "okeo1b9e",
+              "fx": null
+            },
+            {
+              "row": 53,
+              "len": 1,
+              "note": 38,
+              "inst": "okeo1b9e",
+              "fx": null
+            },
+            {
+              "row": 54,
+              "len": 1,
+              "note": 36,
+              "inst": "okeo1b9e",
+              "fx": null
+            },
+            {
+              "row": 56,
+              "len": 1,
+              "note": 35,
+              "inst": "okeo1b9e",
+              "fx": null
+            },
+            {
+              "row": 57,
+              "len": 1,
+              "note": 23,
+              "inst": "3634g8rj",
+              "fx": null
+            },
+            {
+              "row": 58,
+              "len": 6,
+              "note": 32,
+              "inst": "okeo1b9e",
               "fx": null
             }
           ]
@@ -2811,7 +3076,7 @@
     ],
     [
       1,
-      0,
+      2,
       0,
       1
     ],
