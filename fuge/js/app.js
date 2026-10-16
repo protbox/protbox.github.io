@@ -219,6 +219,7 @@
                 inst.vol = num(r.vol, 0, 15, d.vol);
                 inst.envDir = r.envDir === "up" ? "up" : "down";
                 inst.envPace = num(r.envPace, 0, 7, d.envPace);
+                inst.fadeTo = num(r.fadeTo, 0, 15, 15);
             }
             if (r.type === "pulse") {
                 inst.duty = num(r.duty, 0, 3, 2);
@@ -436,7 +437,9 @@
 
     function audioSpec(inst) {
         const spec = clone(inst);
-        spec.table = UGE.compileSub(inst.sub);
+        const eff = UGE.instSub(inst);
+        spec.table = UGE.compileSub(eff);
+        if (UGE.fadeTick(inst) && eff === inst.sub) spec.hold = { tick: UGE.fadeTick(inst), fp: UGE.holdFx(inst) };
         delete spec.sub;
         if (inst.type === "wave") spec.waveIndex = -2;
         return spec;
@@ -456,7 +459,9 @@
         const f = fx === undefined ? null : fx;
         const moving = subActive(inst.sub) || (f && (f.code === 0x4 || f.code === 0x0));
         GBAudio.start().then(sendMute).catch(() => toast("Couldn't start audio in this browser."));
-        GBAudio.send({ type: "preview", ch: c, inst: audioSpec(inst), note: n, fx: f, dur: inst.type === "noise" ? 0.9 : moving ? 0.8 : 0.45 });
+        let dur = inst.type === "noise" ? 0.9 : moving ? 0.8 : 0.45;
+        if (inst.type !== "wave" && inst.envDir === "up" && inst.envPace) dur = Math.max(dur, Math.min(2.5, (fadeCap(inst) - inst.vol) * inst.envPace / 64 + 0.4));
+        GBAudio.send({ type: "preview", ch: c, inst: audioSpec(inst), note: n, fx: f, dur });
     }
 
     const trackKind = t => TRACKS[t].kind;
@@ -656,7 +661,11 @@
         if (inst.type === "wave") return WAVE_GAIN[inst.level];
         if (!inst.envPace) return inst.vol;
         const steps = Math.floor(t / (inst.envPace / 64));
-        return inst.envDir === "down" ? Math.max(0, inst.vol - steps) : Math.min(15, inst.vol + steps);
+        return inst.envDir === "down" ? Math.max(0, inst.vol - steps) : Math.min(fadeCap(inst), inst.vol + steps);
+    }
+
+    function fadeCap(inst) {
+        return inst.fadeTo > inst.vol && inst.fadeTo < 15 ? inst.fadeTo : 15;
     }
 
     function drawIcon(cv, inst, w, h) {
@@ -778,6 +787,7 @@
     const FMT = {
         vol: v => v + " / 15",
         envPace: v => Math.round(v / 64 * 1000) + " ms per step",
+        fadeTo: v => v + " / 15",
         length: v => Math.round(v / 256 * 1000) + " ms",
         sweepTime: v => v ? (v / 128 * 1000).toFixed(1) + " ms per step" : "Off",
         sweepShift: v => String(v),
@@ -793,6 +803,7 @@
         let h = range("vol", inst.envDir === "up" && inst.envPace ? "Start volume" : "Volume", 0, 15, inst.vol);
         h += "<div class=\"field\"><span>Envelope</span>" + seg("env", [{ v: "hold", label: "Hold" }, { v: "down", label: "Fade out" }, { v: "up", label: "Fade in" }], mode) + "</div>";
         if (inst.envPace) h += range("envPace", "Fade speed", 1, 7, inst.envPace);
+        if (inst.envPace && inst.envDir === "up" && inst.vol < 14) h += range("fadeTo", "Fade up to", inst.vol + 1, 15, Math.max(inst.fadeTo === undefined ? 15 : inst.fadeTo, inst.vol + 1));
         return h;
     }
 
@@ -840,7 +851,7 @@
             h += envFields(inst);
             h += "<div class=\"field\"><span>Noise type</span>" + seg("bits", [{ v: 15, label: "Smooth" }, { v: 7, label: "Metallic" }], inst.bits) + "</div>";
             h += range("note", "Default pitch", 0, NOISE_MAX, inst.note);
-            h += "<p class=\"hint\">New hits use this pitch. Change a single hit in the note panel.</p>";
+            h += "<p class=\"hint\">Hits with this instrument play this pitch. To change a single hit, use the note panel.</p>";
             h += lengthFields(inst, 64);
         }
         h += subFields(inst);
@@ -2141,7 +2152,10 @@
         delete q.type;
         delete q.name;
         if (inst.type === "wave") q.level = q.level ? Math.min(3, q.level + 1) : 0;
-        else q.vol = q.vol > 1 ? Math.round(q.vol / 2) : q.vol;
+        else {
+            q.vol = q.vol > 1 ? Math.round(q.vol / 2) : q.vol;
+            if (inst.envDir === "up" && inst.envPace) q.fadeTo = Math.min(15, Math.max(q.vol + 1, Math.round(fadeCap(inst) / 2)));
+        }
         return q;
     }
 
@@ -3112,7 +3126,7 @@
             return;
         }
         const k = e.target.dataset.k;
-        if (k === "sweepTime" || k === "name") renderEditor();
+        if (k === "sweepTime" || k === "name" || (k === "vol" && curInst() && curInst().envDir === "up")) renderEditor();
         if (k && k !== "name" && k !== "mirror") preview(curInst());
     }
 

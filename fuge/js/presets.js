@@ -135,9 +135,9 @@
     ];
 
     const DEFAULTS = {
-        pulse: { duty: 2, vol: 15, envDir: "down", envPace: 0, length: 0, sweepTime: 0, sweepDir: "down", sweepShift: 0 },
+        pulse: { duty: 2, vol: 15, envDir: "down", envPace: 0, fadeTo: 15, length: 0, sweepTime: 0, sweepDir: "down", sweepShift: 0 },
         wave: { level: 1, length: 0, shape: "triangle" },
-        noise: { vol: 15, envDir: "down", envPace: 1, length: 0, bits: 15, note: 24 }
+        noise: { vol: 15, envDir: "down", envPace: 1, fadeTo: 15, length: 0, bits: 15, note: 24 }
     };
 
     const E = null;

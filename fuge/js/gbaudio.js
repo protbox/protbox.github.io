@@ -714,6 +714,8 @@ function GBAudioCore() {
                     this.previewCh = m.ch;
                     this.previewFx = m.fx && [0x0, 0x1, 0x2, 0x4].includes(m.fx.code) ? m.fx : null;
                     this.previewTable = !!d.ch[m.ch].table;
+                    this.previewHold = m.inst && m.inst.hold ? m.inst.hold : null;
+                    this.previewFrames = 0;
                     this.previewTick = 0;
                     d.tick = 0;
                     if (this.previewTable) d.doTable(m.ch);
@@ -753,10 +755,15 @@ function GBAudioCore() {
                     }
                 }
                 if (this.previewLeft > 0) {
-                    if ((this.previewFx || this.previewTable) && !d.playing) {
+                    if ((this.previewFx || this.previewTable || this.previewHold) && !d.playing) {
                         this.previewFrame -= cyc;
                         if (this.previewFrame <= 0) {
                             this.previewFrame += FRAME_CYCLES;
+                            this.previewFrames++;
+                            if (this.previewHold && this.previewFrames === this.previewHold.tick) {
+                                d.tick = 0;
+                                d.effect(this.previewCh, 0xA, this.previewHold.fp);
+                            }
                             d.counter = (d.counter + 1) & 255;
                             this.previewTick = (this.previewTick + 1) % Math.max(1, d.speed);
                             d.tick = 1;

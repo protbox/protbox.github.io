@@ -311,7 +311,7 @@
                 <h2>Pulse instruments</h2>
                 <ul>
                     <li><b>Duty cycle:</b> the pulse width. 50% is the full, hollow square; 25% and 12.5% get thinner and more nasal; 75% sounds the same as 25%.</li>
-                    <li><b>Volume and envelope:</b> <b>Hold</b> keeps the volume steady; <b>Fade out</b> and <b>Fade in</b> step the volume down or up at the <b>Fade speed</b>. The graph shows the volume over the first second.</li>
+                    <li><b>Volume and envelope:</b> <b>Hold</b> keeps the volume steady; <b>Fade out</b> and <b>Fade in</b> step the volume down or up at the <b>Fade speed</b>. With <b>Fade in</b>, <b>Fade up to</b> sets where the fade stops, handy for noise risers that would otherwise end at full, very loud volume. The Game Boy's own fade-in always climbs to 15, so fUGE stops it with an <code>A</code> effect at the right moment: inside the instrument's subpattern for short fades (exact to the tick), or on the nearest row of the pattern for longer ones, as long as that row has no effect and no new note has started. The graph shows the volume over the first second.</li>
                     <li><b>Stop after a set time:</b> uses the hardware length counter to end each note after up to a quarter of a second, for short blips.</li>
                     <li><b>Pitch sweep</b> (Pulse 1 only): bends every note up or down automatically. Pulse 2 has no sweep hardware, so it ignores these settings.</li>
                 </ul>
@@ -412,7 +412,7 @@
                     <li><b>On this track, in the gaps</b>: for a single channel, or the wave channel. Notes longer than the delay are shortened so the echo can sound, and notes with no gap after them get no echo.</li>
                 </ul>
                 <p>Echoes use a quieter copy of each instrument, named after it with "echo" on the end (half the volume, or one wave level lower). fUGE reuses that copy next time, so to make every echo louder or softer, just change its volume.</p>
-                <div class="note"><p>Echoes are ordinary notes, so they don't follow later changes to your melody. Instruments that fade in from silence can't be made quieter this way.</p></div>
+                <div class="note"><p>Echoes are ordinary notes, so they don't follow later changes to your melody. For instruments that fade in, the echo copy fades up to half the original's peak.</p></div>
                 <div class="clear"></div>
             </section>
 

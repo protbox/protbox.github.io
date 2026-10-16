@@ -985,7 +985,15 @@
             },
             {
               "row": 36,
-              "len": 4,
+              "len": 1,
+              "note": 36,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 2
+            },
+            {
+              "row": 37,
+              "len": 3,
               "note": 38,
               "inst": "midpsquarelead",
               "fx": null

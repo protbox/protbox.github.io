@@ -40,6 +40,41 @@
         return cells;
     }
 
+    const VBLANK = 59.7275;
+
+    function fadeTick(inst) {
+        if (!inst || inst.type === "wave" || inst.envDir !== "up" || !inst.envPace) return 0;
+        const to = inst.fadeTo === undefined ? 15 : inst.fadeTo;
+        if (to >= 15 || to <= inst.vol) return 0;
+        return Math.max(1, Math.round((to - inst.vol) * inst.envPace / 64 * VBLANK));
+    }
+
+    const holdFx = inst => (inst.fadeTo << 4) | 0xF;
+
+    function instSub(inst) {
+        const sub = inst ? inst.sub : null;
+        const k = fadeTick(inst);
+        if (!k || k > TABLE_ROWS - 3) return sub;
+        const rows = sub && sub.rows ? sub.rows.map(r => ({ note: r.note, fx: r.fx })) : [];
+        const loop = sub && sub.loop >= 0 && sub.loop < rows.length ? sub.loop : -1;
+        if (loop >= 0 && k >= loop) return sub;
+        const hold = { code: 0xA, param: holdFx(inst) };
+        if (k < rows.length) {
+            if (rows[k].fx && (rows[k].fx.code || rows[k].fx.param)) return sub;
+            rows[k] = { note: rows[k].note, fx: hold };
+        } else {
+            while (rows.length < k) rows.push({ note: null, fx: null });
+            rows.push({ note: null, fx: hold });
+        }
+        return { name: sub ? sub.name : "Fade cap", loop, rows };
+    }
+
+    function fadeRows(inst, speed) {
+        const k = fadeTick(inst);
+        if (!k || instSub(inst) !== inst.sub) return 0;
+        return Math.max(1, Math.round(k / Math.max(1, speed)));
+    }
+
     const PERIODS = [44, 156, 262, 363, 457, 547, 631, 710, 786, 854, 923, 986, 1046, 1102, 1155, 1205, 1253, 1297, 1339, 1379, 1417, 1452, 1486, 1517, 1546, 1575, 1602, 1627, 1650, 1673, 1694, 1714, 1732, 1750, 1767, 1783, 1798, 1812, 1825, 1837, 1849, 1860, 1871, 1881, 1890, 1899, 1907, 1915, 1923, 1930, 1936, 1943, 1949, 1954, 1959, 1964, 1969, 1974, 1978, 1982, 1985, 1988, 1992, 1995, 1998, 2001, 2004, 2006, 2009, 2011, 2013, 2015];
     const periodOf = n => PERIODS[Math.max(0, Math.min(71, n))];
 
@@ -176,6 +211,22 @@
                     c.fx = 0xE;
                     c.fp = 0;
                 }
+            }
+        }
+        if (insts) {
+            for (const n of notes) {
+                if (n.swell) continue;
+                const inst = insts.get(n.inst);
+                const j = fadeRows(inst, speed || 6);
+                if (!j) continue;
+                const r = n.row + j;
+                if (r >= len || (kind !== "noise" && r >= n.row + n.len)) continue;
+                let clear = true;
+                for (let q = n.row + 1; q <= r; q++) if (starts.has(q)) clear = false;
+                const c = cells[r];
+                if (!clear || c.note !== NO_NOTE || c.fx || c.fp) continue;
+                c.fx = 0xA;
+                c.fp = holdFx(inst);
             }
         }
         return cells;
@@ -331,7 +382,7 @@
             }
             return Object.assign({}, inst, { waveIndex: waveKeys.get(key), table: compileSub(inst.sub) });
         });
-        const withTable = inst => Object.assign({}, inst, { table: compileSub(inst.sub) });
+        const withTable = inst => Object.assign({}, inst, { table: compileSub(instSub(inst)) });
 
         const patterns = [];
         const orders = [[], [], [], []];
@@ -401,5 +452,5 @@
         return { bytes: writeBytes(res.song), warnings: res.warnings };
     }
 
-    root.UGE = { compile, compileSub, exportSong, swellPlan, slidePlan, NO_NOTE, TABLE_ROWS };
+    root.UGE = { compile, compileSub, exportSong, swellPlan, slidePlan, fadeTick, fadeRows, instSub, holdFx, NO_NOTE, TABLE_ROWS };
 })(typeof window !== "undefined" ? window : globalThis);
