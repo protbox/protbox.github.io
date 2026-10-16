@@ -353,6 +353,7 @@ function GBAudioCore() {
             const count = this.song.orders[0].length;
             this.order = Math.max(0, Math.min(count - 1, order | 0));
             this.row = Math.max(0, Math.min((this.song.rows || ROWS) - 1, row | 0));
+            this.passed = 0;
             this.playing = true;
         }
 
@@ -646,7 +647,7 @@ function GBAudioCore() {
                 this.row = 0;
                 return;
             }
-            if (this.once && this.order + 1 >= count) {
+            if (this.once && this.order + 1 >= count && ++this.passed >= (this.passes || 1)) {
                 this.finish();
                 return;
             }
@@ -688,6 +689,7 @@ function GBAudioCore() {
                     if (!d.song) return;
                     this.previewLeft = 0;
                     d.once = !!m.once;
+                    d.passes = Math.max(1, m.passes | 0);
                     d.cutAtEnd = !!m.cutAtEnd;
                     d.start(m.order, m.row);
                     this.frameLeft = 0;
@@ -852,7 +854,7 @@ function GBAudioCore() {
         });
         if (o.mask) e.handle({ type: "mute", mask: o.mask });
         e.handle({ type: "song", song });
-        e.handle({ type: "play", order: 0, row: 0, once: true, cutAtEnd: !!o.cutAtEnd });
+        e.handle({ type: "play", order: 0, row: 0, once: true, passes: o.passes || 1, cutAtEnd: !!o.cutAtEnd });
         const max = rate * (o.maxSeconds || 600);
         const block = 1024;
         let L = new Float32Array(rate * 4);

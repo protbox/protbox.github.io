@@ -1321,7 +1321,7 @@ input[type="range"] {
     position: fixed;
     z-index: 60;
     min-width: 210px;
-    max-width: 300px;
+    max-width: 360px;
     max-height: calc(100vh - 16px);
     overflow-y: auto;
     display: grid;

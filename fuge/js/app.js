@@ -3625,7 +3625,12 @@
         });
     }
 
-    function exportWav(k) {
+    function clock(sec) {
+        const t = Math.round(sec);
+        return Math.floor(t / 60) + ":" + pad2(t % 60);
+    }
+
+    function exportWav(k, passes) {
         busy("Rendering audio…", () => {
             if (isSfx()) {
                 const s = state.song.sfx[k];
@@ -3633,9 +3638,10 @@
                 const name = fileNames([s.name], ".wav")[0];
                 deliver(name, res.bytes, "audio/wav", "Exported " + name + " (" + res.seconds.toFixed(2) + " s).");
             } else {
-                const res = core().renderWav(UGE.compile(state.song).song, { cutAtEnd: true, mask: wavMask() });
-                const name = slug(state.song.name) + ".wav";
-                deliver(name, res.bytes, "audio/wav", "Exported " + name + " (" + Math.floor(res.seconds / 60) + ":" + pad2(Math.round(res.seconds % 60)) + ")" + (state.mute.some(Boolean) || state.solo.some(Boolean) ? ", without the muted tracks." : "."));
+                const twice = passes === 2;
+                const res = core().renderWav(UGE.compile(state.song).song, { cutAtEnd: true, passes: twice ? 2 : 1, maxSeconds: twice ? 1200 : 600, mask: wavMask() });
+                const name = slug(state.song.name) + (twice ? "_loop" : "") + ".wav";
+                deliver(name, res.bytes, "audio/wav", "Exported " + name + " (" + clock(res.seconds) + (twice ? ", played twice to show the loop" : "") + ")" + (state.mute.some(Boolean) || state.solo.some(Boolean) ? ", without the muted tracks." : "."));
             }
         });
     }
@@ -3672,7 +3678,8 @@
         } else {
             showMenu(anchor($("btnExport")), [
                 { label: "Song as .uge (hUGETracker, GB Studio)", kbd: "Ctrl+E", action: exportUge },
-                { label: "Song as .wav", action: () => exportWav() }
+                { label: "Song as .wav", action: () => exportWav() },
+                { label: "Song as .wav, looped", action: () => exportWav(undefined, 2) }
             ]);
         }
     }
