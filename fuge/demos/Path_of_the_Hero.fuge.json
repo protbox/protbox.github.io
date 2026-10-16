@@ -16,6 +16,7 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 7,
+      "fadeTo": 15,
       "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -98,6 +99,7 @@
       "vol": 12,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 1,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -112,6 +114,7 @@
       "vol": 11,
       "envDir": "down",
       "envPace": 2,
+      "fadeTo": 15,
       "duty": 0,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -126,6 +129,7 @@
       "vol": 7,
       "envDir": "down",
       "envPace": 7,
+      "fadeTo": 15,
       "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -250,6 +254,7 @@
       "vol": 15,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 7,
       "note": 32,
       "sub": null
@@ -262,6 +267,7 @@
       "vol": 8,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 15,
       "note": 54,
       "sub": null
@@ -274,6 +280,7 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 15,
       "note": 41,
       "sub": null
@@ -551,21 +558,21 @@
             {
               "row": 0,
               "len": 4,
-              "note": 40,
+              "note": 28,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 4,
               "len": 8,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 12,
               "len": 2,
-              "note": 43,
+              "note": 31,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -575,7 +582,7 @@
             {
               "row": 14,
               "len": 2,
-              "note": 40,
+              "note": 28,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -585,14 +592,14 @@
             {
               "row": 16,
               "len": 6,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 22,
               "len": 2,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -602,35 +609,35 @@
             {
               "row": 24,
               "len": 8,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 32,
               "len": 4,
-              "note": 43,
+              "note": 31,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 36,
               "len": 4,
-              "note": 40,
+              "note": 28,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 40,
               "len": 6,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 46,
               "len": 2,
-              "note": 47,
+              "note": 35,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -640,7 +647,7 @@
             {
               "row": 48,
               "len": 11,
-              "note": 50,
+              "note": 38,
               "inst": "midpsquarelead",
               "fx": null
             }
@@ -651,63 +658,63 @@
             {
               "row": 0,
               "len": 4,
-              "note": 40,
+              "note": 28,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 4,
               "len": 8,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 12,
               "len": 4,
-              "note": 47,
+              "note": 35,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 16,
               "len": 11,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 32,
               "len": 4,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 36,
               "len": 4,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 40,
               "len": 8,
-              "note": 50,
+              "note": 38,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 48,
               "len": 11,
-              "note": 43,
+              "note": 31,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 60,
               "len": 1,
-              "note": 31,
+              "note": 19,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -717,7 +724,7 @@
             {
               "row": 61,
               "len": 1,
-              "note": 36,
+              "note": 24,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -727,7 +734,7 @@
             {
               "row": 63,
               "len": 1,
-              "note": 39,
+              "note": 27,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -741,14 +748,14 @@
             {
               "row": 0,
               "len": 6,
-              "note": 39,
+              "note": 27,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 6,
               "len": 2,
-              "note": 36,
+              "note": 24,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -758,7 +765,7 @@
             {
               "row": 8,
               "len": 1,
-              "note": 39,
+              "note": 27,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -768,7 +775,7 @@
             {
               "row": 9,
               "len": 1,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -778,7 +785,7 @@
             {
               "row": 11,
               "len": 1,
-              "note": 43,
+              "note": 31,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -788,21 +795,21 @@
             {
               "row": 12,
               "len": 4,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 16,
               "len": 6,
-              "note": 46,
+              "note": 34,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 22,
               "len": 2,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -812,35 +819,43 @@
             {
               "row": 24,
               "len": 8,
-              "note": 50,
+              "note": 38,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 32,
               "len": 4,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 36,
-              "len": 11,
-              "note": 52,
+              "len": 1,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 2
+            },
+            {
+              "row": 37,
+              "len": 10,
+              "note": 40,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 48,
               "len": 4,
-              "note": 50,
+              "note": 38,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 52,
               "len": 11,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": null
             }
@@ -851,56 +866,64 @@
             {
               "row": 0,
               "len": 8,
-              "note": 51,
+              "note": 39,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 8,
               "len": 8,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 16,
               "len": 8,
-              "note": 50,
+              "note": 38,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 24,
               "len": 8,
-              "note": 46,
+              "note": 34,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 32,
               "len": 4,
-              "note": 47,
+              "note": 35,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 36,
               "len": 4,
-              "note": 50,
+              "note": 38,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 40,
-              "len": 8,
-              "note": 53,
+              "len": 1,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 1
+            },
+            {
+              "row": 41,
+              "len": 7,
+              "note": 41,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 48,
               "len": 11,
-              "note": 52,
+              "note": 40,
               "inst": "midpsquarelead",
               "fx": null
             }
@@ -1372,21 +1395,21 @@
             {
               "row": 2,
               "len": 4,
-              "note": 40,
+              "note": 28,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 6,
               "len": 8,
-              "note": 45,
+              "note": 33,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 14,
               "len": 2,
-              "note": 43,
+              "note": 31,
               "inst": "hsizs5fn",
               "fx": {
                 "code": 12,
@@ -1396,7 +1419,7 @@
             {
               "row": 16,
               "len": 2,
-              "note": 40,
+              "note": 28,
               "inst": "hsizs5fn",
               "fx": {
                 "code": 12,
@@ -1406,14 +1429,14 @@
             {
               "row": 18,
               "len": 6,
-              "note": 41,
+              "note": 29,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 24,
               "len": 2,
-              "note": 45,
+              "note": 33,
               "inst": "hsizs5fn",
               "fx": {
                 "code": 12,
@@ -1423,35 +1446,35 @@
             {
               "row": 26,
               "len": 8,
-              "note": 48,
+              "note": 36,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 34,
               "len": 4,
-              "note": 43,
+              "note": 31,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 38,
               "len": 4,
-              "note": 40,
+              "note": 28,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 42,
               "len": 6,
-              "note": 48,
+              "note": 36,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 48,
               "len": 2,
-              "note": 47,
+              "note": 35,
               "inst": "hsizs5fn",
               "fx": {
                 "code": 12,
@@ -1461,7 +1484,7 @@
             {
               "row": 50,
               "len": 11,
-              "note": 50,
+              "note": 38,
               "inst": "hsizs5fn",
               "fx": null
             }
@@ -1472,63 +1495,63 @@
             {
               "row": 2,
               "len": 4,
-              "note": 40,
+              "note": 28,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 6,
               "len": 8,
-              "note": 45,
+              "note": 33,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 14,
               "len": 4,
-              "note": 47,
+              "note": 35,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 18,
               "len": 11,
-              "note": 48,
+              "note": 36,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 34,
               "len": 4,
-              "note": 41,
+              "note": 29,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 38,
               "len": 4,
-              "note": 45,
+              "note": 33,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 42,
               "len": 8,
-              "note": 50,
+              "note": 38,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 50,
               "len": 11,
-              "note": 43,
+              "note": 31,
               "inst": "hsizs5fn",
               "fx": null
             },
             {
               "row": 62,
               "len": 1,
-              "note": 31,
+              "note": 19,
               "inst": "hsizs5fn",
               "fx": {
                 "code": 12,
@@ -1538,7 +1561,7 @@
             {
               "row": 63,
               "len": 1,
-              "note": 36,
+              "note": 24,
               "inst": "hsizs5fn",
               "fx": {
                 "code": 12,
@@ -1552,14 +1575,14 @@
             {
               "row": 0,
               "len": 1,
-              "note": 36,
+              "note": 24,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 1,
               "len": 1,
-              "note": 39,
+              "note": 27,
               "inst": "hsizs5fn",
               "fx": {
                 "code": 12,
@@ -1569,84 +1592,92 @@
             {
               "row": 6,
               "len": 2,
-              "note": 32,
+              "note": 20,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 8,
               "len": 1,
-              "note": 36,
+              "note": 24,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 9,
               "len": 2,
-              "note": 36,
+              "note": 24,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 11,
               "len": 1,
-              "note": 39,
+              "note": 27,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 12,
               "len": 4,
-              "note": 39,
+              "note": 27,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 16,
               "len": 5,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 22,
               "len": 2,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 24,
               "len": 7,
-              "note": 46,
+              "note": 34,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 32,
               "len": 4,
-              "note": 43,
+              "note": 31,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 36,
-              "len": 11,
-              "note": 48,
+              "len": 1,
+              "note": 34,
+              "inst": "midpbrightlead",
+              "fx": null,
+              "slide": 2
+            },
+            {
+              "row": 37,
+              "len": 10,
+              "note": 36,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 48,
               "len": 4,
-              "note": 43,
+              "note": 31,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 52,
               "len": 11,
-              "note": 43,
+              "note": 31,
               "inst": "midpbrightlead",
               "fx": null
             }
@@ -1657,56 +1688,64 @@
             {
               "row": 0,
               "len": 7,
-              "note": 48,
+              "note": 36,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 8,
               "len": 7,
-              "note": 44,
+              "note": 32,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 16,
               "len": 7,
-              "note": 46,
+              "note": 34,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 24,
               "len": 7,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 32,
               "len": 4,
-              "note": 43,
+              "note": 31,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 36,
               "len": 4,
-              "note": 47,
+              "note": 35,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 40,
-              "len": 7,
-              "note": 50,
+              "len": 1,
+              "note": 37,
+              "inst": "midpbrightlead",
+              "fx": null,
+              "slide": 1
+            },
+            {
+              "row": 41,
+              "len": 6,
+              "note": 38,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 48,
               "len": 11,
-              "note": 48,
+              "note": 36,
               "inst": "midpbrightlead",
               "fx": null
             }

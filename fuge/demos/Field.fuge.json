@@ -13,9 +13,10 @@
       "type": "pulse",
       "name": "Square Lead",
       "length": 0,
-      "vol": 12,
+      "vol": 13,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -27,9 +28,10 @@
       "type": "pulse",
       "name": "Bright Lead",
       "length": 0,
-      "vol": 12,
+      "vol": 13,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 1,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -44,6 +46,7 @@
       "vol": 11,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "duty": 1,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -55,9 +58,10 @@
       "type": "pulse",
       "name": "Pluck Lead",
       "length": 0,
-      "vol": 12,
+      "vol": 13,
       "envDir": "down",
       "envPace": 6,
+      "fadeTo": 15,
       "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -134,6 +138,7 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 0,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -258,6 +263,7 @@
       "vol": 15,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 7,
       "note": 34,
       "sub": null
@@ -270,6 +276,7 @@
       "vol": 8,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 15,
       "note": 54,
       "sub": null
@@ -282,6 +289,7 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 15,
       "note": 45,
       "sub": null
@@ -296,42 +304,42 @@
             {
               "row": 2,
               "len": 1,
-              "note": 35,
+              "note": 23,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 3,
               "len": 1,
-              "note": 40,
+              "note": 28,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 4,
               "len": 3,
-              "note": 43,
+              "note": 31,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 7,
               "len": 1,
-              "note": 42,
+              "note": 30,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 8,
               "len": 2,
-              "note": 40,
+              "note": 28,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 10,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "ksjjmesf",
               "fx": null,
               "slide": 2
@@ -339,119 +347,119 @@
             {
               "row": 11,
               "len": 4,
-              "note": 47,
+              "note": 35,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 16,
               "len": 2,
-              "note": 45,
+              "note": 33,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 18,
               "len": 1,
-              "note": 43,
+              "note": 31,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 19,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 20,
               "len": 2,
-              "note": 43,
+              "note": 31,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 22,
               "len": 7,
-              "note": 40,
+              "note": 28,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 34,
               "len": 1,
-              "note": 33,
+              "note": 21,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 35,
               "len": 1,
-              "note": 38,
+              "note": 26,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 36,
               "len": 3,
-              "note": 42,
+              "note": 30,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 39,
               "len": 1,
-              "note": 40,
+              "note": 28,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 40,
               "len": 2,
-              "note": 38,
+              "note": 26,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 42,
               "len": 5,
-              "note": 45,
+              "note": 33,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 48,
               "len": 2,
-              "note": 43,
+              "note": 31,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 50,
               "len": 1,
-              "note": 42,
+              "note": 30,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 51,
               "len": 1,
-              "note": 43,
+              "note": 31,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 52,
               "len": 2,
-              "note": 42,
+              "note": 30,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 54,
               "len": 5,
-              "note": 39,
+              "note": 27,
               "inst": "ksjjmesf",
               "fx": null
             }
@@ -462,42 +470,42 @@
             {
               "row": 2,
               "len": 1,
-              "note": 35,
+              "note": 23,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 3,
               "len": 1,
-              "note": 40,
+              "note": 28,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 4,
               "len": 3,
-              "note": 43,
+              "note": 31,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 7,
               "len": 1,
-              "note": 42,
+              "note": 30,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 8,
               "len": 2,
-              "note": 40,
+              "note": 28,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 10,
               "len": 1,
-              "note": 50,
+              "note": 38,
               "inst": "ksjjmesf",
               "fx": null,
               "slide": 2
@@ -505,119 +513,119 @@
             {
               "row": 11,
               "len": 4,
-              "note": 52,
+              "note": 40,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 16,
               "len": 2,
-              "note": 50,
+              "note": 38,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 18,
               "len": 1,
-              "note": 48,
+              "note": 36,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 19,
               "len": 1,
-              "note": 50,
+              "note": 38,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 20,
               "len": 2,
-              "note": 48,
+              "note": 36,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 22,
               "len": 2,
-              "note": 47,
+              "note": 35,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 24,
               "len": 7,
-              "note": 48,
+              "note": 36,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 32,
               "len": 3,
-              "note": 45,
+              "note": 33,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 35,
               "len": 1,
-              "note": 47,
+              "note": 35,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 36,
               "len": 2,
-              "note": 48,
+              "note": 36,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 38,
               "len": 3,
-              "note": 52,
+              "note": 40,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 42,
               "len": 2,
-              "note": 50,
+              "note": 38,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 44,
               "len": 2,
-              "note": 48,
+              "note": 36,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 46,
               "len": 2,
-              "note": 47,
+              "note": 35,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 48,
               "len": 10,
-              "note": 47,
+              "note": 35,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 60,
               "len": 2,
-              "note": 45,
+              "note": 33,
               "inst": "ksjjmesf",
               "fx": null
             },
             {
               "row": 62,
               "len": 2,
-              "note": 42,
+              "note": 30,
               "inst": "ksjjmesf",
               "fx": null
             }
@@ -628,98 +636,98 @@
             {
               "row": 0,
               "len": 5,
-              "note": 48,
+              "note": 36,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 6,
               "len": 5,
-              "note": 47,
+              "note": 35,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 12,
               "len": 3,
-              "note": 43,
+              "note": 31,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 16,
               "len": 5,
-              "note": 45,
+              "note": 33,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 22,
               "len": 5,
-              "note": 42,
+              "note": 30,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 28,
               "len": 3,
-              "note": 38,
+              "note": 26,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 32,
               "len": 2,
-              "note": 40,
+              "note": 28,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 34,
               "len": 2,
-              "note": 42,
+              "note": 30,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 36,
               "len": 2,
-              "note": 43,
+              "note": 31,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 38,
               "len": 2,
-              "note": 45,
+              "note": 33,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 40,
               "len": 7,
-              "note": 47,
+              "note": 35,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 48,
               "len": 5,
-              "note": 52,
+              "note": 40,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 54,
               "len": 2,
-              "note": 50,
+              "note": 38,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 56,
               "len": 7,
-              "note": 47,
+              "note": 35,
               "inst": "cljba5th",
               "fx": null
             }
@@ -730,105 +738,105 @@
             {
               "row": 0,
               "len": 5,
-              "note": 48,
+              "note": 36,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 6,
               "len": 5,
-              "note": 47,
+              "note": 35,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 12,
               "len": 3,
-              "note": 43,
+              "note": 31,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 16,
               "len": 3,
-              "note": 45,
+              "note": 33,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 20,
               "len": 3,
-              "note": 50,
+              "note": 38,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 24,
               "len": 7,
-              "note": 54,
+              "note": 42,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 32,
               "len": 5,
-              "note": 53,
+              "note": 41,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 38,
               "len": 2,
-              "note": 52,
+              "note": 40,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 40,
               "len": 3,
-              "note": 48,
+              "note": 36,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 44,
               "len": 3,
-              "note": 45,
+              "note": 33,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 48,
               "len": 5,
-              "note": 47,
+              "note": 35,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 54,
               "len": 2,
-              "note": 45,
+              "note": 33,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 56,
               "len": 2,
-              "note": 42,
+              "note": 30,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 58,
               "len": 2,
-              "note": 39,
+              "note": 27,
               "inst": "cljba5th",
               "fx": null
             },
             {
               "row": 60,
               "len": 3,
-              "note": 42,
+              "note": 30,
               "inst": "cljba5th",
               "fx": null
             }

@@ -13,9 +13,10 @@
       "type": "pulse",
       "name": "Square Lead",
       "length": 0,
-      "vol": 12,
+      "vol": 13,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -30,6 +31,7 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 1,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -44,6 +46,7 @@
       "vol": 9,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "duty": 1,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -58,6 +61,7 @@
       "vol": 7,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 1,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -72,6 +76,7 @@
       "vol": 6,
       "envDir": "down",
       "envPace": 0,
+      "fadeTo": 15,
       "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -128,6 +133,7 @@
       "vol": 15,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 7,
       "note": 32,
       "sub": null
@@ -140,6 +146,7 @@
       "vol": 11,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 7,
       "note": 56,
       "sub": null
@@ -152,6 +159,7 @@
       "vol": 8,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 15,
       "note": 54,
       "sub": null
@@ -164,6 +172,7 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 15,
       "note": 40,
       "sub": null
@@ -178,28 +187,28 @@
             {
               "row": 2,
               "len": 1,
-              "note": 35,
+              "note": 23,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 3,
               "len": 1,
-              "note": 40,
+              "note": 28,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 4,
               "len": 3,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 7,
               "len": 5,
-              "note": 44,
+              "note": 32,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 4,
@@ -209,21 +218,21 @@
             {
               "row": 12,
               "len": 2,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 14,
               "len": 2,
-              "note": 40,
+              "note": 28,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 16,
               "len": 6,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 4,
@@ -233,56 +242,56 @@
             {
               "row": 24,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 25,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 26,
               "len": 2,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 28,
               "len": 4,
-              "note": 40,
+              "note": 28,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 34,
               "len": 1,
-              "note": 35,
+              "note": 23,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 35,
               "len": 1,
-              "note": 40,
+              "note": 28,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 36,
               "len": 3,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 39,
               "len": 5,
-              "note": 44,
+              "note": 32,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 4,
@@ -292,21 +301,21 @@
             {
               "row": 44,
               "len": 2,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 46,
               "len": 2,
-              "note": 40,
+              "note": 28,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 48,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpbrightlead",
               "fx": null,
               "slide": 1
@@ -314,7 +323,7 @@
             {
               "row": 49,
               "len": 5,
-              "note": 45,
+              "note": 33,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 4,
@@ -324,28 +333,28 @@
             {
               "row": 56,
               "len": 1,
-              "note": 48,
+              "note": 36,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 57,
               "len": 1,
-              "note": 47,
+              "note": 35,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 58,
               "len": 2,
-              "note": 45,
+              "note": 33,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 60,
               "len": 4,
-              "note": 44,
+              "note": 32,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 4,
@@ -359,21 +368,21 @@
             {
               "row": 2,
               "len": 1,
-              "note": 40,
+              "note": 28,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 3,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 4,
               "len": 4,
-              "note": 48,
+              "note": 36,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 4,
@@ -383,35 +392,35 @@
             {
               "row": 8,
               "len": 2,
-              "note": 47,
+              "note": 35,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 10,
               "len": 1,
-              "note": 48,
+              "note": 36,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 11,
               "len": 1,
-              "note": 47,
+              "note": 35,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 12,
               "len": 4,
-              "note": 45,
+              "note": 33,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 16,
               "len": 6,
-              "note": 47,
+              "note": 35,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 4,
@@ -421,84 +430,84 @@
             {
               "row": 22,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 23,
               "len": 1,
-              "note": 43,
+              "note": 31,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 24,
               "len": 2,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 26,
               "len": 2,
-              "note": 43,
+              "note": 31,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 28,
               "len": 4,
-              "note": 47,
+              "note": 35,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 32,
               "len": 3,
-              "note": 48,
+              "note": 36,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 35,
               "len": 1,
-              "note": 47,
+              "note": 35,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 36,
               "len": 2,
-              "note": 45,
+              "note": 33,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 38,
               "len": 2,
-              "note": 44,
+              "note": 32,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 40,
               "len": 3,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 43,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 44,
               "len": 4,
-              "note": 45,
+              "note": 33,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 4,
@@ -508,35 +517,35 @@
             {
               "row": 48,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 49,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 50,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 51,
               "len": 1,
-              "note": 41,
+              "note": 29,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 52,
               "len": 1,
-              "note": 37,
+              "note": 25,
               "inst": "midpbrightlead",
               "fx": null,
               "slide": 3
@@ -544,14 +553,14 @@
             {
               "row": 53,
               "len": 1,
-              "note": 40,
+              "note": 28,
               "inst": "midpbrightlead",
               "fx": null
             },
             {
               "row": 54,
               "len": 9,
-              "note": 40,
+              "note": 28,
               "inst": "w28p3cgx",
               "fx": {
                 "code": 4,
@@ -565,154 +574,154 @@
             {
               "row": 0,
               "len": 1,
-              "note": 40,
+              "note": 28,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 2,
               "len": 1,
-              "note": 40,
+              "note": 28,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 3,
               "len": 1,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 6,
               "len": 1,
-              "note": 40,
+              "note": 28,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 8,
               "len": 2,
-              "note": 36,
+              "note": 24,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 10,
               "len": 2,
-              "note": 38,
+              "note": 26,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 12,
               "len": 4,
-              "note": 40,
+              "note": 28,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 16,
               "len": 1,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 18,
               "len": 1,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 19,
               "len": 1,
-              "note": 43,
+              "note": 31,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 22,
               "len": 1,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 24,
               "len": 2,
-              "note": 38,
+              "note": 26,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 26,
               "len": 2,
-              "note": 40,
+              "note": 28,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 28,
               "len": 4,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 32,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 34,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 35,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 38,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 40,
               "len": 2,
-              "note": 47,
+              "note": 35,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 42,
               "len": 2,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 44,
               "len": 4,
-              "note": 47,
+              "note": 35,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 48,
               "len": 1,
-              "note": 50,
+              "note": 38,
               "inst": "midpsquarelead",
               "fx": null,
               "slide": 2
@@ -720,42 +729,42 @@
             {
               "row": 49,
               "len": 6,
-              "note": 52,
+              "note": 40,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 56,
               "len": 1,
-              "note": 50,
+              "note": 38,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 57,
               "len": 1,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 58,
               "len": 1,
-              "note": 47,
+              "note": 35,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 59,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 60,
               "len": 4,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             }
@@ -766,182 +775,182 @@
             {
               "row": 0,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 2,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 3,
               "len": 1,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 6,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 8,
               "len": 2,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 10,
               "len": 2,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 12,
               "len": 4,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 16,
               "len": 1,
-              "note": 47,
+              "note": 35,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 18,
               "len": 1,
-              "note": 47,
+              "note": 35,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 19,
               "len": 1,
-              "note": 50,
+              "note": 38,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 22,
               "len": 1,
-              "note": 47,
+              "note": 35,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 24,
               "len": 2,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 26,
               "len": 2,
-              "note": 43,
+              "note": 31,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 28,
               "len": 4,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 32,
               "len": 3,
-              "note": 48,
+              "note": 36,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 35,
               "len": 1,
-              "note": 47,
+              "note": 35,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 36,
               "len": 2,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 38,
               "len": 2,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 40,
               "len": 3,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 43,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 44,
               "len": 4,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 48,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 49,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 50,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 51,
               "len": 1,
-              "note": 41,
+              "note": 29,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 52,
               "len": 10,
-              "note": 40,
+              "note": 28,
               "inst": "midpsquarelead",
               "fx": null
             }
@@ -2035,159 +2044,213 @@
               "len": 1,
               "note": 29,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 3,
               "len": 1,
               "note": 33,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 6,
               "len": 1,
               "note": 36,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 8,
               "len": 1,
               "note": 29,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 11,
               "len": 1,
               "note": 33,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 14,
               "len": 1,
               "note": 36,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 16,
               "len": 1,
               "note": 26,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 19,
               "len": 1,
               "note": 31,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 22,
               "len": 1,
               "note": 35,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 24,
               "len": 1,
               "note": 26,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 27,
               "len": 1,
               "note": 31,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 30,
               "len": 1,
               "note": 35,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 32,
               "len": 1,
               "note": 29,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 35,
               "len": 1,
               "note": 33,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 38,
               "len": 1,
               "note": 36,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 40,
               "len": 1,
               "note": 29,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 43,
               "len": 1,
               "note": 33,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 46,
               "len": 1,
               "note": 36,
               "inst": "midpbrightlead",
-              "fx": null
+              "fx": {
+                "code": 8,
+                "param": 255
+              }
             },
             {
               "row": 50,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "f28a92xd",
               "fx": null
             },
             {
               "row": 51,
               "len": 1,
-              "note": 45,
+              "note": 33,
               "inst": "f28a92xd",
               "fx": null
             },
             {
               "row": 52,
               "len": 1,
-              "note": 44,
+              "note": 32,
               "inst": "f28a92xd",
               "fx": null
             },
             {
               "row": 53,
               "len": 1,
-              "note": 41,
+              "note": 29,
               "inst": "f28a92xd",
               "fx": null
             },
             {
               "row": 54,
               "len": 10,
-              "note": 40,
+              "note": 28,
               "inst": "f28a92xd",
               "fx": null
             }
