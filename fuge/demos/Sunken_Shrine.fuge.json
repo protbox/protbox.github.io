@@ -3,7 +3,7 @@
   "version": 1,
   "name": "Sunken Shrine",
   "artist": "Polter",
-  "comment": "Imported from sunken_shrine_v4.mid",
+  "comment": "Imported from sunken_shrine_v5.mid",
   "speed": 9,
   "rowsPerBeat": 4,
   "beatsPerBar": 4,
@@ -16,7 +16,8 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 0,
-      "duty": 0,
+      "fadeTo": 15,
+      "duty": 1,
       "sweepTime": 0,
       "sweepDir": "down",
       "sweepShift": 0,
@@ -27,10 +28,11 @@
       "type": "pulse",
       "name": "Bright Lead",
       "length": 0,
-      "vol": 11,
+      "vol": 12,
       "envDir": "down",
       "envPace": 2,
-      "duty": 1,
+      "fadeTo": 15,
+      "duty": 0,
       "sweepTime": 0,
       "sweepDir": "down",
       "sweepShift": 0,
@@ -59,99 +61,33 @@
     },
     {
       "type": "pulse",
-      "name": "Violin Lead",
+      "name": "Pulse 4",
       "duty": 0,
-      "vol": 11,
+      "vol": 15,
       "envDir": "down",
-      "envPace": 0,
-      "length": 0,
-      "sweepTime": 0,
-      "sweepDir": "down",
-      "sweepShift": 0,
-      "sub": {
-        "name": "Delayed vibrato",
-        "loop": 14,
-        "rows": [
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": null
-          },
-          {
-            "note": null,
-            "fx": {
-              "code": 4,
-              "param": 67
-            }
-          }
-        ]
-      },
-      "id": "f4fn4iwc"
-    },
-    {
-      "type": "pulse",
-      "name": "Square Lead 2",
-      "duty": 2,
-      "vol": 12,
-      "envDir": "down",
-      "envPace": 0,
+      "envPace": 7,
+      "fadeTo": 15,
       "length": 0,
       "sweepTime": 0,
       "sweepDir": "down",
       "sweepShift": 0,
       "sub": null,
-      "id": "5026mkhe"
+      "id": "azd1nunm"
+    },
+    {
+      "type": "pulse",
+      "name": "Pulse 4 echo",
+      "duty": 0,
+      "vol": 8,
+      "envDir": "down",
+      "envPace": 7,
+      "fadeTo": 15,
+      "length": 0,
+      "sweepTime": 0,
+      "sweepDir": "down",
+      "sweepShift": 0,
+      "sub": null,
+      "id": "i8aaobel"
     },
     {
       "id": "midwtrianglebass",
@@ -202,9 +138,10 @@
       "length": 0,
       "vol": 15,
       "envDir": "down",
-      "envPace": 2,
+      "envPace": 1,
+      "fadeTo": 15,
       "bits": 7,
-      "note": 32,
+      "note": 34,
       "sub": null
     },
     {
@@ -215,6 +152,7 @@
       "vol": 11,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 7,
       "note": 56,
       "sub": null
@@ -227,6 +165,7 @@
       "vol": 8,
       "envDir": "down",
       "envPace": 1,
+      "fadeTo": 15,
       "bits": 15,
       "note": 54,
       "sub": null
@@ -239,29 +178,9 @@
         {
           "notes": [
             {
-              "row": 2,
-              "len": 1,
-              "note": 33,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 3,
-              "len": 1,
-              "note": 38,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
               "row": 4,
               "len": 2,
-              "note": 39,
+              "note": 21,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -270,266 +189,9 @@
             },
             {
               "row": 6,
-              "len": 4,
-              "note": 41,
-              "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            },
-            {
-              "row": 10,
               "len": 2,
-              "note": 39,
+              "note": 26,
               "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 12,
-              "len": 4,
-              "note": 37,
-              "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            },
-            {
-              "row": 34,
-              "len": 1,
-              "note": 33,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 35,
-              "len": 1,
-              "note": 38,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 36,
-              "len": 2,
-              "note": 39,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 38,
-              "len": 4,
-              "note": 41,
-              "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            },
-            {
-              "row": 42,
-              "len": 2,
-              "note": 43,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 44,
-              "len": 4,
-              "note": 44,
-              "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            },
-            {
-              "row": 56,
-              "len": 2,
-              "note": 43,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 58,
-              "len": 2,
-              "note": 42,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 60,
-              "len": 4,
-              "note": 38,
-              "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            }
-          ]
-        },
-        {
-          "notes": [
-            {
-              "row": 2,
-              "len": 1,
-              "note": 33,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 3,
-              "len": 1,
-              "note": 38,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 4,
-              "len": 2,
-              "note": 39,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 6,
-              "len": 4,
-              "note": 41,
-              "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            },
-            {
-              "row": 10,
-              "len": 2,
-              "note": 39,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 12,
-              "len": 4,
-              "note": 37,
-              "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            },
-            {
-              "row": 34,
-              "len": 1,
-              "note": 34,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 35,
-              "len": 1,
-              "note": 36,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 36,
-              "len": 4,
-              "note": 38,
-              "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            },
-            {
-              "row": 40,
-              "len": 2,
-              "note": 38,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 42,
-              "len": 2,
-              "note": 36,
-              "inst": "midpsquarelead",
-              "fx": {
-                "code": 12,
-                "param": 10
-              }
-            },
-            {
-              "row": 44,
-              "len": 4,
-              "note": 38,
-              "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            },
-            {
-              "row": 48,
-              "len": 11,
-              "note": 37,
-              "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            }
-          ]
-        },
-        {
-          "notes": [
-            {
-              "row": 0,
-              "len": 6,
-              "note": 33,
-              "inst": "5026mkhe",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            },
-            {
-              "row": 6,
-              "len": 2,
-              "note": 33,
-              "inst": "5026mkhe",
               "fx": {
                 "code": 12,
                 "param": 10
@@ -537,92 +199,565 @@
             },
             {
               "row": 8,
-              "len": 8,
+              "len": 5,
               "note": 30,
-              "inst": "5026mkhe",
-              "fx": null,
-              "slide": 1,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 3,
+              "slideAt": 1,
               "slideLen": 1
             },
             {
-              "row": 32,
-              "len": 2,
+              "row": 14,
+              "len": 1,
               "note": 31,
-              "inst": "5026mkhe",
+              "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
-                "param": 10
+                "param": 9
               }
             },
             {
-              "row": 34,
-              "len": 2,
-              "note": 34,
-              "inst": "5026mkhe",
+              "row": 15,
+              "len": 1,
+              "note": 30,
+              "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
-                "param": 10
+                "param": 9
               }
+            },
+            {
+              "row": 16,
+              "len": 5,
+              "note": 26,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
+            },
+            {
+              "row": 22,
+              "len": 1,
+              "note": 30,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 23,
+              "len": 1,
+              "note": 27,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 24,
+              "len": 4,
+              "note": 25,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
             },
             {
               "row": 36,
-              "len": 6,
-              "note": 38,
-              "inst": "5026mkhe",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
-            },
-            {
-              "row": 42,
               "len": 2,
-              "note": 38,
-              "inst": "5026mkhe",
+              "note": 21,
+              "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
                 "param": 10
               }
             },
             {
-              "row": 44,
-              "len": 4,
-              "note": 35,
-              "inst": "5026mkhe",
-              "fx": null,
-              "slide": 1,
+              "row": 38,
+              "len": 2,
+              "note": 26,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 10
+              }
+            },
+            {
+              "row": 40,
+              "len": 5,
+              "note": 28,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 2,
+              "slideAt": 1,
               "slideLen": 1
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 31,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 47,
+              "len": 1,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
             },
             {
               "row": 48,
-              "len": 4,
-              "note": 33,
-              "inst": "5026mkhe",
+              "len": 5,
+              "note": 30,
+              "inst": "midpsquarelead",
               "fx": null,
               "slide": 1,
+              "slideAt": 1,
               "slideLen": 1
             },
             {
-              "row": 52,
-              "len": 4,
+              "row": 54,
+              "len": 1,
               "note": 30,
-              "inst": "5026mkhe",
-              "fx": null,
-              "slide": 1,
-              "slideLen": 1
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 55,
+              "len": 1,
+              "note": 31,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
             },
             {
               "row": 56,
-              "len": 7,
+              "len": 4,
               "note": 26,
-              "inst": "5026mkhe",
-              "fx": null,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
               "slide": 1,
+              "slideAt": 1,
               "slideLen": 1
             }
           ]
         },
         {
           "notes": [
+            {
+              "row": 4,
+              "len": 2,
+              "note": 21,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 10
+              }
+            },
+            {
+              "row": 6,
+              "len": 2,
+              "note": 26,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 10
+              }
+            },
+            {
+              "row": 8,
+              "len": 5,
+              "note": 30,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 3,
+              "slideAt": 1,
+              "slideLen": 1
+            },
+            {
+              "row": 14,
+              "len": 1,
+              "note": 31,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 15,
+              "len": 1,
+              "note": 30,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 16,
+              "len": 5,
+              "note": 26,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
+            },
+            {
+              "row": 22,
+              "len": 1,
+              "note": 30,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 23,
+              "len": 1,
+              "note": 27,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 24,
+              "len": 4,
+              "note": 25,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
+            },
+            {
+              "row": 36,
+              "len": 2,
+              "note": 22,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 10
+              }
+            },
+            {
+              "row": 38,
+              "len": 2,
+              "note": 27,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 10
+              }
+            },
+            {
+              "row": 40,
+              "len": 5,
+              "note": 29,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 2,
+              "slideAt": 1,
+              "slideLen": 1
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 30,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 47,
+              "len": 1,
+              "note": 27,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 48,
+              "len": 4,
+              "note": 25,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
+            },
+            {
+              "row": 52,
+              "len": 8,
+              "note": 26,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 4,
+                "param": 70
+              }
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 3,
+              "note": 38,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 11
+              }
+            },
+            {
+              "row": 3,
+              "len": 3,
+              "note": 34,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 11
+              }
+            },
+            {
+              "row": 6,
+              "len": 9,
+              "note": 30,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
+            },
+            {
+              "row": 22,
+              "len": 1,
+              "note": 30,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 23,
+              "len": 1,
+              "note": 31,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 24,
+              "len": 2,
+              "note": 33,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 10
+              }
+            },
+            {
+              "row": 26,
+              "len": 5,
+              "note": 33,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
+            },
+            {
+              "row": 32,
+              "len": 3,
+              "note": 43,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 11
+              }
+            },
+            {
+              "row": 35,
+              "len": 3,
+              "note": 39,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 11
+              }
+            },
+            {
+              "row": 38,
+              "len": 9,
+              "note": 33,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
+            },
+            {
+              "row": 54,
+              "len": 1,
+              "note": 34,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 55,
+              "len": 1,
+              "note": 36,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 56,
+              "len": 7,
+              "note": 37,
+              "inst": "azd1nunm",
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 4,
+              "len": 2,
+              "note": 21,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 8
+              }
+            },
+            {
+              "row": 6,
+              "len": 2,
+              "note": 26,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 8
+              }
+            },
+            {
+              "row": 8,
+              "len": 5,
+              "note": 30,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              },
+              "slide": 3,
+              "slideAt": 1,
+              "slideLen": 1
+            },
+            {
+              "row": 20,
+              "len": 2,
+              "note": 21,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 8
+              }
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 26,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 8
+              }
+            },
+            {
+              "row": 24,
+              "len": 7,
+              "note": 26,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
+            },
             {
               "row": 36,
               "len": 2,
@@ -636,7 +771,7 @@
             {
               "row": 38,
               "len": 2,
-              "note": 34,
+              "note": 27,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -645,21 +780,56 @@
             },
             {
               "row": 40,
-              "len": 8,
-              "note": 38,
+              "len": 5,
+              "note": 20,
               "inst": "midpsquarelead",
-              "fx": null,
-              "slide": 1,
+              "fx": {
+                "code": 12,
+                "param": 11
+              },
+              "slide": 2,
+              "slideAt": 1,
               "slideLen": 1
             },
             {
+              "row": 46,
+              "len": 1,
+              "note": 24,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 47,
+              "len": 1,
+              "note": 27,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
               "row": 48,
-              "len": 11,
-              "note": 37,
+              "len": 4,
+              "note": 25,
               "inst": "midpsquarelead",
               "fx": null,
               "slide": 1,
+              "slideAt": 1,
               "slideLen": 1
+            },
+            {
+              "row": 52,
+              "len": 8,
+              "note": 26,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 4,
+                "param": 71
+              }
             }
           ]
         }
@@ -1112,57 +1282,36 @@
           "notes": [
             {
               "row": 2,
-              "len": 1,
-              "note": 26,
-              "inst": "midpbrightlead",
-              "fx": null
+              "len": 3,
+              "note": 38,
+              "inst": "i8aaobel",
+              "fx": {
+                "code": 12,
+                "param": 11
+              }
             },
             {
               "row": 5,
-              "len": 1,
-              "note": 31,
-              "inst": "midpbrightlead",
+              "len": 3,
+              "note": 34,
+              "inst": "i8aaobel",
               "fx": {
                 "code": 12,
-                "param": 9
+                "param": 11
               }
             },
             {
-              "row": 7,
-              "len": 1,
+              "row": 8,
+              "len": 9,
               "note": 30,
-              "inst": "midpbrightlead",
+              "inst": "i8aaobel",
               "fx": {
                 "code": 12,
-                "param": 9
-              }
-            },
-            {
-              "row": 9,
-              "len": 1,
-              "note": 26,
-              "inst": "midpbrightlead",
-              "fx": null
-            },
-            {
-              "row": 12,
-              "len": 1,
-              "note": 24,
-              "inst": "midpbrightlead",
-              "fx": {
-                "code": 12,
-                "param": 9
-              }
-            },
-            {
-              "row": 15,
-              "len": 1,
-              "note": 22,
-              "inst": "midpbrightlead",
-              "fx": {
-                "code": 12,
-                "param": 9
-              }
+                "param": 11
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
             },
             {
               "row": 18,
@@ -1192,85 +1341,80 @@
               }
             },
             {
+              "row": 24,
+              "len": 1,
+              "note": 30,
+              "inst": "i8aaobel",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
               "row": 25,
               "len": 1,
-              "note": 26,
-              "inst": "midpbrightlead",
-              "fx": null
+              "note": 31,
+              "inst": "i8aaobel",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
+              "row": 26,
+              "len": 2,
+              "note": 33,
+              "inst": "i8aaobel",
+              "fx": {
+                "code": 12,
+                "param": 10
+              }
             },
             {
               "row": 28,
-              "len": 1,
-              "note": 24,
-              "inst": "midpbrightlead",
+              "len": 5,
+              "note": 33,
+              "inst": "i8aaobel",
               "fx": {
                 "code": 12,
-                "param": 9
-              }
-            },
-            {
-              "row": 31,
-              "len": 1,
-              "note": 22,
-              "inst": "midpbrightlead",
-              "fx": {
-                "code": 12,
-                "param": 9
-              }
+                "param": 11
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
             },
             {
               "row": 34,
-              "len": 1,
-              "note": 31,
-              "inst": "midpbrightlead",
-              "fx": null
+              "len": 3,
+              "note": 43,
+              "inst": "i8aaobel",
+              "fx": {
+                "code": 12,
+                "param": 11
+              }
             },
             {
               "row": 37,
-              "len": 1,
-              "note": 34,
-              "inst": "midpbrightlead",
+              "len": 3,
+              "note": 39,
+              "inst": "i8aaobel",
               "fx": {
                 "code": 12,
-                "param": 9
+                "param": 11
               }
             },
             {
-              "row": 39,
-              "len": 1,
+              "row": 40,
+              "len": 9,
               "note": 33,
-              "inst": "midpbrightlead",
+              "inst": "i8aaobel",
               "fx": {
                 "code": 12,
-                "param": 9
-              }
-            },
-            {
-              "row": 41,
-              "len": 1,
-              "note": 31,
-              "inst": "midpbrightlead",
-              "fx": null
-            },
-            {
-              "row": 44,
-              "len": 1,
-              "note": 30,
-              "inst": "midpbrightlead",
-              "fx": {
-                "code": 12,
-                "param": 9
-              }
-            },
-            {
-              "row": 47,
-              "len": 1,
-              "note": 27,
-              "inst": "midpbrightlead",
-              "fx": {
-                "code": 12,
-                "param": 9
-              }
+                "param": 11
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
             },
             {
               "row": 50,
@@ -1300,36 +1444,102 @@
               }
             },
             {
+              "row": 56,
+              "len": 1,
+              "note": 34,
+              "inst": "i8aaobel",
+              "fx": {
+                "code": 12,
+                "param": 9
+              }
+            },
+            {
               "row": 57,
               "len": 1,
-              "note": 31,
-              "inst": "midpbrightlead",
-              "fx": null
-            },
-            {
-              "row": 60,
-              "len": 1,
-              "note": 30,
-              "inst": "midpbrightlead",
+              "note": 36,
+              "inst": "i8aaobel",
               "fx": {
                 "code": 12,
                 "param": 9
               }
             },
             {
-              "row": 63,
-              "len": 1,
-              "note": 27,
-              "inst": "midpbrightlead",
+              "row": 58,
+              "len": 6,
+              "note": 37,
+              "inst": "i8aaobel",
               "fx": {
                 "code": 12,
-                "param": 9
-              }
+                "param": 11
+              },
+              "slide": 1,
+              "slideAt": 1,
+              "slideLen": 1
             }
           ]
         },
         {
           "notes": [
+            {
+              "row": 7,
+              "len": 1,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": {
+                "code": 12,
+                "param": 8
+              }
+            },
+            {
+              "row": 9,
+              "len": 1,
+              "note": 38,
+              "inst": "midpbrightlead",
+              "fx": {
+                "code": 12,
+                "param": 8
+              }
+            },
+            {
+              "row": 11,
+              "len": 4,
+              "note": 45,
+              "inst": "midpbrightlead",
+              "fx": {
+                "code": 12,
+                "param": 8
+              }
+            },
+            {
+              "row": 23,
+              "len": 1,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": {
+                "code": 12,
+                "param": 8
+              }
+            },
+            {
+              "row": 25,
+              "len": 1,
+              "note": 38,
+              "inst": "midpbrightlead",
+              "fx": {
+                "code": 12,
+                "param": 8
+              }
+            },
+            {
+              "row": 27,
+              "len": 3,
+              "note": 39,
+              "inst": "midpbrightlead",
+              "fx": {
+                "code": 12,
+                "param": 8
+              }
+            },
             {
               "row": 34,
               "len": 1,
@@ -1450,196 +1660,196 @@
             {
               "row": 0,
               "len": 2,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 3,
               "len": 1,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 6,
               "len": 1,
-              "note": 26,
+              "note": 14,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 8,
               "len": 2,
-              "note": 24,
+              "note": 12,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 10,
               "len": 2,
-              "note": 21,
+              "note": 9,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 13,
               "len": 1,
-              "note": 18,
+              "note": 6,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 14,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 16,
               "len": 2,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 19,
               "len": 1,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 22,
               "len": 1,
-              "note": 26,
+              "note": 14,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 24,
               "len": 2,
-              "note": 24,
+              "note": 12,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 26,
               "len": 2,
-              "note": 21,
+              "note": 9,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 29,
               "len": 1,
-              "note": 18,
+              "note": 6,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 30,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 32,
               "len": 2,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 35,
               "len": 1,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 38,
               "len": 1,
-              "note": 26,
+              "note": 14,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 40,
               "len": 2,
-              "note": 24,
+              "note": 12,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 42,
               "len": 2,
-              "note": 21,
+              "note": 9,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 45,
               "len": 1,
-              "note": 18,
+              "note": 6,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 46,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 48,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 51,
               "len": 1,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 54,
               "len": 1,
-              "note": 27,
+              "note": 15,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 56,
               "len": 2,
-              "note": 26,
+              "note": 14,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 58,
               "len": 2,
-              "note": 22,
+              "note": 10,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 61,
               "len": 1,
-              "note": 19,
+              "note": 7,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 62,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             }
@@ -1650,196 +1860,196 @@
             {
               "row": 0,
               "len": 2,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 3,
               "len": 1,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 6,
               "len": 1,
-              "note": 26,
+              "note": 14,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 8,
               "len": 2,
-              "note": 24,
+              "note": 12,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 10,
               "len": 2,
-              "note": 21,
+              "note": 9,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 13,
               "len": 1,
-              "note": 18,
+              "note": 6,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 14,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 16,
               "len": 2,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 19,
               "len": 1,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 22,
               "len": 1,
-              "note": 26,
+              "note": 14,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 24,
               "len": 2,
-              "note": 24,
+              "note": 12,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 26,
               "len": 2,
-              "note": 21,
+              "note": 9,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 29,
               "len": 1,
-              "note": 18,
+              "note": 6,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 30,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 32,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 35,
               "len": 1,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 38,
               "len": 1,
-              "note": 27,
+              "note": 15,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 40,
               "len": 2,
-              "note": 26,
+              "note": 14,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 42,
               "len": 2,
-              "note": 22,
+              "note": 10,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 45,
               "len": 1,
-              "note": 19,
+              "note": 7,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 46,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 48,
               "len": 2,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 51,
               "len": 1,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 54,
               "len": 1,
-              "note": 26,
+              "note": 14,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 56,
               "len": 2,
-              "note": 24,
+              "note": 12,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 58,
               "len": 2,
-              "note": 21,
+              "note": 9,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 61,
               "len": 1,
-              "note": 18,
+              "note": 6,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 62,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             }
@@ -1850,196 +2060,196 @@
             {
               "row": 0,
               "len": 2,
-              "note": 7,
+              "note": 0,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 3,
               "len": 1,
-              "note": 7,
+              "note": 0,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 6,
               "len": 1,
-              "note": 19,
+              "note": 7,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 8,
               "len": 2,
-              "note": 18,
+              "note": 6,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 10,
               "len": 2,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 13,
               "len": 1,
-              "note": 10,
+              "note": 0,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 14,
               "len": 2,
-              "note": 9,
+              "note": 0,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 16,
               "len": 2,
-              "note": 7,
+              "note": 0,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 19,
               "len": 1,
-              "note": 7,
+              "note": 0,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 22,
               "len": 1,
-              "note": 19,
+              "note": 7,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 24,
               "len": 2,
-              "note": 18,
+              "note": 6,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 26,
               "len": 2,
-              "note": 14,
+              "note": 2,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 29,
               "len": 1,
-              "note": 10,
+              "note": 0,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 30,
               "len": 2,
-              "note": 9,
+              "note": 0,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 32,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 35,
               "len": 1,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 38,
               "len": 1,
-              "note": 27,
+              "note": 15,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 40,
               "len": 2,
-              "note": 26,
+              "note": 14,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 42,
               "len": 2,
-              "note": 22,
+              "note": 10,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 45,
               "len": 1,
-              "note": 19,
+              "note": 7,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 46,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 48,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 51,
               "len": 1,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 54,
               "len": 1,
-              "note": 27,
+              "note": 15,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 56,
               "len": 2,
-              "note": 26,
+              "note": 14,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 58,
               "len": 2,
-              "note": 22,
+              "note": 10,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 61,
               "len": 1,
-              "note": 19,
+              "note": 7,
               "inst": "midwtrianglebass",
               "fx": null
             },
             {
               "row": 62,
               "len": 2,
-              "note": 15,
+              "note": 3,
               "inst": "midwtrianglebass",
               "fx": null
             }
@@ -2055,7 +2265,7 @@
             {
               "row": 0,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2083,7 +2293,7 @@
             {
               "row": 8,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2118,7 +2328,7 @@
             {
               "row": 16,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2146,7 +2356,7 @@
             {
               "row": 24,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2181,7 +2391,7 @@
             {
               "row": 32,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2209,7 +2419,7 @@
             {
               "row": 40,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2244,7 +2454,7 @@
             {
               "row": 48,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2272,7 +2482,7 @@
             {
               "row": 56,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2318,7 +2528,7 @@
             {
               "row": 0,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2346,7 +2556,7 @@
             {
               "row": 8,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2367,7 +2577,7 @@
             {
               "row": 12,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2388,7 +2598,7 @@
             {
               "row": 16,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2409,7 +2619,7 @@
             {
               "row": 24,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2458,7 +2668,7 @@
             {
               "row": 32,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2486,7 +2696,7 @@
             {
               "row": 40,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2521,7 +2731,7 @@
             {
               "row": 48,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },
@@ -2549,7 +2759,7 @@
             {
               "row": 56,
               "len": 1,
-              "note": 32,
+              "note": 34,
               "inst": "midnkick",
               "fx": null
             },

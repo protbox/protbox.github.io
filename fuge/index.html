@@ -151,6 +151,26 @@
         </div>
     </div>
 
+    <div class="modal" id="waveModal" role="dialog" aria-modal="true" aria-labelledby="waveTitle">
+        <div class="dialog info-dialog wave-dialog">
+            <div class="dialog-head">
+                <h2 id="waveTitle">Waveform values</h2>
+                <button class="btn small" id="waveCancel" type="button">Cancel</button>
+            </div>
+            <div class="info-body">
+                <p>32 values from 0 to 15, separated by spaces or commas. A hUGETracker hex string like <code>0123…</code> works too.</p>
+                <textarea id="waveText" rows="3" spellcheck="false" aria-label="Waveform values"></textarea>
+                <div class="wave-check">
+                    <canvas id="wavePreview" aria-hidden="true"></canvas>
+                    <span id="waveMsg" role="status"></span>
+                </div>
+                <div class="wave-actions">
+                    <button class="btn accent" id="waveApply" type="button">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast" role="alert"></div>
 
     <script src="js/desktop.js"></script>

@@ -16,7 +16,6 @@
       "vol": 12,
       "envDir": "down",
       "envPace": 0,
-      "fadeTo": 15,
       "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -31,7 +30,6 @@
       "vol": 12,
       "envDir": "down",
       "envPace": 0,
-      "fadeTo": 15,
       "duty": 1,
       "sweepTime": 0,
       "sweepDir": "down",
@@ -39,15 +37,13 @@
       "sub": null
     },
     {
-      "id": "biq953a2",
       "type": "pulse",
       "name": "Violin Lead",
-      "length": 0,
+      "duty": 0,
       "vol": 13,
       "envDir": "down",
       "envPace": 0,
-      "fadeTo": 15,
-      "duty": 0,
+      "length": 0,
       "sweepTime": 0,
       "sweepDir": "down",
       "sweepShift": 0,
@@ -119,22 +115,22 @@
             }
           }
         ]
-      }
+      },
+      "id": "biq953a2"
     },
     {
-      "id": "8hruhkje",
       "type": "pulse",
       "name": "Square Lead echo",
-      "length": 0,
+      "duty": 2,
       "vol": 6,
       "envDir": "down",
       "envPace": 0,
-      "fadeTo": 15,
-      "duty": 2,
+      "length": 0,
       "sweepTime": 0,
       "sweepDir": "down",
       "sweepShift": 0,
-      "sub": null
+      "sub": null,
+      "id": "8hruhkje"
     },
     {
       "id": "midwtrianglebass",
@@ -186,7 +182,6 @@
       "vol": 12,
       "envDir": "down",
       "envPace": 6,
-      "fadeTo": 15,
       "bits": 15,
       "note": 46,
       "sub": null
@@ -199,7 +194,6 @@
       "vol": 8,
       "envDir": "down",
       "envPace": 1,
-      "fadeTo": 15,
       "bits": 15,
       "note": 54,
       "sub": null
@@ -212,7 +206,6 @@
       "vol": 10,
       "envDir": "down",
       "envPace": 2,
-      "fadeTo": 15,
       "bits": 15,
       "note": 44,
       "sub": null
@@ -225,7 +218,6 @@
       "vol": 13,
       "envDir": "down",
       "envPace": 1,
-      "fadeTo": 15,
       "bits": 7,
       "note": 34,
       "sub": null
@@ -238,7 +230,6 @@
       "vol": 5,
       "envDir": "down",
       "envPace": 1,
-      "fadeTo": 15,
       "bits": 15,
       "note": 58,
       "sub": null
@@ -678,7 +669,7 @@
             {
               "row": 0,
               "len": 6,
-              "note": 33,
+              "note": 45,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -688,7 +679,7 @@
             {
               "row": 6,
               "len": 1,
-              "note": 29,
+              "note": 41,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -698,14 +689,14 @@
             {
               "row": 8,
               "len": 8,
-              "note": 38,
+              "note": 50,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 16,
               "len": 6,
-              "note": 36,
+              "note": 48,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -715,7 +706,7 @@
             {
               "row": 22,
               "len": 1,
-              "note": 35,
+              "note": 47,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -725,14 +716,14 @@
             {
               "row": 24,
               "len": 8,
-              "note": 33,
+              "note": 45,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 32,
               "len": 6,
-              "note": 38,
+              "note": 50,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -742,7 +733,7 @@
             {
               "row": 38,
               "len": 1,
-              "note": 36,
+              "note": 48,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -752,14 +743,14 @@
             {
               "row": 40,
               "len": 8,
-              "note": 34,
+              "note": 46,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 48,
               "len": 4,
-              "note": 33,
+              "note": 45,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -769,7 +760,7 @@
             {
               "row": 52,
               "len": 4,
-              "note": 36,
+              "note": 48,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -779,7 +770,7 @@
             {
               "row": 56,
               "len": 8,
-              "note": 41,
+              "note": 53,
               "inst": "midpsquarelead",
               "fx": null
             }
@@ -790,7 +781,7 @@
             {
               "row": 0,
               "len": 6,
-              "note": 33,
+              "note": 45,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -800,7 +791,7 @@
             {
               "row": 6,
               "len": 1,
-              "note": 29,
+              "note": 41,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -810,14 +801,14 @@
             {
               "row": 8,
               "len": 8,
-              "note": 38,
+              "note": 50,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 16,
               "len": 6,
-              "note": 40,
+              "note": 52,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -827,7 +818,7 @@
             {
               "row": 22,
               "len": 1,
-              "note": 38,
+              "note": 50,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -837,14 +828,14 @@
             {
               "row": 24,
               "len": 8,
-              "note": 36,
+              "note": 48,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 32,
               "len": 1,
-              "note": 34,
+              "note": 46,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -854,7 +845,7 @@
             {
               "row": 34,
               "len": 1,
-              "note": 38,
+              "note": 50,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -864,7 +855,7 @@
             {
               "row": 36,
               "len": 4,
-              "note": 41,
+              "note": 53,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -874,14 +865,14 @@
             {
               "row": 40,
               "len": 8,
-              "note": 45,
+              "note": 57,
               "inst": "midpsquarelead",
               "fx": null
             },
             {
               "row": 48,
               "len": 4,
-              "note": 43,
+              "note": 55,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -891,7 +882,7 @@
             {
               "row": 52,
               "len": 4,
-              "note": 40,
+              "note": 52,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -901,7 +892,7 @@
             {
               "row": 56,
               "len": 1,
-              "note": 36,
+              "note": 48,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -911,7 +902,7 @@
             {
               "row": 58,
               "len": 1,
-              "note": 34,
+              "note": 46,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -921,7 +912,7 @@
             {
               "row": 60,
               "len": 1,
-              "note": 31,
+              "note": 43,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -931,7 +922,7 @@
             {
               "row": 62,
               "len": 1,
-              "note": 28,
+              "note": 40,
               "inst": "midpsquarelead",
               "fx": {
                 "code": 12,
@@ -1544,7 +1535,7 @@
             {
               "row": 0,
               "len": 11,
-              "note": 29,
+              "note": 41,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1554,7 +1545,7 @@
             {
               "row": 12,
               "len": 1,
-              "note": 31,
+              "note": 43,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1564,7 +1555,7 @@
             {
               "row": 14,
               "len": 1,
-              "note": 29,
+              "note": 41,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1574,7 +1565,7 @@
             {
               "row": 16,
               "len": 11,
-              "note": 28,
+              "note": 40,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1584,7 +1575,7 @@
             {
               "row": 28,
               "len": 1,
-              "note": 29,
+              "note": 41,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1594,7 +1585,7 @@
             {
               "row": 30,
               "len": 1,
-              "note": 28,
+              "note": 40,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1604,7 +1595,7 @@
             {
               "row": 32,
               "len": 11,
-              "note": 26,
+              "note": 38,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1614,7 +1605,7 @@
             {
               "row": 44,
               "len": 1,
-              "note": 28,
+              "note": 40,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1624,7 +1615,7 @@
             {
               "row": 46,
               "len": 1,
-              "note": 26,
+              "note": 38,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1634,7 +1625,7 @@
             {
               "row": 48,
               "len": 11,
-              "note": 24,
+              "note": 36,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1644,7 +1635,7 @@
             {
               "row": 60,
               "len": 1,
-              "note": 26,
+              "note": 38,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1654,7 +1645,7 @@
             {
               "row": 62,
               "len": 1,
-              "note": 28,
+              "note": 40,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1668,7 +1659,7 @@
             {
               "row": 0,
               "len": 11,
-              "note": 29,
+              "note": 41,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1678,7 +1669,7 @@
             {
               "row": 12,
               "len": 1,
-              "note": 31,
+              "note": 43,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1688,7 +1679,7 @@
             {
               "row": 14,
               "len": 1,
-              "note": 29,
+              "note": 41,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1698,7 +1689,7 @@
             {
               "row": 16,
               "len": 11,
-              "note": 28,
+              "note": 40,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1708,7 +1699,7 @@
             {
               "row": 28,
               "len": 1,
-              "note": 29,
+              "note": 41,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1718,7 +1709,7 @@
             {
               "row": 30,
               "len": 1,
-              "note": 28,
+              "note": 40,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1728,7 +1719,7 @@
             {
               "row": 32,
               "len": 14,
-              "note": 29,
+              "note": 41,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1738,7 +1729,7 @@
             {
               "row": 48,
               "len": 7,
-              "note": 28,
+              "note": 40,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,
@@ -1748,7 +1739,7 @@
             {
               "row": 56,
               "len": 7,
-              "note": 22,
+              "note": 34,
               "inst": "midpbrightlead",
               "fx": {
                 "code": 12,

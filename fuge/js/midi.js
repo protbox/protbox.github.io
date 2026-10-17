@@ -67,7 +67,7 @@
         let p = start;
         let tick = 0;
         let status = 0;
-        const out = { name: "", notes: [], tempos: [], keys: [], times: [], bends: [], end: 0 };
+        const out = { name: "", notes: [], tempos: [], keys: [], times: [], bends: [], ccs: [], end: 0 };
         const open = new Map();
         const range = new Array(16).fill(2);
         const rpn = Array.from({ length: 16 }, () => [127, 127]);
@@ -134,6 +134,7 @@
                 const v = (d1 & 127) | ((d2 & 127) << 7);
                 out.bends.push({ tick, ch, semis: (v - 8192) / 8192 * range[ch] });
             } else if (hi === 0xb0) {
+                if (d1 === 7 || d1 === 11) out.ccs.push({ tick, ch, cc: d1, v: d2 & 127 });
                 if (d1 === 101) rpn[ch][0] = d2;
                 else if (d1 === 100) rpn[ch][1] = d2;
                 else if ((d1 === 6 || d1 === 38) && rpn[ch][0] === 0 && rpn[ch][1] === 0) {
@@ -168,9 +169,10 @@
             const notes = mid.tracks.flatMap(t => t.notes);
             const chans = [...new Set(notes.map(n => n.ch))].sort((a, b) => a - b);
             const bends = mid.tracks.flatMap(t => t.bends);
-            return chans.map(ch => ({ name: "Channel " + (ch + 1), notes: notes.filter(n => n.ch === ch), bends, drums: ch === 9 }));
+            const ccs = mid.tracks.flatMap(t => t.ccs || []);
+            return chans.map(ch => ({ name: "Channel " + (ch + 1), notes: notes.filter(n => n.ch === ch), bends, ccs, drums: ch === 9 }));
         }
-        return mid.tracks.map((t, k) => ({ name: t.name || "Track " + (k + 1), notes: t.notes, bends: t.bends, drums: t.notes.every(n => n.ch === 9) })).filter(g => g.notes.length);
+        return mid.tracks.map((t, k) => ({ name: t.name || "Track " + (k + 1), notes: t.notes, bends: t.bends, ccs: t.ccs || [], drums: t.notes.every(n => n.ch === 9) })).filter(g => g.notes.length);
     }
 
     function fitOctave(pitches) {
@@ -225,6 +227,32 @@
         };
     }
 
+    function mixer(list) {
+        const byKey = new Map();
+        for (const c of list) {
+            const k = c.ch * 128 + c.cc;
+            if (!byKey.has(k)) byKey.set(k, []);
+            byKey.get(k).push(c);
+        }
+        byKey.forEach(v => v.sort((a, b) => a.tick - b.tick));
+        const at = (ch, cc, t, dflt) => {
+            const evs = byKey.get(ch * 128 + cc);
+            if (!evs) return dflt;
+            let v = dflt;
+            let lo = 0;
+            let hi = evs.length - 1;
+            while (lo <= hi) {
+                const m = (lo + hi) >> 1;
+                if (evs[m].tick <= t) {
+                    v = evs[m].v;
+                    lo = m + 1;
+                } else hi = m - 1;
+            }
+            return v;
+        };
+        return (ch, t) => at(ch, 7, t, 100) / 127 * at(ch, 11, t, 127) / 127;
+    }
+
     function fold(n) {
         while (n < 0) n += 12;
         while (n > NOTE_MAX) n -= 12;
@@ -253,7 +281,7 @@
         const speed = Math.max(1, Math.min(255, Math.round(60 * VBLANK_HZ / (bpm * rpb))));
         const tpr = mid.division / rpb;
         const rowOf = t => Math.round(t / tpr);
-        const report = { groups: groups.length, used: used.map(g => g ? g.name : null), ignored: ignored.map(g => g.name), chords: 0, drums: 0, shifted: [], folded: 0, rpb, speed, bpm, tempoChanges, quantised: 0, volumes: 0, slides: 0, bendsSimplified: 0 };
+        const report = { groups: groups.length, used: used.map(g => g ? g.name : null), ignored: ignored.map(g => g.name), chords: 0, drums: 0, shifted: [], folded: 0, rpb, speed, bpm, tempoChanges, quantised: 0, volumes: 0, slides: 0, bendsSimplified: 0, volSplit: 0, volSteps: 0, volKept: 0 };
         const level = (vel, top, base) => Math.max(1, Math.min(15, Math.round(base * vel / Math.max(1, top))));
         for (const n of all) if (Math.abs(n.on / tpr - Math.round(n.on / tpr)) > 0.2) report.quantised++;
 
@@ -301,9 +329,10 @@
             if (shift) report.shifted.push({ track: g.name, slot, octaves: shift / 12 });
             const keepHigh = kind === "pulse";
             const bend = bender(g.bends || []);
+            const gain = mixer(g.ccs || []);
             const notes = g.notes.map(n => {
                 const b = bend(n);
-                return { row: rowOf(n.on), end: Math.max(rowOf(n.on) + 1, rowOf(n.off)), pitch: n.note - BASE + shift + (b ? b.base : 0), vel: n.vel, bend: b };
+                return { row: rowOf(n.on), end: Math.max(rowOf(n.on) + 1, rowOf(n.off)), pitch: n.note - BASE + shift + (b ? b.base : 0), vel: n.vel, bend: b, ch: n.ch, on: n.on };
             })
                 .sort((a, b) => a.row - b.row || (keepHigh ? b.pitch - a.pitch : a.pitch - b.pitch));
             const mono = [];
@@ -316,14 +345,33 @@
                 if (prev && prev.end > n.row) prev.end = n.row;
                 mono.push(n);
             }
-            const top = Math.max(...mono.map(n => n.vel));
+            for (const n of mono) n.loud = Array.from({ length: n.end - n.row }, (_, k) => n.vel * gain(n.ch, k ? (n.row + k) * tpr : n.on));
+            const top = Math.max(...mono.flatMap(n => n.loud));
             const base = kind === "wave" ? 15 : inst.vol;
             for (const n of mono) {
                 const pitch = fold(n.pitch);
                 if (pitch !== n.pitch) report.folded++;
                 const len = n.end - n.row;
+                const ys = n.loud.map(v => level(v, top, base));
+                const steps = [];
+                ys.forEach((y, k) => {
+                    if (!k || y !== ys[k - 1]) steps.push({ at: k, y });
+                });
+                if (steps.length > 1) {
+                    if (kind === "pulse" && !(n.bend && n.bend.slide)) {
+                        report.volSplit++;
+                        report.volSteps += steps.length;
+                        steps.forEach((s, k) => {
+                            const end = k + 1 < steps.length ? steps[k + 1].at : len;
+                            lines[slot].push({ row: n.row + s.at, len: end - s.at, note: pitch, inst: inst.id, fx: s.y !== base ? { code: 0xC, param: s.y } : null });
+                            if (s.y !== base) report.volumes++;
+                        });
+                        continue;
+                    }
+                    report.volKept++;
+                }
                 const line = { row: n.row, len, note: pitch, inst: inst.id, fx: null };
-                const y = level(n.vel, top, base);
+                const y = ys[0];
                 if (kind === "wave" ? y < 10 : y !== base) {
                     line.fx = { code: 0xC, param: y };
                     report.volumes++;

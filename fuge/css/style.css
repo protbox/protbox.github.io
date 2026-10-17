@@ -1461,3 +1461,55 @@ input[type="range"] {
         transition: none !important;
     }
 }
+
+.wave-dialog {
+    width: min(520px, 100%);
+}
+
+.wave-dialog p {
+    margin: 0 0 10px;
+    color: var(--muted);
+}
+
+#waveText {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    font-family: var(--f-mono);
+    font-size: 13px;
+    padding: 8px;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+}
+
+.wave-check {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    min-height: 48px;
+}
+
+#wavePreview {
+    width: 128px;
+    flex: none;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+}
+
+#waveMsg {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+#waveMsg.bad {
+    color: var(--danger, #c0392b);
+}
+
+.wave-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}

@@ -324,6 +324,7 @@
                     <img class="dark" src="img/wave-dark.webp" alt="The wave instrument editor" width="289" height="504" loading="lazy">
                 </figure>
                 <p>A wave instrument plays a waveform of 32 steps, each from 0 to 15. Drag on the grid to draw one, or start from a shape: triangle, sine, saw, square, pulse, organ, flute, hollow, buzz or deep.</p>
+                <p>To type a waveform in, right-click the grid and choose <b>Enter values…</b>: 32 numbers from 0 to 15 separated by spaces or commas (<code>8 10 13 15 …</code>), or a hUGETracker hex string (<code>8ADF…</code>). The dialog shows the shape as you type. <b>Copy values</b> copies the current waveform as numbers.</p>
                 <ul>
                     <li><b>Draw both halves together</b> keeps the two halves identical, which keeps the pitch right. A waveform that holds a single cycle across all 32 steps sounds an octave lower than the notes you write; the editor warns you when that's the case.</li>
                     <li><b>Volume</b> has only four levels: 100%, 50%, 25% and mute.</li>
@@ -500,13 +501,14 @@
                     <li><b>Timing:</b> notes move to the nearest row, and if the tempo changes during the file, fUGE uses the first one.</li>
                 </ul>
                 <div class="tip"><p>fUGE uses hUGETracker's note names, which run an octave higher than most DAWs: a DAW's middle C (C4) shows as C-5 in fUGE. The pitch you hear is the same.</p></div>
-                <h3>Velocity and pitch bends</h3>
+                <h3>Velocity, volume and pitch bends</h3>
                 <ul>
                     <li><b>Velocity</b> becomes note volume. The loudest notes in a track play at the instrument's own volume, and softer ones get a <b>Set volume</b> effect (<code>C0y</code>) scaled from there. On Wave, which only has four levels, only clearly quieter notes change. Drum velocities set each hit's volume the same way.</li>
+                    <li><b>Expression and volume</b> (CC11 and CC7) are combined with velocity. When the level changes while a pulse note is held, as in a volume wobble, the note is split into steps: a new note on each row where the level changes, each with its own <code>C0y</code>. The Game Boy can only change a playing note's volume by restarting it, so each step is a quick restart; the summary says how many notes were split. On Wave, and on notes with a pitch bend, only the starting volume is used.</li>
                     <li><b>Pitch bends</b> become <a href="#slides">slides</a>. A note that starts already bent plays at the bent pitch; a bend during a note slides from where the bend starts to where it ends, over the same rows, then holds. fUGE reads the bend range a file sets (RPN 0), and uses ±2 semitones otherwise.</li>
                     <li>A slide is one straight move, so bends that go up and back, or wobble like a vibrato, are simplified to where the bend ends. Bends are rounded to whole semitones. The summary says how many were simplified.</li>
                 </ul>
-                <p>The imported song is a new, unsaved project, so save it to keep it. Instruments and controllers such as volume and expression aren't imported; choose sounds with the instrument list afterwards.</p>
+                <p>The imported song is a new, unsaved project, so save it to keep it. Instruments, and controllers other than volume and expression, aren't imported; choose sounds with the instrument list afterwards.</p>
             </section>
 
             <section id="export">

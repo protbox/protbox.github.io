@@ -841,7 +841,7 @@
             }
         } else if (inst.type === "wave") {
             h += "<div class=\"field\"><span>Volume</span>" + seg("level", WAVE_LEVELS, inst.level) + "</div>";
-            h += "<div class=\"field\"><span>Waveform <b>drag to draw</b></span><canvas class=\"wave-canvas\" id=\"waveCanvas\" aria-label=\"Waveform editor\"></canvas></div>";
+            h += "<div class=\"field\"><span>Waveform <b>drag to draw · right-click to type</b></span><canvas class=\"wave-canvas\" id=\"waveCanvas\" aria-label=\"Waveform editor\"></canvas></div>";
             h += "<div class=\"chips\">" + Object.keys(Presets.SHAPE_LABELS).map(k => "<button type=\"button\" class=\"btn small\" data-shape=\"" + k + "\">" + Presets.SHAPE_LABELS[k] + "</button>").join("") + "</div>";
             h += "<label class=\"field\" style=\"grid-template-columns:auto 1fr;align-items:center;gap:8px\"><input type=\"checkbox\" data-k=\"mirror\"" + (state.waveMirror ? " checked" : "") + "><span>Draw both halves together (keeps the pitch)</span></label>";
             if (!isMirrored(inst.wave)) h += "<p class=\"hint warn\">This wave holds one cycle, so it sounds an octave lower than the notes you write.</p>";
@@ -2944,6 +2944,15 @@
             openRollMenu(e);
             return;
         }
+        if (e.target.id === "waveCanvas") {
+            const inst = curInst();
+            if (inst && inst.type === "wave") showMenu(e, [
+                { head: "Waveform" },
+                { label: "Enter values…", action: () => openWaveValues(inst) },
+                { label: "Copy values", action: () => copyText(waveText(inst.wave)).then(ok => status(ok ? "Copied the waveform: " + waveText(inst.wave) : "Couldn't copy. Use Enter values… and copy from there.")) }
+            ]);
+            return;
+        }
         const slot = e.target.closest(".slot");
         if (slot) {
             openSlotMenu(e, +slot.dataset.t, +slot.dataset.o);
@@ -3210,7 +3219,7 @@
             refreshIcon(inst);
         };
         ed.addEventListener("pointerdown", e => {
-            if (e.target.id !== "waveCanvas") return;
+            if (e.target.id !== "waveCanvas" || e.button !== 0) return;
             drawing = true;
             last = -1;
             checkpoint();
@@ -3738,6 +3747,84 @@
         reader.readAsArrayBuffer(file);
     }
 
+    const waveText = w => w.join(" ");
+
+    function parseWave(text) {
+        const t = text.trim();
+        if (/^[0-9a-f]{32}$/i.test(t)) return { vals: [...t].map(c => parseInt(c, 16)) };
+        const parts = t.split(/[\s,;]+/).filter(Boolean);
+        const vals = [];
+        for (const p of parts) {
+            let v = NaN;
+            if (/^\d+$/.test(p)) v = parseInt(p, 10);
+            else if (/^(0x)?[0-9a-f]$/i.test(p)) v = parseInt(p.slice(-1), 16);
+            if (!(v >= 0 && v <= 15)) return { error: "“" + p.slice(0, 12) + "” isn't a value from 0 to 15." };
+            vals.push(v);
+        }
+        if (vals.length !== 32) return { error: vals.length + " value" + (vals.length === 1 ? "" : "s") + " so far; a waveform needs exactly 32." };
+        return { vals };
+    }
+
+    let waveFor = null;
+
+    function openWaveValues(inst) {
+        waveFor = inst.id;
+        $("waveText").value = waveText(inst.wave);
+        $("waveModal").classList.add("open");
+        checkWaveText();
+        $("waveText").focus();
+        $("waveText").select();
+    }
+
+    function checkWaveText() {
+        const res = parseWave($("waveText").value);
+        const msg = $("waveMsg");
+        msg.classList.toggle("bad", !!res.error);
+        msg.textContent = res.error || "32 values. Apply to use this shape.";
+        $("waveApply").disabled = !!res.error;
+        if (res.vals) drawWave($("wavePreview"), { type: "wave", wave: res.vals });
+        return res;
+    }
+
+    function closeWaveValues() {
+        $("waveModal").classList.remove("open");
+        waveFor = null;
+    }
+
+    function applyWaveValues() {
+        const res = checkWaveText();
+        const inst = instById(waveFor);
+        if (res.error || !inst) return;
+        checkpoint();
+        inst.wave = res.vals;
+        closeWaveValues();
+        renderEditor();
+        refreshIcon(inst);
+        preview(inst);
+        status("Set " + inst.name + "'s waveform.");
+    }
+
+    function copyText(text) {
+        const fallback = () => {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            let ok = false;
+            try {
+                ok = document.execCommand("copy");
+            } catch (e) {
+                ok = false;
+            }
+            ta.remove();
+            return ok;
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(() => true, () => fallback());
+        return Promise.resolve(fallback());
+    }
+
     function showInfo(title, html) {
         $("infoTitle").textContent = title;
         $("infoBody").innerHTML = html;
@@ -3778,7 +3865,9 @@
         if (r.melodicNoise) notes.push(esc(r.melodicNoise) + " went to the noise track but isn't a drum track, so its notes became drum hits by pitch.");
         if (r.drumsOnPitched) notes.push(r.drumsOnPitched.map(esc).join(", ") + " looks like drums but landed on a pitched channel.");
         if (r.quantised) notes.push(plural(r.quantised, "note") + " didn't sit on the grid and " + (r.quantised === 1 ? "was" : "were") + " moved to the nearest row.");
-        if (r.volumes) notes.push(plural(r.volumes, "note") + " got a volume (C0y) from " + (r.volumes === 1 ? "its" : "their") + " velocity; the loudest notes use the instrument's own volume.");
+        if (r.volumes) notes.push(plural(r.volumes, "note") + " got a volume (C0y) from " + (r.volumes === 1 ? "its" : "their") + " velocity" + (r.volSplit ? " and volume changes" : "") + "; the loudest notes use the instrument's own volume.");
+        if (r.volSplit) notes.push(plural(r.volSplit, "held note") + " with expression (CC11) or volume (CC7) changes " + (r.volSplit === 1 ? "was" : "were") + " split into " + r.volSteps + " volume steps, a new note wherever the level changes, since the Game Boy can only change a note's volume by restarting it.");
+        if (r.volKept) notes.push(plural(r.volKept, "note") + " on Wave or with a pitch bend kept only " + (r.volKept === 1 ? "its" : "their") + " starting volume; expression changes inside " + (r.volKept === 1 ? "it were" : "them were") + " left out.");
         if (r.slides) notes.push("Turned " + plural(r.slides, "pitch bend") + " into slides.");
         if (r.bendsSimplified) notes.push(plural(r.bendsSimplified, "bend") + " went up and back down or wobbled, which a single slide can't follow, so " + (r.bendsSimplified === 1 ? "it was" : "they were") + " simplified to where the bend ends.");
         if (r.tempoChanges) notes.push("The file changes tempo partway through; fUGE used the first tempo. Add a Set speed effect (Fxx) where it changes.");
@@ -3879,6 +3968,16 @@
         if (mod && k === "o") {
             e.preventDefault();
             openProject();
+            return;
+        }
+        if ($("waveModal").classList.contains("open")) {
+            if (e.key === "Escape") {
+                e.preventDefault();
+                closeWaveValues();
+            } else if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                applyWaveValues();
+            }
             return;
         }
         if ($("infoModal").classList.contains("open")) {
@@ -4218,6 +4317,12 @@
         $("btnPresets").onclick = () => openPresets();
         $("presetClose").onclick = closePresets;
         $("infoClose").onclick = closeInfo;
+        $("waveCancel").onclick = closeWaveValues;
+        $("waveApply").onclick = applyWaveValues;
+        $("waveText").addEventListener("input", checkWaveText);
+        $("waveModal").addEventListener("pointerdown", e => {
+            if (e.target.id === "waveModal") closeWaveValues();
+        });
         $("infoModal").addEventListener("click", e => {
             if (e.target.id === "infoModal") closeInfo();
         });
