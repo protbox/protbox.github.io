@@ -757,7 +757,10 @@
               "len": 5,
               "note": 41,
               "inst": "midpsquarelead",
-              "fx": null
+              "fx": {
+                "code": 4,
+                "param": 68
+              }
             },
             {
               "row": 22,
@@ -785,7 +788,10 @@
               "len": 5,
               "note": 38,
               "inst": "midpsquarelead",
-              "fx": null
+              "fx": {
+                "code": 4,
+                "param": 68
+              }
             },
             {
               "row": 38,
@@ -813,7 +819,10 @@
               "len": 7,
               "note": 34,
               "inst": "midpsquarelead",
-              "fx": null
+              "fx": {
+                "code": 4,
+                "param": 68
+              }
             },
             {
               "row": 56,
@@ -1302,7 +1311,15 @@
             },
             {
               "row": 48,
-              "len": 5,
+              "len": 1,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 1
+            },
+            {
+              "row": 49,
+              "len": 4,
               "note": 36,
               "inst": "midpsquarelead",
               "fx": null

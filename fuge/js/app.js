@@ -1204,6 +1204,7 @@
         $("btnGhost").disabled = t.kind === "noise";
         const songLen = !isSfx();
         $("ordRows").hidden = !songLen;
+        $("ordBuild").hidden = !songLen;
         if (songLen) {
             const cur = ordRows(state.ord);
             const bar = state.song.rowsPerBeat * state.song.beatsPerBar;
@@ -2798,6 +2799,8 @@
         }
         const cur = ordRows(o);
         return [
+            { label: "Pattern builder…", action: () => openBuilder(o) },
+            { sep: true },
             { label: "Length", sub: lengthChoices(cur).map(v => ({ label: v + " rows" + (v % (state.song.rowsPerBeat * state.song.beatsPerBar) ? "" : " · " + v / (state.song.rowsPerBeat * state.song.beatsPerBar) + " bar" + (v / (state.song.rowsPerBeat * state.song.beatsPerBar) === 1 ? "" : "s")), checked: v === cur, action: () => setOrderRows(o, v) })).concat([{ sep: true }, { label: "Use " + cur + " rows for every order", action: () => setOrderRows(o, cur, true) }]) },
             { sep: true },
             { label: "Insert order after", action: at(() => orderOp("add")) },
@@ -3438,6 +3441,13 @@
     }
 
     function onAudio(m) {
+        if (BLD.playing) {
+            if (m.type === "pos" && m.row !== BLD.row) {
+                BLD.row = m.row;
+                bldDraw();
+            }
+            return;
+        }
         if (m.type === "ended") {
             playEnded();
             return;
@@ -3747,6 +3757,815 @@
         reader.readAsArrayBuffer(file);
     }
 
+    const BLD = { ord: 0, rows: 64, chords: [], layers: [], sel: -1, playing: false, row: -1, drag: null, saved: null, msg: "", guide: null, more: false, audition: null };
+    const BLD_DEFAULT = { pulse: "rhythm/pulse07_broken_8ths", wave: "bass/bass04_driving_8ths", noise: "drums/drums01_rock" };
+    const bldOpen = () => $("builderModal").classList.contains("open");
+    const bldBeat = () => state.song.rowsPerBeat;
+    const bldBar = () => state.song.rowsPerBeat * state.song.beatsPerBar;
+
+    const bldSteps = () => BLD.guide && SCALES[BLD.guide.name] ? SCALES[BLD.guide.name].steps : null;
+    const bldPcs = () => bldSteps() ? Builder.scaleNotes(BLD.guide.root, bldSteps()) : null;
+    const bldName = c => Builder.chordName(c, bldPcs());
+    const bldScaleLabel = () => bldSteps() ? Builder.spell(BLD.guide.root, bldPcs()) + " " + SCALES[BLD.guide.name].label.replace(/ \(.*\)$/, "").toLowerCase() : "";
+
+    function bldGuideDefault() {
+        const sc = state.song.scale || { root: 0, name: "Free" };
+        return { root: sc.root || 0, name: SCALES[sc.name] ? sc.name : "Ionian" };
+    }
+
+    function bldPatternsFor(kind) {
+        return Builder.library().filter(p => kind === "noise" ? p.drums : !p.drums);
+    }
+
+    function bldDefaultPattern(kind) {
+        const list = bldPatternsFor(kind);
+        const want = BLD_DEFAULT[kind];
+        return (list.find(p => p.id === want) || list[0] || {}).id || "";
+    }
+
+    function bldDefaultInst(t) {
+        const kind = TRACKS[t].kind;
+        if (kind === "noise") return "";
+        const idx = patIndex(t, BLD.ord);
+        const pat = idx >= 0 ? state.song.tracks[t].patterns[idx] : null;
+        const used = pat && pat.notes.length ? instById(pat.notes[0].inst) : null;
+        if (used && used.type === kind) return used.id;
+        const first = instsOf(kind)[0];
+        return first ? first.id : "new:" + (kind === "wave" ? "Triangle Bass" : "Square Lead");
+    }
+
+    function bldSpread(list) {
+        const step = Math.max(1, Math.floor(BLD.rows / list.length / bldBeat()) * bldBeat() || Math.floor(BLD.rows / list.length));
+        return list.slice(0, Builder.MAX_CHORDS).map((c, k) => ({ row: Math.min(BLD.rows - 1, k * step), root: c.root, type: c.type }));
+    }
+
+    function bldDefaults() {
+        BLD.guide = bldGuideDefault();
+        const sc = state.song.scale || { root: 0, name: "Free" };
+        const r = sc.root || 0;
+        const minor = /aeolian|minor|dorian|phrygian/i.test(sc.name || "");
+        const prog = minor ? [[0, "min"], [8, "maj"], [3, "maj"], [10, "maj"]] : [[0, "maj"], [9, "min"], [5, "maj"], [7, "maj"]];
+        BLD.chords = bldSpread(prog.map(p => ({ root: (r + p[0]) % 12, type: p[1] })));
+        BLD.layers = [2, 1].map(t => ({ ch: t, pattern: bldDefaultPattern(TRACKS[t].kind), octave: 0, inst: bldDefaultInst(t) }));
+    }
+
+    function openBuilder(o) {
+        if (isSfx()) {
+            toast("The pattern builder works on songs, not sound effects.");
+            return;
+        }
+        if (!Builder.library().length) {
+            toast("The pattern library isn't loaded. Run node tools/patterns.js to bundle web/patterns.");
+            return;
+        }
+        if (state.playing) stop();
+        hideMenu();
+        BLD.ord = o === undefined ? state.ord : o;
+        BLD.rows = ordRows(BLD.ord);
+        if (BLD.saved) {
+            BLD.chords = BLD.saved.chords.filter(c => c.row < BLD.rows).map(c => Object.assign({}, c));
+            BLD.layers = BLD.saved.layers.map(l => Object.assign({}, l, { inst: l.inst && (l.inst.startsWith("new:") || instById(l.inst)) ? l.inst : bldDefaultInst(l.ch) }));
+            BLD.guide = BLD.saved.guide || bldGuideDefault();
+        } else bldDefaults();
+        BLD.sel = BLD.chords.length ? 0 : -1;
+        BLD.msg = "";
+        BLD.audition = null;
+        $("bldProg").value = BLD.chords.map(bldName).join(" ");
+        BLD.lastProg = $("bldProg").value;
+        $("builderModal").classList.add("open");
+        bldRender();
+        $("bldStrip").focus();
+    }
+
+    function closeBuilder() {
+        bldStop();
+        BLD.saved = { chords: BLD.chords.map(c => Object.assign({}, c)), layers: BLD.layers.map(l => Object.assign({}, l)), guide: BLD.guide };
+        $("builderModal").classList.remove("open");
+    }
+
+    function bldRender() {
+        $("bldWhere").textContent = "Order " + pad2(BLD.ord) + " · " + BLD.rows + " rows" + (BLD.rows % bldBar() ? "" : " · " + BLD.rows / bldBar() + " bar" + (BLD.rows / bldBar() === 1 ? "" : "s"));
+        const msg = $("bldProgMsg");
+        msg.textContent = BLD.msg;
+        msg.classList.toggle("bad", /isn't|Up to/.test(BLD.msg));
+        bldRenderGuide();
+        bldRenderChord();
+        bldRenderLayers();
+        bldDraw();
+        bldFoot();
+    }
+
+    function bldRenderGuide() {
+        const pcs = bldPcs();
+        $("bldKey").innerHTML = Builder.ROOTS.map((r, k) => "<option value=\"" + k + "\"" + (BLD.guide && k === BLD.guide.root ? " selected" : "") + ">" + Builder.spell(k, BLD.guide && SCALES[BLD.guide.name] ? Builder.scaleNotes(k, SCALES[BLD.guide.name].steps) : null) + "</option>").join("");
+        $("bldScale").innerHTML = "<option value=\"\">No guide</option>" + Object.keys(SCALES).map(k => "<option value=\"" + k + "\"" + (BLD.guide && k === BLD.guide.name ? " selected" : "") + ">" + esc(SCALES[k].label) + "</option>").join("");
+        $("bldKey").disabled = false;
+        $("bldMore").checked = BLD.more;
+        $("bldMore").disabled = !pcs;
+        if (!pcs) {
+            $("bldGuide").innerHTML = "";
+            $("bldGuideHint").textContent = "Pick a scale to see the chords that fit it.";
+            return;
+        }
+        const sel = BLD.chords[BLD.sel];
+        const same = c => sel && sel.root === c.root && sel.type === c.type;
+        const aud = c => BLD.audition && BLD.audition.root === c.root && BLD.audition.type === c.type;
+        const btn = (c, cls) => "<button type=\"button\" class=\"btn small " + cls + (aud(c) ? " aud" : "") + "\" data-g=\"" + c.root + ":" + c.type + "\" aria-pressed=\"" + same(c) + "\" title=\"" + esc(bldName(c) + " · " + Builder.chordType(c.type).name + (c.numeral ? " · " + c.numeral : "")) + "\">" + esc(bldName(c)) + "</button>";
+        $("bldGuide").innerHTML = Builder.guide(BLD.guide.root, bldSteps()).map(d => {
+            const extra = BLD.more ? d.extra.map(c => btn(c, "g-alt")).join("") : "";
+            if (!d.primary && !extra) return "";
+            return "<div class=\"bld-deg\"><span class=\"bld-num\">" + esc(d.primary && d.primary.numeral ? d.primary.numeral : Builder.spell(d.pc, pcs)) + "</span>" + (d.primary ? btn(d.primary, "g-main") : "") + extra + "</div>";
+        }).join("");
+        bldGuideHint();
+    }
+
+    function bldGuideHint() {
+        const sel = BLD.chords[BLD.sel];
+        const a = BLD.audition;
+        const full = !sel && BLD.chords.length >= Builder.MAX_CHORDS;
+        $("bldUse").hidden = !a;
+        if (a) {
+            $("bldUse").textContent = "Use " + bldName(a);
+            $("bldUse").disabled = full;
+        }
+        $("bldGuideHint").textContent = a ? (sel ? "replaces " + bldName(sel) + ", then selects the next chord." : full ? "Select a chord on the strip to replace it (up to " + Builder.MAX_CHORDS + " chords)." : "adds it after the last chord.") : "Click a chord to hear it, then Use (or double-click) to " + (sel ? "set " + bldName(sel) + "." : full ? "set the chord you select on the strip." : "add it.");
+    }
+
+    function bldAudition(c) {
+        BLD.audition = { root: c.root, type: c.type };
+        for (const b of $("bldGuide").querySelectorAll("[data-g]")) b.classList.toggle("aud", b.dataset.g === c.root + ":" + c.type);
+        bldGuideHint();
+        bldStrum(c, true);
+    }
+
+    function bldGuidePick(c) {
+        BLD.audition = null;
+        const pick = { root: c.root, type: c.type };
+        if (BLD.sel >= 0 && BLD.chords[BLD.sel]) {
+            const cur = BLD.chords[BLD.sel];
+            cur.root = pick.root;
+            cur.type = pick.type;
+            const s = bldSorted();
+            const i = s.findIndex(x => x.k === BLD.sel);
+            BLD.sel = i + 1 < s.length ? s[i + 1].k : -1;
+            BLD.msg = "";
+            bldSyncProg();
+            bldRender();
+            bldChanged();
+            bldStrum(cur);
+            return;
+        }
+        if (BLD.chords.length >= Builder.MAX_CHORDS) {
+            BLD.msg = "Up to " + Builder.MAX_CHORDS + " chords. Select one on the strip to change it.";
+            bldRender();
+            return;
+        }
+        const s = bldSorted();
+        const step = Math.max(bldBeat(), Math.floor(BLD.rows / Builder.MAX_CHORDS / bldBeat()) * bldBeat());
+        const row = s.length ? s[s.length - 1].c.row + step : 0;
+        if (row >= BLD.rows || BLD.chords.some(x => x.row === row)) {
+            BLD.msg = "No room after the last chord. Select a chord on the strip to change it, or click the strip to place one.";
+            bldRender();
+            return;
+        }
+        BLD.chords.push(Object.assign({ row }, pick));
+        BLD.sel = -1;
+        BLD.msg = "";
+        bldSyncProg();
+        bldRender();
+        bldChanged();
+        bldStrum(pick);
+    }
+
+    function bldFoot() {
+        const chs = BLD.layers.filter(l => l.pattern).map(l => TRACKS[l.ch].name);
+        $("bldApply").textContent = "Apply to order " + pad2(BLD.ord);
+        $("bldApply").disabled = !chs.length;
+        const melodic = BLD.layers.some(l => l.pattern && TRACKS[l.ch].kind !== "noise");
+        $("bldNote").textContent = !chs.length ? "Add a layer to build something." : melodic && !BLD.chords.length ? "Place a chord: melodic layers only play under chords." : "Replaces " + chs.join(", ") + " in this order.";
+        $("bldPlay").textContent = BLD.playing ? "■ Stop" : "▶ Play";
+    }
+
+    function bldRenderChord() {
+        const box = $("bldChord");
+        const c = BLD.chords[BLD.sel];
+        if (!c) {
+            box.innerHTML = "<p class=\"hint\">" + (BLD.chords.length < Builder.MAX_CHORDS ? "Click the strip to place a chord (it snaps to beats; hold Shift for any row). " : "") + "Each chord lasts until the next one. Drag a chord to move it, right-click to remove it.</p>";
+            return;
+        }
+        const roots = Builder.ROOTS.map((r, k) => "<option value=\"" + k + "\"" + (k === c.root ? " selected" : "") + ">" + Builder.spell(k, bldPcs()) + "</option>").join("");
+        const types = Builder.CHORDS.map(t => "<option value=\"" + t.id + "\"" + (t.id === c.type ? " selected" : "") + ">" + (t.label || "maj") + " · " + t.name + "</option>").join("");
+        const pcs = bldPcs();
+        const out = pcs && !Builder.fitsScale(c, pcs);
+        box.innerHTML = "<b>" + esc(bldName(c)) + "</b>" +
+            "<select data-bc=\"root\" aria-label=\"Chord root\">" + roots + "</select>" +
+            "<select data-bc=\"type\" aria-label=\"Chord type\">" + types + "</select>" +
+            "<label>from row <input type=\"number\" data-bc=\"row\" min=\"0\" max=\"" + (BLD.rows - 1) + "\" value=\"" + c.row + "\"></label>" +
+            "<button class=\"btn small\" type=\"button\" data-bc=\"hear\">▶ Hear chord</button>" +
+            "<button class=\"btn small\" type=\"button\" data-bc=\"del\">Remove</button>" +
+            "<span class=\"hint\">" + (out ? "<span class=\"bld-out\">Outside " + esc(bldScaleLabel()) + ", a borrowed chord.</span> " : "") + (Builder.chordType(c.type).map && Object.keys(Builder.chordType(c.type).map).length ? "Uses the " + Builder.chordType(c.type).variant + " patterns, with the chord tones adjusted." : "") + "</span>";
+    }
+
+    function bldRenderLayers() {
+        const used = BLD.layers.map(l => l.ch);
+        const groupName = g => g.charAt(0).toUpperCase() + g.slice(1);
+        $("bldLayers").innerHTML = BLD.layers.map((l, k) => {
+            const kind = TRACKS[l.ch].kind;
+            const chOpts = TRACKS.map((t, i) => "<option value=\"" + i + "\"" + (i === l.ch ? " selected" : "") + (used.includes(i) && i !== l.ch ? " disabled" : "") + ">" + t.name + "</option>").join("");
+            const groups = new Map();
+            const first = kind === "wave" ? "bass" : kind === "pulse" ? "rhythm" : "";
+            const pats = bldPatternsFor(kind).slice().sort((a, b) => (a.group === first ? 0 : 1) - (b.group === first ? 0 : 1));
+            for (const p of pats) {
+                if (!groups.has(p.group)) groups.set(p.group, []);
+                groups.get(p.group).push(p);
+            }
+            const barTs = state.song.beatsPerBar + "/4";
+            const fits = p => p.ts === barTs || (state.song.beatsPerBar === 2 && p.ts === "6/8") ? 0 : 1;
+            const patOpts = [...groups.entries()].map(([g, ps]) => "<optgroup label=\"" + esc(groupName(g)) + "\">" + ps.slice().sort((a, b) => fits(a) - fits(b)).map(p => "<option value=\"" + esc(p.id) + "\"" + (p.id === l.pattern ? " selected" : "") + ">" + esc(p.name) + (p.ts !== barTs ? " (" + p.ts + ")" : "") + (p.variants.maj && p.variants.min ? "" : p.variants.maj ? " · maj" : p.variants.min ? " · min" : "") + "</option>").join("") + "</optgroup>").join("");
+            const octOpts = [-2, -1, 0, 1, 2].map(v => "<option value=\"" + v + "\"" + (v === (l.octave || 0) ? " selected" : "") + ">" + (v > 0 ? "+" + v : v === 0 ? "±0" : "−" + -v) + " oct</option>").join("");
+            let instHtml;
+            if (kind === "noise") instHtml = "<span class=\"hint\">Drums use the matching noise instruments, added if missing.</span>";
+            else {
+                const own = instsOf(kind).map(i => "<option value=\"" + i.id + "\"" + (i.id === l.inst ? " selected" : "") + ">" + pad2(instNum(i)) + " · " + esc(i.name) + "</option>").join("");
+                const fresh = Presets.LIBRARY[kind].map(p => "<option value=\"new:" + esc(p.name) + "\"" + ("new:" + p.name === l.inst ? " selected" : "") + ">New: " + esc(p.name) + "</option>").join("");
+                instHtml = "<select data-bl=\"inst\" aria-label=\"Instrument\">" + (own ? "<optgroup label=\"In this song\">" + own + "</optgroup>" : "") + "<optgroup label=\"Add a preset\">" + fresh + "</optgroup></select>";
+            }
+            const p = Builder.byId(l.pattern);
+            return "<div class=\"bld-layer\" data-k=\"" + k + "\" style=\"--c:var(" + TRACKS[l.ch].color + ")\">" +
+                "<select data-bl=\"ch\" aria-label=\"Channel\">" + chOpts + "</select>" +
+                "<select data-bl=\"pattern\" aria-label=\"Pattern\">" + patOpts + "</select>" +
+                (kind === "noise" ? "<span></span>" : "<select data-bl=\"octave\" aria-label=\"Octave\">" + octOpts + "</select>") +
+                instHtml +
+                "<button class=\"btn small icon\" type=\"button\" data-bl=\"del\" title=\"Remove this layer\" aria-label=\"Remove this layer\">×</button>" +
+                "<p class=\"bld-desc\">" + esc(p ? p.desc || p.name : "") + "</p></div>";
+        }).join("");
+        $("bldAdd").disabled = BLD.layers.length >= 4;
+    }
+
+    function bldResolver(extra) {
+        const made = [];
+        const count = kind => instsOf(kind).length + made.filter(i => i.type === kind).length;
+        const melodic = (kind, key) => {
+            if (key && !key.startsWith("new:")) {
+                const i = instById(key);
+                if (i) return i;
+            }
+            const name = key && key.startsWith("new:") ? key.slice(4) : kind === "wave" ? "Triangle Bass" : "Square Lead";
+            const have = made.find(i => i.type === kind && i.name === name);
+            if (have) return have;
+            if (count(kind) >= MAX_INST) {
+                extra.full = true;
+                return instsOf(kind)[0];
+            }
+            const inst = makeInst(kind, name);
+            made.push(inst);
+            return inst;
+        };
+        const drum = name => {
+            const own = instsOf("noise").find(i => i.name.toLowerCase() === name.toLowerCase()) || made.find(i => i.name === name);
+            if (own) return own;
+            if (count("noise") >= MAX_INST) {
+                extra.full = true;
+                return instsOf("noise")[0] || made.find(i => i.type === "noise");
+            }
+            const inst = makeInst("noise", name);
+            made.push(inst);
+            return inst;
+        };
+        return { melodic, drum, made };
+    }
+
+    function bldBuild() {
+        const extra = { full: false };
+        const res = bldResolver(extra);
+        const out = [];
+        for (const l of BLD.layers) {
+            const p = Builder.byId(l.pattern);
+            if (!p) continue;
+            const kind = TRACKS[l.ch].kind;
+            const gen = Builder.generate(l, { rows: BLD.rows, rpb: state.song.rowsPerBeat, barRows: bldBar(), chords: BLD.chords });
+            const notes = [];
+            if (kind === "noise") {
+                for (const g of gen) {
+                    const inst = res.drum(g.drum);
+                    if (!inst) continue;
+                    notes.push({ row: g.row, len: 1, note: inst.note, inst: inst.id, fx: Builder.volumeFx(g.gain, "noise", inst.vol) });
+                }
+            } else {
+                const inst = res.melodic(kind, l.inst);
+                if (inst) for (const g of gen) notes.push({ row: g.row, len: g.len, note: g.note, inst: inst.id, fx: Builder.volumeFx(g.gain, kind, inst.vol) });
+            }
+            out.push({ ch: l.ch, notes });
+        }
+        return { layers: out, made: res.made, full: extra.full };
+    }
+
+    function bldDoc(built) {
+        const doc = clone(state.song);
+        doc.instruments = doc.instruments.concat(built.made.map(i => clone(i)));
+        const slots = [0, 1, 2, 3].map(t => $("bldOthers").checked ? state.song.order[BLD.ord][t] : -1);
+        for (const l of built.layers) {
+            doc.tracks[l.ch].patterns.push({ notes: l.notes });
+            slots[l.ch] = doc.tracks[l.ch].patterns.length - 1;
+        }
+        doc.order = [slots];
+        doc.orderRows = [BLD.rows];
+        return doc;
+    }
+
+    function bldSendPreview() {
+        const doc = bldDoc(bldBuild());
+        GBAudio.send({ type: "song", song: UGE.compile(doc).song });
+    }
+
+    function bldPlay() {
+        if (BLD.playing) {
+            bldStop();
+            return;
+        }
+        if (state.playing) stop();
+        BLD.playing = true;
+        BLD.row = 0;
+        GBAudio.start().catch(() => {
+            toast("Couldn't start audio in this browser.");
+            bldStop();
+        });
+        GBAudio.send({ type: "mute", mask: [true, true, true, true] });
+        bldSendPreview();
+        GBAudio.send({ type: "loop", on: true });
+        GBAudio.send({ type: "play", order: 0, row: 0 });
+        bldFoot();
+    }
+
+    function bldStop() {
+        if (!BLD.playing) return;
+        BLD.playing = false;
+        BLD.row = -1;
+        GBAudio.send({ type: "stop" });
+        GBAudio.send({ type: "loop", on: state.loop });
+        sendMute();
+        pushSong();
+        if (bldOpen()) {
+            bldFoot();
+            bldDraw();
+        }
+    }
+
+    function bldChanged() {
+        if (BLD.playing) bldSendPreview();
+        bldDraw();
+        bldFoot();
+    }
+
+    function bldStrum(c, force) {
+        if (!c || (BLD.playing && !force)) return;
+        if (BLD.playing) bldStop();
+        const inst = makeInst("pulse", "Square Lead");
+        inst.vol = 10;
+        const tones = Builder.chordType(c.type).tones;
+        const shift = c.root > 6 ? c.root - 12 : c.root;
+        const notes = tones.map((t, k) => ({ row: k, len: tones.length - k + 5, note: 24 + shift + t, inst: inst.id, fx: null }));
+        const bass = { row: 0, len: tones.length + 5, note: 12 + shift, inst: inst.id, fx: null };
+        const doc = { name: "chord", speed: 4, rowsPerBeat: 4, beatsPerBar: 4, instruments: [inst], tracks: [{ patterns: [{ notes }] }, { patterns: [{ notes: [bass] }] }, { patterns: [] }, { patterns: [] }], order: [[0, 0, -1, -1]], orderRows: [tones.length + 6] };
+        if (state.playing) stop();
+        GBAudio.start().catch(() => {});
+        GBAudio.send({ type: "mute", mask: [true, true, true, true] });
+        GBAudio.send({ type: "song", song: UGE.compile(doc).song });
+        GBAudio.send({ type: "loop", on: false });
+        GBAudio.send({ type: "play", order: 0, row: 0, once: true, cutAtEnd: true });
+        clearTimeout(bldStrum.t);
+        bldStrum.t = setTimeout(() => {
+            if (!BLD.playing && !state.playing) {
+                GBAudio.send({ type: "loop", on: state.loop });
+                sendMute();
+                pushSong();
+            }
+        }, 900);
+    }
+
+    function bldGeom() {
+        const cv = $("bldStrip");
+        const w = cv.clientWidth || 600;
+        return { cv, w, rowW: w / BLD.rows };
+    }
+
+    function bldSorted() {
+        return BLD.chords.map((c, k) => ({ c, k })).sort((a, b) => a.c.row - b.c.row);
+    }
+
+    function bldPills(w) {
+        const rowW = w / BLD.rows;
+        const sorted = bldSorted();
+        return sorted.map((s, i) => {
+            const end = i + 1 < sorted.length ? sorted[i + 1].c.row : BLD.rows;
+            const x = s.c.row * rowW;
+            const pw = Math.min((end - s.c.row) * rowW - 2, Math.max(34, bldName(s.c).length * 8 + 14));
+            return { k: s.k, x, w: Math.max(14, pw), end };
+        });
+    }
+
+    function bldDraw() {
+        if (!bldOpen()) return;
+        const { cv, w, rowW } = bldGeom();
+        const h = 46;
+        const ctx = prep(cv, w, h, true);
+        ctx.fillStyle = P.bg;
+        ctx.fillRect(0, 0, w, h);
+        const bar = bldBar();
+        for (let r = 0; r <= BLD.rows; r += bldBeat()) {
+            ctx.fillStyle = r % bar === 0 ? P.bar : P.beat;
+            ctx.fillRect(Math.round(r * rowW), 0, 1, h);
+        }
+        const pills = bldPills(w);
+        const sorted = bldSorted();
+        pills.forEach((p, i) => {
+            const c = BLD.chords[p.k];
+            const sel = p.k === BLD.sel;
+            ctx.globalAlpha = i % 2 ? 0.16 : 0.24;
+            ctx.fillStyle = P.accent;
+            ctx.fillRect(p.x, 24, (p.end - c.row) * rowW, h - 24);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = sel ? P.accent : P.panel2;
+            roundRect(ctx, p.x + 1, 3, p.w, 19, 4);
+            ctx.fill();
+            const pcs = bldPcs();
+            ctx.strokeStyle = sel ? P.accent : P.lineStrong;
+            ctx.lineWidth = 1;
+            if (pcs && !Builder.fitsScale(c, pcs)) {
+                ctx.setLineDash([3, 2]);
+                ctx.strokeStyle = sel ? P.ink : P.muted;
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = sel ? P.panel : P.ink;
+            ctx.font = "600 12px " + P.body;
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(p.x + 1, 3, p.w, 19);
+            ctx.clip();
+            ctx.fillText(bldName(c), p.x + 7, 17);
+            ctx.restore();
+        });
+        if (!sorted.length) {
+            ctx.fillStyle = P.muted;
+            ctx.font = "12px " + P.body;
+            ctx.fillText("Click to place a chord", 10, 28);
+        }
+        if (BLD.playing && BLD.row >= 0) {
+            ctx.fillStyle = P.accent;
+            ctx.fillRect(Math.round(BLD.row * rowW), 0, 2, h);
+        }
+        bldDrawRoll();
+    }
+
+    function bldDrawRoll() {
+        const cv = $("bldRoll");
+        const w = cv.clientWidth || 600;
+        const h = 190;
+        const ctx = prep(cv, w, h, true);
+        ctx.fillStyle = P.bg;
+        ctx.fillRect(0, 0, w, h);
+        const rowW = w / BLD.rows;
+        const bar = bldBar();
+        for (let r = 0; r <= BLD.rows; r += bldBeat()) {
+            ctx.fillStyle = r % bar === 0 ? P.bar : P.beat;
+            ctx.fillRect(Math.round(r * rowW), 0, 1, h);
+        }
+        const built = bldBuild();
+        const lanes = built.layers.length || 1;
+        const laneH = h / lanes;
+        built.layers.forEach((l, i) => {
+            const y0 = i * laneH;
+            if (i) {
+                ctx.fillStyle = P.line;
+                ctx.fillRect(0, Math.round(y0), w, 1);
+            }
+            const color = P.ch[l.ch];
+            if (TRACKS[l.ch].kind === "noise") {
+                const names = [...new Set(l.notes.map(n => n.inst))];
+                const rowH = Math.max(3, Math.min(10, (laneH - 8) / Math.max(1, names.length)));
+                for (const n of l.notes) {
+                    const k = names.indexOf(n.inst);
+                    ctx.globalAlpha = n.fx ? 0.55 : 1;
+                    ctx.fillStyle = color;
+                    ctx.fillRect(n.row * rowW + 1, y0 + 4 + k * rowH, Math.max(2, rowW - 2), rowH - 1);
+                }
+                ctx.globalAlpha = 1;
+                return;
+            }
+            if (!l.notes.length) return;
+            const lo = Math.min(...l.notes.map(n => n.note)) - 1;
+            const hi = Math.max(...l.notes.map(n => n.note)) + 1;
+            const span = Math.max(8, hi - lo);
+            const nh = Math.max(2, Math.min(6, (laneH - 8) / span));
+            for (const n of l.notes) {
+                const y = y0 + 4 + (hi - n.note) / span * (laneH - 8 - nh);
+                ctx.globalAlpha = n.fx ? 0.6 : 1;
+                ctx.fillStyle = color;
+                ctx.fillRect(n.row * rowW + 1, y, Math.max(2, n.len * rowW - 2), nh);
+            }
+            ctx.globalAlpha = 1;
+        });
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = P.accent;
+        for (const reg of Builder.regions(BLD.chords, BLD.rows)) ctx.fillRect(Math.round(reg.from * rowW), 0, 1, h);
+        ctx.globalAlpha = 1;
+        ctx.font = "10px " + P.mono;
+        built.layers.forEach((l, i) => {
+            const label = TRACKS[l.ch].short;
+            const y0 = i * laneH;
+            ctx.fillStyle = P.panel;
+            ctx.globalAlpha = 0.85;
+            ctx.fillRect(2, y0 + 2, ctx.measureText(label).width + 6, 13);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = P.muted;
+            ctx.fillText(label, 5, y0 + 12);
+        });
+        if (!built.layers.length) {
+            ctx.fillStyle = P.muted;
+            ctx.font = "12px " + P.body;
+            ctx.fillText("Add a layer to see its notes here.", 10, 22);
+        }
+        if (BLD.playing && BLD.row >= 0) {
+            ctx.fillStyle = P.accent;
+            ctx.fillRect(Math.round(BLD.row * rowW), 0, 2, h);
+        }
+    }
+
+    function bldRowAt(e, snap) {
+        const { cv, rowW } = bldGeom();
+        const x = e.clientX - cv.getBoundingClientRect().left;
+        let r = clamp(Math.floor(x / rowW), 0, BLD.rows - 1);
+        if (snap) r = Math.floor(r / bldBeat()) * bldBeat();
+        return r;
+    }
+
+    function bldPillAt(e) {
+        const { cv, w } = bldGeom();
+        const rect = cv.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const hit = bldPills(w).filter(p => x >= p.x && x <= p.x + p.w + 1 && y <= 24);
+        return hit.length ? hit[hit.length - 1].k : -1;
+    }
+
+    function bldPlace(row) {
+        if (BLD.chords.some(c => c.row === row)) return;
+        if (BLD.chords.length >= Builder.MAX_CHORDS) {
+            BLD.msg = "Up to " + Builder.MAX_CHORDS + " chords. Drag one to move it, or right-click to remove it.";
+            bldRender();
+            return;
+        }
+        const prev = bldSorted().filter(s => s.c.row < row).pop();
+        const c = { row, root: prev ? prev.c.root : (state.song.scale && state.song.scale.root) || 0, type: prev ? prev.c.type : "maj" };
+        BLD.chords.push(c);
+        BLD.sel = BLD.chords.length - 1;
+        BLD.msg = "";
+        bldSyncProg();
+        bldRender();
+        bldChanged();
+        bldStrum(c);
+    }
+
+    function bldRemove(k) {
+        if (k < 0 || !BLD.chords[k]) return;
+        BLD.chords.splice(k, 1);
+        BLD.sel = BLD.chords.length ? Math.min(k, BLD.chords.length - 1) : -1;
+        BLD.msg = "";
+        bldSyncProg();
+        bldRender();
+        bldChanged();
+    }
+
+    function bldSyncProg() {
+        $("bldProg").value = bldSorted().map(s => bldName(s.c)).join(" ");
+        BLD.lastProg = $("bldProg").value;
+    }
+
+    function bldTypeProg() {
+        if ($("bldProg").value === BLD.lastProg) return;
+        BLD.lastProg = $("bldProg").value;
+        const tokens = $("bldProg").value.split(/[\s,|]+/).filter(Boolean);
+        const list = [];
+        for (const t of tokens) {
+            const c = Builder.parseChord(t) || Builder.parseRoman(t, BLD.guide ? BLD.guide.root : 0, bldSteps() || SCALES.Ionian.steps);
+            if (!c) {
+                BLD.msg = "“" + t.slice(0, 10) + "” isn't a chord name. Try C, Am, F#m7, Bb7, Gsus4, Edim, Caug, or numerals like I vi IV V7.";
+                bldRender();
+                return;
+            }
+            list.push(c);
+        }
+        BLD.msg = list.length > Builder.MAX_CHORDS ? "Up to " + Builder.MAX_CHORDS + " chords: kept the first " + Builder.MAX_CHORDS + "." : "";
+        BLD.chords = list.length ? bldSpread(list) : [];
+        BLD.sel = BLD.chords.length ? 0 : -1;
+        bldSyncProg();
+        bldRender();
+        bldChanged();
+    }
+
+    function bldApply() {
+        const built = bldBuild();
+        if (!built.layers.length) return;
+        bldStop();
+        checkpoint();
+        for (const inst of built.made) state.song.instruments.push(inst);
+        const o = BLD.ord;
+        for (const l of built.layers) {
+            const idx = patIndex(l.ch, o);
+            const pats = state.song.tracks[l.ch].patterns;
+            if (idx >= 0 && usage(l.ch, idx) === 1) pats[idx].notes = l.notes;
+            else {
+                pats.push({ notes: l.notes });
+                state.song.order[o][l.ch] = pats.length - 1;
+            }
+        }
+        const names = built.layers.map(l => TRACKS[l.ch].name);
+        const prog = bldSorted().map(s => bldName(s.c)).join(" ");
+        BLD.saved = { chords: BLD.chords.map(c => Object.assign({}, c)), layers: BLD.layers.map(l => Object.assign({}, l, { inst: l.inst })), guide: BLD.guide };
+        $("builderModal").classList.remove("open");
+        state.ord = o;
+        state.sel = [];
+        renderAll();
+        status("Built " + names.join(", ") + " in order " + pad2(o) + (prog ? " over " + prog : "") + (built.made.length ? ", adding " + built.made.map(i => i.name).join(", ") : "") + ". Undo to take it back.");
+        if (built.full) toast("An instrument list was full (15 per type), so some layers use an existing instrument instead.");
+    }
+
+    function bldLayerEvent(e) {
+        const el = e.target.closest("[data-bl]");
+        const row = e.target.closest(".bld-layer");
+        if (!el || !row) return;
+        const k = +row.dataset.k;
+        const l = BLD.layers[k];
+        const f = el.dataset.bl;
+        if (f === "del" && e.type === "click") {
+            BLD.layers.splice(k, 1);
+            bldRender();
+            bldChanged();
+            return;
+        }
+        if (e.type !== "change") return;
+        if (f === "ch") {
+            const t = +el.value;
+            const was = TRACKS[l.ch].kind;
+            l.ch = t;
+            if (TRACKS[t].kind !== was) {
+                l.pattern = bldDefaultPattern(TRACKS[t].kind);
+                l.octave = 0;
+            }
+            l.inst = bldDefaultInst(t);
+        } else if (f === "pattern") l.pattern = el.value;
+        else if (f === "octave") l.octave = parseInt(el.value, 10) || 0;
+        else if (f === "inst") l.inst = el.value;
+        bldRender();
+        bldChanged();
+    }
+
+    function bldChordEvent(e) {
+        const el = e.target.closest("[data-bc]");
+        const c = BLD.chords[BLD.sel];
+        if (!el || !c) return;
+        const f = el.dataset.bc;
+        if (e.type === "click") {
+            if (f === "del") bldRemove(BLD.sel);
+            if (f === "hear") bldStrum(c);
+            return;
+        }
+        if (e.type !== "change") return;
+        if (f === "root") c.root = +el.value;
+        if (f === "type") c.type = el.value;
+        if (f === "row") {
+            const r = clamp(parseInt(el.value, 10) || 0, 0, BLD.rows - 1);
+            if (!BLD.chords.some(x => x !== c && x.row === r)) c.row = r;
+        }
+        bldSyncProg();
+        bldRender();
+        bldChanged();
+        if (f !== "row") bldStrum(c);
+    }
+
+    function initBuilder() {
+        const strip = $("bldStrip");
+        strip.addEventListener("pointerdown", e => {
+            if (e.button !== 0) return;
+            const k = bldPillAt(e);
+            if (k >= 0) {
+                BLD.sel = k;
+                BLD.drag = { k, moved: false };
+                strip.setPointerCapture(e.pointerId);
+                bldRender();
+                return;
+            }
+            bldPlace(bldRowAt(e, !e.shiftKey));
+        });
+        strip.addEventListener("pointermove", e => {
+            if (!BLD.drag) {
+                strip.style.cursor = bldPillAt(e) >= 0 ? "grab" : "crosshair";
+                return;
+            }
+            const c = BLD.chords[BLD.drag.k];
+            const r = bldRowAt(e, !e.shiftKey);
+            if (r !== c.row && !BLD.chords.some(x => x !== c && x.row === r)) {
+                c.row = r;
+                BLD.drag.moved = true;
+                bldRenderChord();
+                bldDraw();
+            }
+        });
+        strip.addEventListener("pointerup", () => {
+            if (!BLD.drag) return;
+            const moved = BLD.drag.moved;
+            const c = BLD.chords[BLD.drag.k];
+            BLD.drag = null;
+            bldSyncProg();
+            bldRender();
+            if (moved) bldChanged();
+            else bldStrum(c);
+        });
+        strip.addEventListener("contextmenu", e => {
+            e.preventDefault();
+            e.stopPropagation();
+            bldRemove(bldPillAt(e));
+        });
+        strip.addEventListener("keydown", e => {
+            if ((e.key === "Delete" || e.key === "Backspace") && BLD.sel >= 0) {
+                e.preventDefault();
+                bldRemove(BLD.sel);
+            } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+                e.preventDefault();
+                if (!BLD.chords.length) return;
+                const s = bldSorted();
+                const i = Math.max(0, s.findIndex(x => x.k === BLD.sel));
+                BLD.sel = s[clamp(i + (e.key === "ArrowRight" ? 1 : -1), 0, s.length - 1)].k;
+                bldRender();
+            }
+        });
+        const guideChord = e => {
+            const b = e.target.closest("[data-g]");
+            if (!b) return null;
+            const [r, t] = b.dataset.g.split(":");
+            return { root: +r, type: t };
+        };
+        $("bldGuide").addEventListener("click", e => {
+            const c = guideChord(e);
+            if (c && e.detail < 2) bldAudition(c);
+        });
+        $("bldGuide").addEventListener("dblclick", e => {
+            const c = guideChord(e);
+            if (c) bldGuidePick(c);
+        });
+        $("bldUse").onclick = () => {
+            if (BLD.audition) bldGuidePick(BLD.audition);
+        };
+        $("bldKey").onchange = e => {
+            BLD.guide = { root: +e.target.value, name: BLD.guide ? BLD.guide.name : "Ionian" };
+            BLD.audition = null;
+            bldSyncProg();
+            bldRender();
+        };
+        $("bldScale").onchange = e => {
+            BLD.guide = { root: BLD.guide ? BLD.guide.root : 0, name: e.target.value };
+            BLD.audition = null;
+            bldSyncProg();
+            bldRender();
+        };
+        $("bldMore").onchange = e => {
+            BLD.more = e.target.checked;
+            bldRenderGuide();
+        };
+        $("bldChord").addEventListener("change", bldChordEvent);
+        $("bldChord").addEventListener("click", bldChordEvent);
+        $("bldLayers").addEventListener("change", bldLayerEvent);
+        $("bldLayers").addEventListener("click", bldLayerEvent);
+        $("bldProg").addEventListener("keydown", e => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                bldTypeProg();
+            }
+        });
+        $("bldProg").addEventListener("change", bldTypeProg);
+        $("bldAdd").onclick = () => {
+            const free = [3, 0, 1, 2].find(t => !BLD.layers.some(l => l.ch === t));
+            if (free === undefined) return;
+            BLD.layers.push({ ch: free, pattern: bldDefaultPattern(TRACKS[free].kind), octave: 0, inst: bldDefaultInst(free) });
+            bldRender();
+            bldChanged();
+        };
+        $("bldOthers").onchange = () => {
+            if (BLD.playing) bldSendPreview();
+        };
+        $("bldPlay").onclick = bldPlay;
+        $("bldApply").onclick = bldApply;
+        $("bldClose").onclick = closeBuilder;
+        $("builderModal").addEventListener("pointerdown", e => {
+            if (e.target.id === "builderModal") closeBuilder();
+        });
+        $("ordBuild").onclick = () => openBuilder(state.ord);
+        window.addEventListener("resize", () => {
+            if (bldOpen()) bldDraw();
+        });
+    }
+
     const waveText = w => w.join(" ");
 
     function parseWave(text) {
@@ -3968,6 +4787,17 @@
         if (mod && k === "o") {
             e.preventDefault();
             openProject();
+            return;
+        }
+        if (bldOpen()) {
+            const typing = e.target.closest("input, select, textarea");
+            if (e.key === "Escape") {
+                e.preventDefault();
+                closeBuilder();
+            } else if (!typing && (e.key === " " || e.code === "Space")) {
+                e.preventDefault();
+                bldPlay();
+            }
             return;
         }
         if ($("waveModal").classList.contains("open")) {
@@ -4317,6 +5147,7 @@
         $("btnPresets").onclick = () => openPresets();
         $("presetClose").onclick = closePresets;
         $("infoClose").onclick = closeInfo;
+        initBuilder();
         $("waveCancel").onclick = closeWaveValues;
         $("waveApply").onclick = applyWaveValues;
         $("waveText").addEventListener("input", checkWaveText);

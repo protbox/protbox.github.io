@@ -39,14 +39,15 @@
       "sub": null
     },
     {
+      "id": "yf3ia0mx",
       "type": "pulse",
       "name": "Violin Lead",
-      "duty": 0,
+      "length": 0,
       "vol": 12,
       "envDir": "down",
       "envPace": 0,
       "fadeTo": 15,
-      "length": 0,
+      "duty": 0,
       "sweepTime": 0,
       "sweepDir": "down",
       "sweepShift": 0,
@@ -118,8 +119,7 @@
             }
           }
         ]
-      },
-      "id": "yf3ia0mx"
+      }
     },
     {
       "id": "midwtrianglebass",
@@ -924,7 +924,15 @@
             },
             {
               "row": 48,
-              "len": 5,
+              "len": 1,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 2
+            },
+            {
+              "row": 49,
+              "len": 4,
               "note": 37,
               "inst": "midpsquarelead",
               "fx": null

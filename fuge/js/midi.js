@@ -13,13 +13,13 @@
         { name: "Kick", rank: 0, notes: [35, 36] },
         { name: "Snare", rank: 1, notes: [38, 40] },
         { name: "Clap", rank: 2, notes: [39] },
-        { name: "Rimshot", rank: 3, notes: [37] },
+        { name: "Rimshot", rank: 3, notes: [37, 56, 76, 77] },
         { name: "Low Tom", rank: 4, notes: [41, 43, 45] },
         { name: "High Tom", rank: 4, notes: [47, 48, 50] },
         { name: "Crash", rank: 5, notes: [49, 52, 55, 57] },
         { name: "Open Hat", rank: 6, notes: [46] },
         { name: "Closed Hat", rank: 7, notes: [42, 44, 51, 53, 59] },
-        { name: "Shaker", rank: 8, notes: [54, 56, 58, 69, 70, 82] }
+        { name: "Shaker", rank: 8, notes: [54, 58, 69, 70, 82] }
     ];
 
     function drumFor(pitch) {

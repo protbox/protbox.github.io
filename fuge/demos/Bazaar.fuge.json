@@ -58,7 +58,7 @@
       "type": "pulse",
       "name": "Pluck",
       "length": 16,
-      "vol": 12,
+      "vol": 13,
       "envDir": "down",
       "envPace": 0,
       "fadeTo": 15,

@@ -1513,3 +1513,211 @@ input[type="range"] {
     justify-content: flex-end;
     margin-top: 12px;
 }
+
+.builder-dialog {
+    width: min(1000px, 100%);
+    max-height: calc(100dvh - 32px);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.bld-where {
+    flex: 1;
+    margin: 0 12px;
+}
+
+.bld-body {
+    align-content: start;
+    overflow-y: auto;
+    padding: 4px 16px 8px;
+    display: grid;
+    gap: 6px;
+}
+
+.bld-sec {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.bld-sec:last-child {
+    border-bottom: 0;
+}
+
+.bld-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.bld-row .label {
+    margin: 0;
+    min-width: 64px;
+}
+
+#bldProg {
+    flex: 1;
+    min-width: 200px;
+    max-width: 380px;
+    font-family: var(--f-mono);
+}
+
+#bldProgMsg.bad {
+    color: var(--danger);
+}
+
+#bldStrip {
+    width: 100%;
+    height: 46px;
+    display: block;
+    border-radius: 6px;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+#bldStrip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.bld-chord {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    min-height: 30px;
+    font-size: 13px;
+}
+
+.bld-chord .hint {
+    margin: 0;
+}
+
+.bld-chord input[type=number] {
+    width: 64px;
+}
+
+.bld-layers {
+    display: grid;
+    gap: 8px;
+}
+
+.bld-layer {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1.6fr) 92px minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--c);
+    border-radius: 6px;
+}
+
+.bld-layer select {
+    width: 100%;
+    min-width: 0;
+}
+
+.bld-layer .bld-desc {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+#bldRoll {
+    width: 100%;
+    height: 190px;
+    display: block;
+    border-radius: 6px;
+}
+
+.bld-foot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+}
+
+.bld-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+@media (max-width: 720px) {
+    .bld-layer {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 1360px) {
+    .meta input {
+        width: 112px;
+    }
+
+    .meta #songArtist {
+        width: 84px;
+    }
+}
+
+.bld-guide {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.bld-guide:empty {
+    display: none;
+}
+
+.bld-deg {
+    display: grid;
+    align-content: start;
+    gap: 3px;
+    justify-items: stretch;
+    min-width: 64px;
+}
+
+.bld-num {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+}
+
+.bld-deg .btn {
+    justify-content: center;
+}
+
+.bld-deg .btn.g-main {
+    font-weight: 600;
+}
+
+.bld-deg .btn[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+}
+
+.bld-deg .btn.g-alt {
+    font-size: 12px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.bld-out {
+    color: var(--muted);
+    font-style: italic;
+}
+
+.bld-deg .btn.aud {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}

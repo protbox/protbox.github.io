@@ -1,0 +1,93 @@
+file,channel,chord,time_sig,description
+bass/bass01_whole.mid,wave,any,4/4,"Held root. Pads, slow intros, breakdowns."
+bass/bass02_half_root5.mid,wave,any,4/4,"Root then fifth in half notes. Calm, ballads, title screens."
+bass/bass03_quarters.mid,wave,any,4/4,"Steady quarter-note root. Marches, simple pop."
+bass/bass04_driving_8ths.mid,wave,any,4/4,"Driving 8th-note root. Rock, battle, chase."
+bass/bass05_octave_pump.mid,wave,any,4/4,"Root/octave 8ths. Disco-chip, upbeat overworld."
+bass/bass06_tresillo_3_3_2.mid,wave,any,4/4,3+3+2 with octave pops (Legend of the Last Light / Salt & Sails groove).
+bass/bass07_gallop.mid,wave,any,4/4,"Dotted gallop. Horse riding, adventure, battle."
+bass/bass08_bossa.mid,wave,any,4/4,"Bossa root-fifth (dotted quarter + 8th). Shops, cafes, lounges."
+bass/bass09_syncopated_push.mid,wave,any,4/4,"Syncopated with a push into the next bar (ends on the 7th, a half step under the octave, leading into the next chord). Jazzy shop, town."
+bass/bass10_disco_offbeat.mid,wave,any,4/4,Same as pump but staccato; pair with 4-on-floor.
+bass/bass11_boogie_maj.mid,wave,maj,4/4,"Boogie walk up and down. Saloon, playful town, swing."
+bass/bass11_boogie_min.mid,wave,min,4/4,"Boogie walk up and down. Saloon, playful town, swing."
+bass/bass12_walk_up_maj.mid,wave,maj,4/4,Quarter-note walk 1-2-3-5. Gentle movement between chords.
+bass/bass12_walk_up_min.mid,wave,min,4/4,Quarter-note walk 1-2-3-5. Gentle movement between chords.
+bass/bass13_one_drop.mid,wave,any,4/4,"Reggae one-drop: silent beat 1, lands on beat 3. Beach, island, laid-back."
+bass/bass14_halftime_dub.mid,wave,any,4/4,"Half-time dubstep feel. Heavy dungeon, water temple."
+bass/bass15_oompah.mid,wave,any,4/4,"Oom-pah on 1 and 3. March, circus, tuba."
+bass/bass16_chip_16ths.mid,wave,any,4/4,"Fast root/octave 16ths. Classic chiptune energy, boss, speed stage."
+bass/bass17_funk.mid,wave,any,4/4,Funky syncopated 16ths with ghost notes. Uses b7 (fits minor or dominant chords).
+bass/bass18_maqsum_phrygdom_maj.mid,wave,maj,4/4,Arabic/maqsum riff with b2 (Sunken Shrine style). Use maj = Phrygian dominant.
+bass/bass18_maqsum_phrygdom_min.mid,wave,min,4/4,Arabic/maqsum riff with b2 (Sunken Shrine style). Use maj = Phrygian dominant.
+bass/bass19_wobble_long.mid,wave,any,4/4,Re-triggered long root with fading volumes; fake wobble. Dubstep-ish.
+bass/bass20_climb_8ths_maj.mid,wave,maj,4/4,"Climbing 8ths, builds tension into the next bar. Pre-chorus, rising action."
+bass/bass20_climb_8ths_min.mid,wave,min,4/4,"Climbing 8ths, builds tension into the next bar. Pre-chorus, rising action."
+bass/bass21_waltz_3-4.mid,wave,any,3/4,"Waltz root-fifth-fifth. Ballroom, music box, spooky waltz."
+bass/bass22_6-8_rolling_maj.mid,wave,maj,6/8,"Rolling 6/8 arpeggio bass (barcarolle). Sea, sailing, lullaby."
+bass/bass22_6-8_rolling_min.mid,wave,min,6/8,"Rolling 6/8 arpeggio bass (barcarolle). Sea, sailing, lullaby."
+bass/bass23_6-8_jig.mid,wave,any,6/8,"Jig long-short. Folk, tavern, Celtic."
+rhythm/pulse01_arp_up_16_maj.mid,pulse,maj,4/4,Rising 1-3-5-8 16ths. Classic chip arp.
+rhythm/pulse01_arp_up_16_min.mid,pulse,min,4/4,Rising 1-3-5-8 16ths. Classic chip arp.
+rhythm/pulse02_arp_updown_16_maj.mid,pulse,maj,4/4,"Up-down 16ths over an octave and a bit. Flowing, magical."
+rhythm/pulse02_arp_updown_16_min.mid,pulse,min,4/4,"Up-down 16ths over an octave and a bit. Flowing, magical."
+rhythm/pulse03_bells_3_3_2_sus.mid,pulse,any,4/4,"Bell ostinato 3+3+2 (5-8-9, works on any chord). Accented, ghost notes soft."
+rhythm/pulse04_bells_3_3_2_triad_maj.mid,pulse,maj,4/4,Bell ostinato 3+3+2 on the triad.
+rhythm/pulse04_bells_3_3_2_triad_min.mid,pulse,min,4/4,Bell ostinato 3+3+2 on the triad.
+rhythm/pulse05_bells_3_3_2_down_maj.mid,pulse,maj,4/4,The bell ostinato flipped downward. Use for variation.
+rhythm/pulse05_bells_3_3_2_down_min.mid,pulse,min,4/4,The bell ostinato flipped downward. Use for variation.
+rhythm/pulse06_bells_gallop_maj.mid,pulse,maj,4/4,Gappy gallop ostinato. Lighter variation of the bells.
+rhythm/pulse06_bells_gallop_min.mid,pulse,min,4/4,Gappy gallop ostinato. Lighter variation of the bells.
+rhythm/pulse07_broken_8ths_maj.mid,pulse,maj,4/4,"Broken-chord 8ths. Calm accompaniment, towns, harp-like."
+rhythm/pulse07_broken_8ths_min.mid,pulse,min,4/4,"Broken-chord 8ths. Calm accompaniment, towns, harp-like."
+rhythm/pulse08_alberti_maj.mid,pulse,maj,4/4,"Alberti 1-5-3-5. Classical, castle, music box."
+rhythm/pulse08_alberti_min.mid,pulse,min,4/4,"Alberti 1-5-3-5. Classical, castle, music box."
+rhythm/pulse09_offbeat_skank_maj.mid,pulse,maj,4/4,"Offbeat chord stabs on the ""and"". Reggae/ska, beach, upbeat towns."
+rhythm/pulse09_offbeat_skank_min.mid,pulse,min,4/4,"Offbeat chord stabs on the ""and"". Reggae/ska, beach, upbeat towns."
+rhythm/pulse10_stabs_2_and_4_maj.mid,pulse,maj,4/4,"Stabs on 2 and 4. Country, oom-pah partner to bass15."
+rhythm/pulse10_stabs_2_and_4_min.mid,pulse,min,4/4,"Stabs on 2 and 4. Country, oom-pah partner to bass15."
+rhythm/pulse11_bossa_guide_tones_maj.mid,pulse,maj,4/4,"Guide-tone comping (3rd and 7th) in bossa rhythm. maj = maj7, min = m7."
+rhythm/pulse11_bossa_guide_tones_min.mid,pulse,min,4/4,"Guide-tone comping (3rd and 7th) in bossa rhythm. maj = maj7, min = m7."
+rhythm/pulse12_shop_plucks_maj.mid,pulse,maj,4/4,"Sparse syncopated plucks of 3-7-9 (Shopkeeper style). Jazzy, airy."
+rhythm/pulse12_shop_plucks_min.mid,pulse,min,4/4,"Sparse syncopated plucks of 3-7-9 (Shopkeeper style). Jazzy, airy."
+rhythm/pulse13_tremolo_octave.mid,pulse,any,4/4,"Octave tremolo 16ths. Tension, suspense, sparkle under a pad."
+rhythm/pulse14_shimmer_trill_maj.mid,pulse,maj,4/4,"5-6 trill. Shimmer, magic, water."
+rhythm/pulse14_shimmer_trill_min.mid,pulse,min,4/4,"5-6 trill. Shimmer, magic, water."
+rhythm/pulse15_powerchug.mid,pulse,any,4/4,"Root-fifth chug. Rock, boss, action."
+rhythm/pulse16_echo_stab.mid,pulse,any,4/4,"One stab with dotted-8th echoes fading out. Space, caves, transitions."
+rhythm/pulse17_harp_sweep_maj.mid,pulse,maj,4/4,"Two-octave harp sweep (1-5-8-10-12-15...). Title screens, fairy fountains."
+rhythm/pulse17_harp_sweep_min.mid,pulse,min,4/4,"Two-octave harp sweep (1-5-8-10-12-15...). Title screens, fairy fountains."
+rhythm/pulse18_counter_offbeats.mid,pulse,any,4/4,"Two-note offbeat 8ths (5, 8, 9). A light, non-busy pulse."
+rhythm/pulse19_maqsum_pluck_phrygdom_maj.mid,pulse,maj,4/4,Arabic pluck riff with b2 (Sunken Shrine Pulse 2). maj = Phrygian dominant.
+rhythm/pulse19_maqsum_pluck_phrygdom_min.mid,pulse,min,4/4,Arabic pluck riff with b2 (Sunken Shrine Pulse 2). maj = Phrygian dominant.
+rhythm/pulse20_build_16ths_maj.mid,pulse,maj,4/4,Rising arp with a volume crescendo. Use the bar before a big section.
+rhythm/pulse20_build_16ths_min.mid,pulse,min,4/4,Rising arp with a volume crescendo. Use the bar before a big section.
+rhythm/pulse21_waltz_pah_pah_maj.mid,pulse,maj,3/4,"Waltz ""pah-pah"" on beats 2 and 3. Pair with bass21."
+rhythm/pulse21_waltz_pah_pah_min.mid,pulse,min,3/4,"Waltz ""pah-pah"" on beats 2 and 3. Pair with bass21."
+rhythm/pulse22_6-8_arp_maj.mid,pulse,maj,6/8,"6/8 broken chord. Lilting, sea, lullaby."
+rhythm/pulse22_6-8_arp_min.mid,pulse,min,6/8,"6/8 broken chord. Lilting, sea, lullaby."
+rhythm/pulse23_6-8_bells.mid,pulse,any,6/8,6/8 bell ostinato in triplet groups.
+drums/drums01_rock.mid,noise,any,4/4,"Basic rock: kick 1 & 3, snare 2 & 4, 8th hats."
+drums/drums02_rock_16th_hats.mid,noise,any,4/4,Busy rock with 16th hats. Hats are soft in the MIDI so the backbeat cuts through.
+drums/drums03_halftime.mid,noise,any,4/4,"Half-time: snare on 3 only. Heavy, slow, epic."
+drums/drums04_four_on_floor.mid,noise,any,4/4,Four-on-the-floor kicks with offbeat open hats. Disco/dance.
+drums/drums05_march.mid,noise,any,4/4,"Snare-driven march. Soldiers, parades, castles."
+drums/drums06_maqsum.mid,noise,any,4/4,"Maqsum (dum-tek-tek-dum-tek). Desert, bazaar, Arabic."
+drums/drums07_bossa.mid,noise,any,4/4,"Bossa: rim clave over a kick on 1 and 3, shaker filling the gaps."
+drums/drums08_woodblock_partido.mid,noise,any,4/4,"Syncopated woodblock and shaker (Shopkeeper v2). Shops, quirky towns."
+drums/drums09_one_drop.mid,noise,any,4/4,"Reggae one-drop: nothing on 1, kick+rim on 3. Pair with bass13."
+drums/drums10_breakbeat.mid,noise,any,4/4,"Syncopated rock with a pickup kick (Clash v2). Battles, action."
+drums/drums11_3_3_2_groove.mid,noise,any,4/4,3+3+2 kick pattern under a backbeat (Legend of the Last Light). Pair with bass06.
+drums/drums12_dock_clank.mid,noise,any,4/4,"Clanky work rhythm (cargo clank). Factories, docks, mines."
+drums/drums13_tribal_toms.mid,noise,any,4/4,"Tribal tom groove. Jungle, ritual, drums of war."
+drums/drums14_shaker_only.mid,noise,any,4/4,"Just 8th-note shaker. Ambient, intros, quiet towns."
+drums/drums15_dnb.mid,noise,any,4/4,"Two-step / drum-and-bass feel. Speed, tech, chase."
+drums/drums16_fill_snare_roll.mid,noise,any,4/4,Fill: snare roll into the next bar.
+drums/drums17_fill_toms.mid,noise,any,4/4,Fill: toms + snare.
+drums/drums18_fill_build_16ths.mid,noise,any,4/4,Build: 16th snare crescendo. Last bar before a drop.
+drums/drums19_stop_time.mid,noise,any,4/4,"Stop-time: crash on 1, then silence. Pair with all channels hitting beat 1."
+drums/drums20_crash_swell.mid,noise,any,4/4,Reverse-cymbal swell over the whole bar. Use the bar before a crash.
+drums/drums21_timpani_roll.mid,noise,any,4/4,"Timpani hits into a roll. Fanfares, title screens."
+drums/drums22_waltz_3-4.mid,noise,any,3/4,"Waltz: kick 1, hats 2 & 3."
+drums/drums23_6-8_sway.mid,noise,any,6/8,"6/8 sway: kick 1, rim on 4, shaker between."
+drums/drums24_6-8_jig.mid,noise,any,6/8,"6/8 jig: kick, hat, snare on beat 2."

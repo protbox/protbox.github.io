@@ -60,6 +60,7 @@
                     <button class="btn small icon" id="ordRight" type="button" title="Move order right" aria-label="Move order right">▶</button>
                     <button class="btn small" id="ordDel" type="button" title="Delete the selected order">Delete</button>
                     <select id="ordRows" aria-label="Length of the selected order" title="How many rows the selected order plays before moving on"></select>
+                    <button class="btn small" id="ordBuild" type="button" title="Build this order's patterns from a chord progression and the pattern library">♫ Builder…</button>
                     <span class="hint" id="arrInfo"></span>
                     <div class="spacer"></div>
                     <div class="group meta">
@@ -151,6 +152,53 @@
         </div>
     </div>
 
+    <div class="modal" id="builderModal" role="dialog" aria-modal="true" aria-labelledby="bldTitle">
+        <div class="dialog builder-dialog">
+            <div class="dialog-head">
+                <h2 id="bldTitle">Pattern builder</h2>
+                <span class="hint bld-where" id="bldWhere"></span>
+                <button class="btn small" id="bldClose" type="button">Close</button>
+            </div>
+            <div class="bld-body">
+                <section class="bld-sec">
+                    <div class="bld-row">
+                        <p class="label">Chords</p>
+                        <input type="text" id="bldProg" placeholder="Up to 4 chords, e.g. C Am F G7 or I vi IV V, then Enter" aria-label="Chord progression" spellcheck="false">
+                        <span class="hint" id="bldProgMsg" role="status"></span>
+                    </div>
+                    <div class="bld-row bld-guide-head">
+                        <p class="label">Guide</p>
+                        <select id="bldKey" aria-label="Guide key"></select>
+                        <select id="bldScale" aria-label="Guide scale"></select>
+                        <label class="bld-check"><input type="checkbox" id="bldMore"> 7ths and sus</label>
+                        <button class="btn small accent" id="bldUse" type="button" hidden>Use</button>
+                        <span class="hint" id="bldGuideHint"></span>
+                    </div>
+                    <div class="bld-guide" id="bldGuide"></div>
+                    <canvas id="bldStrip" tabindex="0" aria-label="Chord strip: click to place a chord, drag a chord to move it, right-click to remove it"></canvas>
+                    <div class="bld-chord" id="bldChord"></div>
+                </section>
+                <section class="bld-sec">
+                    <div class="bld-row">
+                        <p class="label">Layers</p>
+                        <button class="btn small" id="bldAdd" type="button">+ Layer</button>
+                    </div>
+                    <div class="bld-layers" id="bldLayers"></div>
+                </section>
+                <section class="bld-sec">
+                    <canvas id="bldRoll" aria-label="Preview of the notes the builder will write"></canvas>
+                </section>
+            </div>
+            <div class="bld-foot">
+                <button class="btn" id="bldPlay" type="button">▶ Play</button>
+                <label class="bld-check"><input type="checkbox" id="bldOthers" checked> Hear the order's other channels</label>
+                <div class="spacer"></div>
+                <span class="hint" id="bldNote"></span>
+                <button class="btn accent" id="bldApply" type="button">Apply</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal" id="waveModal" role="dialog" aria-modal="true" aria-labelledby="waveTitle">
         <div class="dialog info-dialog wave-dialog">
             <div class="dialog-head">
@@ -179,6 +227,8 @@
     <script src="js/gbaudio.js"></script>
     <script src="js/demo.js"></script>
     <script src="js/midi.js"></script>
+    <script src="patterns/patterns.js"></script>
+    <script src="js/builder.js"></script>
     <script src="demos/demos.js"></script>
     <script src="js/app.js"></script>
 </body>

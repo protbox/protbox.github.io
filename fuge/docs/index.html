@@ -64,6 +64,7 @@
                         <li><a href="#swell">Swell</a></li>
                         <li><a href="#echo">Echo</a></li>
                         <li><a href="#keyboard-piano">Keyboard piano</a></li>
+                        <li><a href="#builder">Pattern builder</a></li>
                     </ul>
                 </div>
                 <div class="group">
@@ -432,6 +433,41 @@
                     <li><b>On the noise track</b>, the keys play the drum lanes in order: <kbd>Z</kbd> is the first lane, <kbd>X</kbd> the second, and so on.</li>
                 </ul>
                 <p>While it's on, letter and number keys play notes instead of their shortcuts (such as <kbd>D</kbd>, <kbd>M</kbd>, <kbd>E</kbd>, <kbd>S</kbd> and <kbd>1</kbd>–<kbd>4</kbd>). <kbd>Space</kbd>, the arrow keys, <kbd>Delete</kbd>, <kbd>Esc</kbd> and <kbd>Ctrl</kbd> shortcuts still work. Keys go by their position, not the letter printed on them, so the layout is the same on any keyboard. A note sounds until you let go, and it's silent while the song plays, because the song is using the channels.</p>
+            </section>
+
+            <section id="builder">
+                <h2>Pattern builder</h2>
+                <p>The pattern builder writes accompaniment for one order from a chord progression and a library of one-bar patterns: bass lines, arpeggios and comping for the melodic channels, and grooves for the drums. Open it with <b>♫ Builder…</b> in the arrangement bar, or right-click an order number and choose <b>Pattern builder…</b>.</p>
+                <figure class="shot">
+                    <img class="light" src="img/builder-light.webp" alt="The pattern builder with a chord guide, four chords, three layers and a preview of their notes" width="1000" height="837" loading="lazy">
+                    <img class="dark" src="img/builder-dark.webp" alt="The pattern builder with a chord guide, four chords, three layers and a preview of their notes" width="1000" height="837" loading="lazy">
+                </figure>
+                <h3>Chords</h3>
+                <ul>
+                    <li>Type a progression in the box, such as <code>C Am F G7</code>, or Roman numerals like <code>I vi IV V7</code> (read in the guide's key), and press <kbd>Enter</kbd> to spread the chords evenly over the order. Or click the strip to place a chord where you want it: it snaps to beats, and holding <kbd>Shift</kbd> places it on any row.</li>
+                    <li>Each chord lasts until the next one. Up to 4 chords per order. Drag a chord to move it, right-click it (or press <kbd>Delete</kbd>) to remove it, and use the menus under the strip to change its root and type.</li>
+                    <li>Clicking a chord plays it, so you can hear what you picked; <b>▶ Hear chord</b> plays it again.</li>
+                    <li>Chord types: major, minor, 7, maj7, m7, dim, sus2, sus4 and aug. The library has major and minor versions of patterns that use the 3rd, so the others start from the closest version and adjust the chord tones: 7 and m7 use a flat 7th, maj7 a major 7th, dim a flat 5th, aug a sharp 5th, and sus2 or sus4 swap the 3rd for the 2nd or 4th.</li>
+                </ul>
+                <h3>Chord guide</h3>
+                <p>Pick a key and scale under <b>Guide</b> (the same scales as <a href="#scales">scale highlighting</a>; it starts on your song's) to see the chords that fit it, one column per note of the scale, with Roman numerals for seven-note scales: in A minor that's i Am, ii° Bdim, III C, iv Dm, v Em, VI F and VII G. Tick <b>7ths and sus</b> to add the 7th and suspended chords that also fit.</p>
+                <ul>
+                    <li>Click a guide chord to hear it first; it's outlined and nothing changes yet. Click <b>Use</b> (or double-click the chord) to put it in: it replaces the chord selected on the strip and selects the next one, so you can fill a progression chord by chord. With nothing selected, it's added after the last chord.</li>
+                    <li>The guide only suggests: you can still pick any chord. A chord from outside the scale, like an A major at the end of a progression in A minor, gets a dashed outline on the strip and is marked as a borrowed chord.</li>
+                    <li>Chord names follow the key, so F major shows Bb and E major shows G#.</li>
+                </ul>
+                <h3>Layers</h3>
+                <ul>
+                    <li>Each layer writes one channel, so you can mix and match: up to four layers, one per channel. Bass and rhythm patterns work on Pulse 1, Pulse 2 or Wave (a rhythm pattern on Wave makes a lead), and drum patterns go on Noise.</li>
+                    <li>Choose the pattern, an octave shift, and the instrument: one already in your song, or a preset that's added when you apply. Drum hits use the noise instruments with matching names (Kick, Snare, Closed Hat…), adding any that are missing.</li>
+                    <li>Patterns are written in C and moved to each chord's root, to the nearest octave. A note that's still sounding when the chord changes is played again on the new chord. Melodic layers are silent before the first chord; drums play the whole order.</li>
+                    <li>A pattern's bar always fills one bar of your song, so 3/4 and 6/8 patterns line up with 3/4 and 6/8 songs. Bass patterns are listed first on Wave and rhythm patterns first on the pulse channels; within each group, patterns in your song's time signature come first, and the others show theirs in brackets.</li>
+                    <li>Accents in the patterns become note volumes (<code>C0y</code>), like velocities in a MIDI import.</li>
+                </ul>
+                <h3>Previewing and applying</h3>
+                <p>The strip and the preview under the layers update as you go. <b>▶ Play</b> (or <kbd>Space</kbd>) loops the order through fUGE's sound chip emulation, and keeps playing your changes as you make them. Untick <b>Hear the order's other channels</b> to hear only the layers. Nothing changes in your song until you click <b>Apply</b>, which replaces those channels in this order as one step you can undo. A pattern that's also used by other orders is left alone there: the order gets a new pattern instead. The builder remembers your chords and layers for next time.</p>
+                <h3>Adding your own patterns</h3>
+                <p>The library lives in <code>web/patterns</code>, one folder per group (<code>bass</code>, <code>rhythm</code>, <code>drums</code>, or your own). To add patterns, save MIDI files there and run <code>node tools/patterns.js</code>, which bundles them into <code>web/patterns/patterns.js</code> so fUGE can read them straight from disk. Write melodic patterns on a C chord; name a pair <code>…_maj.mid</code> and <code>…_min.mid</code> when they use the 3rd. Drums use General MIDI note numbers on channel 10. A pattern can be several bars long, and descriptions come from <code>index.csv</code> in the same folder.</p>
             </section>
 
             <section id="sfx">
