@@ -1,0 +1,4081 @@
+{
+  "format": "fuge",
+  "version": 1,
+  "name": "Skyward",
+  "artist": "Polter",
+  "comment": "Imported from Skyward.mid",
+  "speed": 6,
+  "rowsPerBeat": 4,
+  "beatsPerBar": 3,
+  "instruments": [
+    {
+      "id": "midpsquarelead",
+      "type": "pulse",
+      "name": "Square Lead",
+      "length": 0,
+      "vol": 14,
+      "envDir": "down",
+      "envPace": 0,
+      "fadeTo": 15,
+      "duty": 2,
+      "sweepTime": 0,
+      "sweepDir": "down",
+      "sweepShift": 0,
+      "sub": null
+    },
+    {
+      "id": "midpbrightlead",
+      "type": "pulse",
+      "name": "Bright Lead",
+      "length": 0,
+      "vol": 9,
+      "envDir": "down",
+      "envPace": 0,
+      "fadeTo": 15,
+      "duty": 1,
+      "sweepTime": 0,
+      "sweepDir": "down",
+      "sweepShift": 0,
+      "sub": null
+    },
+    {
+      "type": "pulse",
+      "name": "Soft Pluck",
+      "duty": 1,
+      "vol": 11,
+      "envDir": "down",
+      "envPace": 5,
+      "fadeTo": 15,
+      "length": 0,
+      "sweepTime": 0,
+      "sweepDir": "down",
+      "sweepShift": 0,
+      "sub": null,
+      "id": "75k6dm43"
+    },
+    {
+      "id": "midwtrianglebass",
+      "type": "wave",
+      "name": "Triangle Bass",
+      "length": 0,
+      "level": 1,
+      "wave": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        15,
+        13,
+        11,
+        9,
+        7,
+        5,
+        3,
+        1,
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        15,
+        13,
+        11,
+        9,
+        7,
+        5,
+        3,
+        1
+      ],
+      "sub": null
+    },
+    {
+      "id": "midncrash",
+      "type": "noise",
+      "name": "Crash",
+      "length": 0,
+      "vol": 12,
+      "envDir": "down",
+      "envPace": 6,
+      "fadeTo": 15,
+      "bits": 15,
+      "note": 46,
+      "sub": null
+    },
+    {
+      "id": "midnclosedhat",
+      "type": "noise",
+      "name": "Closed Hat",
+      "length": 0,
+      "vol": 8,
+      "envDir": "down",
+      "envPace": 1,
+      "fadeTo": 15,
+      "bits": 15,
+      "note": 54,
+      "sub": null
+    },
+    {
+      "id": "midnsnare",
+      "type": "noise",
+      "name": "Snare",
+      "length": 0,
+      "vol": 13,
+      "envDir": "down",
+      "envPace": 1,
+      "fadeTo": 15,
+      "bits": 15,
+      "note": 40,
+      "sub": null
+    },
+    {
+      "id": "midnkick",
+      "type": "noise",
+      "name": "Kick",
+      "length": 0,
+      "vol": 15,
+      "envDir": "down",
+      "envPace": 1,
+      "fadeTo": 15,
+      "bits": 7,
+      "note": 32,
+      "sub": null
+    },
+    {
+      "id": "midnlowtom",
+      "type": "noise",
+      "name": "Low Tom",
+      "length": 0,
+      "vol": 9,
+      "envDir": "down",
+      "envPace": 2,
+      "fadeTo": 15,
+      "bits": 7,
+      "note": 48,
+      "sub": null
+    },
+    {
+      "id": "midnopenhat",
+      "type": "noise",
+      "name": "Open Hat",
+      "length": 0,
+      "vol": 8,
+      "envDir": "down",
+      "envPace": 3,
+      "fadeTo": 15,
+      "bits": 15,
+      "note": 52,
+      "sub": null
+    }
+  ],
+  "tracks": [
+    {
+      "key": "pulse1",
+      "patterns": [
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 5,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 2,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 2,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 3,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 15,
+              "len": 4,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 4,
+                "param": 67
+              }
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 32,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 5,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 2,
+              "note": 32,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 2,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 2,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 5,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 4,
+                "param": 67
+              }
+            },
+            {
+              "row": 44,
+              "len": 2,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 3,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 2,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 3,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 2,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 14,
+              "len": 2,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 3,
+              "note": 43,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 19,
+              "len": 4,
+              "note": 43,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 4,
+                "param": 67
+              }
+            },
+            {
+              "row": 24,
+              "len": 2,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 26,
+              "len": 2,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 3,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 31,
+              "len": 4,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 4,
+                "param": 67
+              }
+            },
+            {
+              "row": 36,
+              "len": 2,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 2,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 5,
+              "note": 32,
+              "inst": "midpsquarelead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 9,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 1,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 11,
+              "len": 1,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 5,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 2,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 3,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 23,
+              "len": 1,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 7,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 2,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 5,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 2,
+              "slideLen": 1
+            },
+            {
+              "row": 42,
+              "len": 1,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 1,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 9,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 11,
+              "len": 1,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 7,
+              "note": 41,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 2,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 5,
+              "note": 36,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 2,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 2,
+              "note": 36,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 2,
+              "note": 31,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 2,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 1,
+              "note": 36,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 2
+            },
+            {
+              "row": 41,
+              "len": 6,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 7,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 2,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 1,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null,
+              "slide": 2
+            },
+            {
+              "row": 13,
+              "len": 4,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 5,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 7,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 2,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 5,
+              "note": 44,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 5,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 7,
+              "note": 44,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 2,
+              "note": 43,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 5,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 2,
+              "note": 40,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 2,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 44,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 3,
+              "note": 45,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 2,
+              "note": 47,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 2,
+              "note": 45,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 3,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 3,
+              "note": 44,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 2,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 2,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 4,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 5,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 4,
+                "param": 67
+              }
+            },
+            {
+              "row": 10,
+              "len": 1,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 11,
+              "len": 1,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 5,
+              "note": 42,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 3,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 4,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 5,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 4,
+                "param": 67
+              }
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 3,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 5,
+              "note": 30,
+              "inst": "midpsquarelead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 2,
+              "note": 30,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 2,
+              "len": 2,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 3,
+              "note": 32,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 7,
+              "len": 4,
+              "note": 32,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 4,
+                "param": 67
+              }
+            },
+            {
+              "row": 12,
+              "len": 3,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 2,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 5,
+              "note": 38,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 5,
+              "note": 37,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 3,
+              "note": 35,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 3,
+              "note": 32,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 39,
+              "len": 4,
+              "note": 32,
+              "inst": "midpsquarelead",
+              "fx": {
+                "code": 4,
+                "param": 67
+              }
+            },
+            {
+              "row": 44,
+              "len": 2,
+              "note": 28,
+              "inst": "midpsquarelead",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 33,
+              "inst": "midpsquarelead",
+              "fx": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "pulse2",
+      "patterns": [
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 2,
+              "note": 21,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 2,
+              "len": 2,
+              "note": 28,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 2,
+              "note": 25,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 2,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 2,
+              "note": 25,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 28,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 2,
+              "note": 20,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 14,
+              "len": 2,
+              "note": 28,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 2,
+              "note": 35,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 2,
+              "note": 32,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 2,
+              "note": 35,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 28,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 2,
+              "note": 18,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 26,
+              "len": 2,
+              "note": 25,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 2,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 2,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 2,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 25,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 2,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 2,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 2,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 2,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 2,
+              "note": 23,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 2,
+              "len": 2,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 2,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 2,
+              "note": 35,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 2,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 2,
+              "note": 19,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 14,
+              "len": 2,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 2,
+              "note": 35,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 2,
+              "note": 31,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 2,
+              "note": 35,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 2,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 26,
+              "len": 2,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 2,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 2,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 2,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 2,
+              "note": 28,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 2,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 35,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 5,
+              "note": 32,
+              "inst": "midpbrightlead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 5,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 5,
+              "note": 32,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 5,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 5,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 5,
+              "note": 28,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 5,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 5,
+              "note": 32,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 5,
+              "note": 28,
+              "inst": "midpbrightlead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 5,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 5,
+              "note": 37,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 5,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 5,
+              "note": 29,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 5,
+              "note": 29,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 5,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 2,
+              "note": 31,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 2,
+              "note": 35,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 38,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 2,
+              "note": 31,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 2,
+              "note": 35,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 38,
+              "inst": "midpbrightlead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 7,
+              "note": 37,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 3,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 5,
+              "note": 37,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 5,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 7,
+              "note": 38,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 3,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 5,
+              "note": 40,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 5,
+              "note": 35,
+              "inst": "midpbrightlead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 9,
+              "note": 40,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 37,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 5,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 5,
+              "note": 37,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 7,
+              "note": 42,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 3,
+              "note": 38,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 3,
+              "note": 40,
+              "inst": "midpbrightlead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 6,
+              "len": 2,
+              "note": 21,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 2,
+              "note": 25,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 28,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 10,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 2,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 2,
+              "note": 33,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 35,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 10,
+              "note": 25,
+              "inst": "midpbrightlead",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 6,
+              "len": 2,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 2,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 37,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 10,
+              "note": 30,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 2,
+              "note": 23,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 2,
+              "note": 26,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 28,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 23,
+              "inst": "midpbrightlead",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 2,
+              "note": 28,
+              "inst": "midpbrightlead",
+              "fx": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "wave",
+      "patterns": [
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 3,
+              "note": 9,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 3,
+              "note": 21,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 3,
+              "note": 8,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 3,
+              "note": 20,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 3,
+              "note": 6,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 2,
+              "note": 13,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 3,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 13,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 3,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 21,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 3,
+              "note": 26,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 21,
+              "inst": "midwtrianglebass",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 3,
+              "note": 11,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 3,
+              "note": 23,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 3,
+              "note": 7,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 2,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 3,
+              "note": 19,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 3,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 2,
+              "note": 21,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 3,
+              "note": 26,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 21,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 3,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 11,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 3,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 17,
+              "inst": "midwtrianglebass",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 8,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 10,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 8,
+              "note": 13,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 15,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 8,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 17,
+              "inst": "midwtrianglebass",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 8,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 8,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 8,
+              "note": 17,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 2,
+              "note": 7,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 2,
+              "note": 19,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 7,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 2,
+              "note": 19,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 2,
+              "note": 7,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 8,
+              "inst": "midwtrianglebass",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 2,
+              "note": 9,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 2,
+              "len": 2,
+              "note": 21,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 2,
+              "note": 9,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 2,
+              "note": 21,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 2,
+              "note": 9,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 21,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 2,
+              "note": 6,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 14,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 2,
+              "note": 6,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 2,
+              "note": 6,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 2,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 26,
+              "len": 2,
+              "note": 26,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 2,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 2,
+              "note": 26,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 2,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 26,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 2,
+              "note": 4,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 4,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 2,
+              "note": 4,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 2,
+              "note": 13,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 2,
+              "len": 2,
+              "note": 25,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 2,
+              "note": 13,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 2,
+              "note": 25,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 2,
+              "note": 13,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 25,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 2,
+              "note": 6,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 14,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 2,
+              "note": 6,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 2,
+              "note": 6,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 2,
+              "note": 11,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 26,
+              "len": 2,
+              "note": 23,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 2,
+              "note": 11,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 2,
+              "note": 23,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 2,
+              "note": 11,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 23,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 3,
+              "note": 4,
+              "inst": "midwtrianglebass",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 3,
+              "note": 9,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 3,
+              "note": 21,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 3,
+              "note": 9,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 3,
+              "note": 21,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 3,
+              "note": 6,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 2,
+              "note": 13,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 3,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 13,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 3,
+              "note": 4,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 13,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 3,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 13,
+              "inst": "midwtrianglebass",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 3,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 2,
+              "note": 26,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 3,
+              "note": 14,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 2,
+              "note": 26,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 3,
+              "note": 11,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 3,
+              "note": 23,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 2,
+              "note": 18,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 3,
+              "note": 4,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 2,
+              "note": 11,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 3,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 2,
+              "note": 11,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 3,
+              "note": 4,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 2,
+              "note": 11,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 3,
+              "note": 16,
+              "inst": "midwtrianglebass",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 2,
+              "note": 11,
+              "inst": "midwtrianglebass",
+              "fx": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "noise",
+      "patterns": [
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 1,
+              "note": 46,
+              "inst": "midncrash",
+              "fx": null
+            },
+            {
+              "row": 2,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 14,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 26,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 2,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 14,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 26,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 45,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 47,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 3,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 9,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 15,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 21,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 27,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 33,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 39,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 45,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 3,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 9,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 15,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 21,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 27,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 33,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 1,
+              "note": 48,
+              "inst": "midnlowtom",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 43,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 45,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 47,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 1,
+              "note": 46,
+              "inst": "midncrash",
+              "fx": null
+            },
+            {
+              "row": 2,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 9,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 11,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 14,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 21,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 23,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 26,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 33,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 35,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 38,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 40,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 45,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 47,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 1,
+              "note": 46,
+              "inst": "midncrash",
+              "fx": null
+            },
+            {
+              "row": 2,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 4,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 8,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 9,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 10,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 11,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 14,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 16,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 20,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 21,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 22,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 23,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 26,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 28,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 32,
+              "len": 1,
+              "note": 52,
+              "inst": "midnopenhat",
+              "fx": null
+            },
+            {
+              "row": 33,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 34,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 35,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 1,
+              "note": 46,
+              "inst": "midncrash",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 47,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 3,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 9,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 15,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 21,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 27,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 33,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 39,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 45,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            }
+          ]
+        },
+        {
+          "notes": [
+            {
+              "row": 0,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 3,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 6,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 9,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 12,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 15,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 18,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 21,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 24,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 27,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 30,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 33,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 36,
+              "len": 1,
+              "note": 32,
+              "inst": "midnkick",
+              "fx": null
+            },
+            {
+              "row": 39,
+              "len": 1,
+              "note": 54,
+              "inst": "midnclosedhat",
+              "fx": null
+            },
+            {
+              "row": 42,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 44,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 45,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 46,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            },
+            {
+              "row": 47,
+              "len": 1,
+              "note": 40,
+              "inst": "midnsnare",
+              "fx": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "order": [
+    [
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      1
+    ],
+    [
+      2,
+      2,
+      2,
+      2
+    ],
+    [
+      3,
+      3,
+      3,
+      3
+    ],
+    [
+      4,
+      4,
+      4,
+      4
+    ],
+    [
+      5,
+      5,
+      5,
+      5
+    ],
+    [
+      6,
+      6,
+      6,
+      6
+    ],
+    [
+      7,
+      7,
+      7,
+      7
+    ]
+  ],
+  "orderRows": [
+    48,
+    48,
+    48,
+    48,
+    48,
+    48,
+    48,
+    48
+  ],
+  "mode": "song",
+  "scale": {
+    "root": 0,
+    "name": "Free"
+  }
+}
