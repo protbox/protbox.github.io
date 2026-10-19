@@ -467,5 +467,147 @@
         return { doc, report };
     }
 
-    root.MIDI = { parse, toSong, drumFor };
+    const GM_DRUMS = [[/kick|bass ?drum|bd\b/, 36], [/rim|tek/, 37], [/snare|sd\b/, 38], [/clap/, 39], [/timpani/, 41], [/high ?tom|hi ?tom/, 48], [/tom/, 45], [/open ?hat|oh\b/, 46], [/hat|hh\b/, 42], [/crash|cymbal/, 49], [/ride/, 51], [/riser|swell|reverse/, 57], [/tamb/, 54], [/cow|clank|bell/, 56], [/wood|block/, 76], [/shak|maraca|cabasa/, 70]];
+    const MAJOR_SF = [0, -5, 2, -3, 4, -1, 6, 1, -4, 3, -2, 5];
+
+    function gmDrum(inst) {
+        const name = String(inst && inst.name || "").toLowerCase();
+        for (const [re, n] of GM_DRUMS) if (re.test(name)) return n;
+        const pitch = inst && typeof inst.note === "number" ? inst.note : 40;
+        return pitch < 36 ? 36 : pitch < 46 ? 38 : 42;
+    }
+
+    function fromSong(doc) {
+        const rpb = Math.max(1, doc.rowsPerBeat || 4);
+        const TPR = 120;
+        const PPQ = rpb * TPR;
+        const insts = new Map((doc.instruments || []).map(i => [i.id, i]));
+        const lens = doc.order.map((r, k) => {
+            const v = doc.orderRows && doc.orderRows[k];
+            return v > 0 && v < ROWS ? Math.floor(v) : ROWS;
+        });
+        const starts = [];
+        let total = 0;
+        for (const l of lens) {
+            starts.push(total);
+            total += l;
+        }
+        const mpqn = sp => Math.round(rpb * sp / VBLANK_HZ * 1e6);
+        const conductor = [];
+        const report = { notes: 0, slides: 0, swells: 0, subs: new Set(), tempoChanges: 0, rows: total };
+        const tracks = [[], [], [], []];
+        const CH = [0, 1, 2, 9];
+        const RANGE = 24;
+        for (let t = 0; t < 4; t++) {
+            const ev = tracks[t];
+            const ch = CH[t];
+            if (t < 3) {
+                ev.push({ tick: 0, d: [0xC0 | ch, t === 2 ? 38 : 80] });
+                ev.push({ tick: 0, d: [0xB0 | ch, 101, 0] }, { tick: 0, d: [0xB0 | ch, 100, 0] }, { tick: 0, d: [0xB0 | ch, 6, RANGE] }, { tick: 0, d: [0xB0 | ch, 38, 0] }, { tick: 0, d: [0xB0 | ch, 101, 127] }, { tick: 0, d: [0xB0 | ch, 100, 127] });
+            }
+            doc.order.forEach((row, k) => {
+                const idx = row[t];
+                const pat = idx >= 0 && doc.tracks[t] && doc.tracks[t].patterns[idx];
+                if (!pat) return;
+                const base = starts[k] * TPR;
+                for (const n of pat.notes) {
+                    if (n.row >= lens[k]) continue;
+                    const inst = insts.get(n.inst);
+                    const fx = n.fx || null;
+                    if (fx && fx.code === 0xF && fx.param > 0) {
+                        conductor.push({ tick: base + n.row * TPR, tempo: mpqn(fx.param) });
+                        report.tempoChanges++;
+                    }
+                    const len = t === 3 ? 1 : Math.max(1, Math.min(n.len || 1, lens[k] - n.row));
+                    const on = base + n.row * TPR;
+                    const off = on + (t === 3 ? TPR / 2 : len * TPR);
+                    let vel;
+                    if (t === 2) {
+                        const level = inst ? [0, 15, 8, 4][inst.level] || 0 : 15;
+                        let g = level;
+                        if (fx && fx.code === 0xC) {
+                            const y = fx.param & 15;
+                            g = y >= 10 ? 15 : y >= 5 ? 8 : y === 0 ? 0 : 4;
+                        }
+                        vel = Math.round(127 * g / 15);
+                    } else {
+                        const peak = inst && inst.envDir === "up" && inst.envPace ? (inst.fadeTo > inst.vol && inst.fadeTo < 15 ? inst.fadeTo : 15) : inst ? inst.vol : 15;
+                        const y = fx && fx.code === 0xC ? fx.param & 15 : peak;
+                        vel = Math.round(127 * y / 15);
+                    }
+                    vel = Math.max(1, Math.min(127, vel));
+                    const key = t === 3 ? gmDrum(inst) : Math.max(0, Math.min(127, n.note + BASE));
+                    if (inst && inst.sub && inst.sub.rows && inst.sub.rows.some(r => (r && (r.note || (r.fx && (r.fx.code || r.fx.param)))))) report.subs.add(inst.name);
+                    if (t < 3 && n.slide) {
+                        const at = Math.max(0, Math.min(len - 1, n.slideAt || 0));
+                        const span = n.slideLen ? Math.min(n.slideLen, len - at) : len - at;
+                        const target = Math.max(-RANGE, Math.min(RANGE, n.slide));
+                        const from = on + at * TPR;
+                        const steps = Math.max(1, span * 4);
+                        for (let s = 1; s <= steps; s++) {
+                            const v = Math.max(0, Math.min(16383, Math.round(8192 + target / RANGE * 8192 * s / steps)));
+                            ev.push({ tick: Math.min(off - 1, from + Math.round(s * span * TPR / steps)), d: [0xE0 | ch, v & 127, v >> 7] });
+                        }
+                        ev.push({ tick: off, d: [0xE0 | ch, 0, 64], late: true });
+                        report.slides++;
+                    }
+                    if (t < 3 && n.swell) {
+                        for (let r = 0; r < len; r++) {
+                            const x = (r + 0.5) / len;
+                            ev.push({ tick: on + r * TPR, d: [0xB0 | ch, 11, Math.max(1, Math.round(127 * (1 - Math.abs(2 * x - 1))))] });
+                        }
+                        ev.push({ tick: off, d: [0xB0 | ch, 11, 127], late: true });
+                        report.swells++;
+                    }
+                    ev.push({ tick: on, d: [0x90 | ch, key, vel], on: true });
+                    ev.push({ tick: off, d: [0x80 | ch, key, 0], off: true });
+                    report.notes++;
+                }
+            });
+        }
+        const bytes = [];
+        const str = s => [...s].map(c => c.charCodeAt(0) & 0x7f);
+        const u32 = v => [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255];
+        const vlq = v => {
+            const out = [v & 127];
+            v >>>= 7;
+            while (v) {
+                out.unshift((v & 127) | 128);
+                v >>>= 7;
+            }
+            return out;
+        };
+        const chunk = (id, data) => bytes.push(...str(id), ...u32(data.length), ...data);
+        const meta = (type, data) => [0xFF, type, ...vlq(data.length), ...data];
+        const track = (name, evs) => {
+            const order = e => e.off ? 0 : e.late ? 1 : e.on ? 3 : 2;
+            evs.sort((a, b) => a.tick - b.tick || order(a) - order(b));
+            const data = [...vlq(0), ...meta(0x03, str(name.slice(0, 120)))];
+            let last = 0;
+            for (const e of evs) {
+                data.push(...vlq(e.tick - last), ...e.d);
+                last = e.tick;
+            }
+            data.push(...vlq(Math.max(0, total * TPR - last)), 0xFF, 0x2F, 0x00);
+            chunk("MTrk", data);
+        };
+        chunk("MThd", [0, 1, 0, 5, (PPQ >> 8) & 255, PPQ & 255]);
+        const c0 = [];
+        c0.push({ tick: 0, d: meta(0x51, [(mpqn(doc.speed || 6) >> 16) & 255, (mpqn(doc.speed || 6) >> 8) & 255, mpqn(doc.speed || 6) & 255]) });
+        c0.push({ tick: 0, d: meta(0x58, [Math.max(1, Math.min(255, doc.beatsPerBar || 4)), 2, 24, 8]) });
+        const sc = doc.scale || {};
+        if (sc.name === "Ionian" || sc.name === "Aeolian") {
+            const minor = sc.name === "Aeolian";
+            const sf = MAJOR_SF[((sc.root || 0) + (minor ? 3 : 0)) % 12];
+            c0.push({ tick: 0, d: meta(0x59, [sf & 255, minor ? 1 : 0]) });
+        }
+        if (doc.artist) c0.push({ tick: 0, d: meta(0x01, str("By " + doc.artist)) });
+        for (const c of conductor) c0.push({ tick: c.tick, d: meta(0x51, [(c.tempo >> 16) & 255, (c.tempo >> 8) & 255, c.tempo & 255]) });
+        track(doc.name || "fUGE song", c0);
+        ["Pulse 1", "Pulse 2", "Wave", "Noise"].forEach((n, t) => track(n, tracks[t]));
+        report.subs = [...report.subs];
+        return { bytes: new Uint8Array(bytes), report };
+    }
+
+    root.MIDI = { parse, toSong, drumFor, fromSong, gmDrum };
 })(typeof window !== "undefined" ? window : globalThis);

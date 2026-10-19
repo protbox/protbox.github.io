@@ -17,7 +17,7 @@
             <a class="brand" href="#welcome"><b>f</b>UGE <small>docs</small></a>
             <div class="side-tools">
                 <input type="search" id="search" placeholder="Search  ( / )" aria-label="Search the docs">
-                <button class="icon-btn" id="theme" type="button" title="Switch light/dark" aria-label="Switch light or dark theme"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg></button>
+                <button class="icon-btn" id="theme" type="button" title="Switch light/dark" aria-label="Switch between light and dark"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg></button>
             </div>
             <nav class="nav">
                 <p class="none" id="noResults" hidden>Nothing matches. Try another word.</p>
@@ -117,7 +117,7 @@
                     <img class="dark" src="img/overview-dark.webp" alt="The whole fUGE window" width="1440" height="900" loading="lazy">
                 </figure>
                 <ul>
-                    <li><b>Top bar:</b> New, Open, Save and Export; undo and redo; stop, play and loop; the position display; output volume; the song's speed and rows per beat; the light/dark switch and help.</li>
+                    <li><b>Top bar:</b> New, Open, Save and Export; undo and redo; stop, play and loop; the position display; output volume; the song's speed and rows per beat; help, and the theme menu (match your system, light, dark, or slate: a dark slate grey with pastel colours).</li>
                     <li><b>Instruments</b> (left): every instrument in the song, grouped by channel type, with the editor for the selected one underneath.</li>
                     <li><b>Arrangement</b> (top): the song's structure. Each column is an <i>order</i>, and each row is one of the Game Boy's four channels.</li>
                     <li><b>Pattern editor</b> (bottom): the piano roll for the slot you've selected in the arrangement, with its toolbar above.</li>
@@ -466,8 +466,6 @@
                 </ul>
                 <h3>Previewing and applying</h3>
                 <p>The strip and the preview under the layers update as you go. <b>▶ Play</b> (or <kbd>Space</kbd>) loops the order through fUGE's sound chip emulation, and keeps playing your changes as you make them. Untick <b>Hear the order's other channels</b> to hear only the layers. Nothing changes in your song until you click <b>Apply</b>, which replaces those channels in this order as one step you can undo. A pattern that's also used by other orders is left alone there: the order gets a new pattern instead. The builder remembers your chords and layers for next time.</p>
-                <h3>Adding your own patterns</h3>
-                <p>The library lives in <code>web/patterns</code>, one folder per group (<code>bass</code>, <code>rhythm</code>, <code>drums</code>, or your own). To add patterns, save MIDI files there and run <code>node tools/patterns.js</code>, which bundles them into <code>web/patterns/patterns.js</code> so fUGE can read them straight from disk. Write melodic patterns on a C chord; name a pair <code>…_maj.mid</code> and <code>…_min.mid</code> when they use the 3rd. Drums use General MIDI note numbers on channel 10. A pattern can be several bars long, and descriptions come from <code>index.csv</code> in the same folder.</p>
             </section>
 
             <section id="sfx">
@@ -554,6 +552,7 @@
                     <li><b>Song as .uge:</b> a hUGETracker v6 song with your patterns, orders, instruments, waveforms and subpatterns.</li>
                     <li><b>Song as .wav:</b> the song rendered through fUGE's sound chip emulation. It ends where the song ends, with every channel cut, just like hUGETracker's export. Muted or soloed channels are left out, so you can export stems.</li>
                     <li><b>Song as .wav, looped:</b> the same, but the song plays through twice, carrying straight on from the loop point just as it would in a game. Handy for sharing a track and showing how well it loops. The file ends in <code>_loop.wav</code>.</li>
+                    <li><b>Song as .mid (MIDI):</b> the song as a standard MIDI file for a DAW or notation program, with one track per channel: Pulse 1, Pulse 2, Wave, and Noise on the drum channel. Notes keep their pitch, length and volume (as velocity), slides become pitch bends, Swell becomes expression, and the tempo follows the song's speed. Drum hits use the General MIDI drum that matches each noise instrument's name (Kick, Snare, Closed Hat and so on). The sound of the instruments, including subpatterns such as arpeggios and vibrato, isn't part of MIDI, so each note plays as a plain note. Import it back with New ▾ → Import MIDI file… to get the same notes.</li>
                 </ul>
                 <p>Playback and both exports use exactly the same compiled song, so what you hear is what you get.</p>
             </section>

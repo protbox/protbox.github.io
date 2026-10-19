@@ -136,6 +136,41 @@
     color-scheme: dark;
 }
 
+:root[data-theme="slate"] {
+    --bg: #262b33;
+    --panel: #323843;
+    --panel-2: #2c323b;
+    --ink: #e8ecf2;
+    --muted: #a6aebb;
+    --line: #434a57;
+    --line-strong: #555e6d;
+    --accent: #ff9e8a;
+    --accent-ink: #2a1510;
+    --accent-soft: #4b3c3d;
+    --ch1: #7fe0c4;
+    --ch2: #8fc3ff;
+    --ch3: #c9a8ff;
+    --ch4: #ffc58c;
+    --roll-bg: #2f353f;
+    --roll-alt: #2a2f38;
+    --roll-out: #20242b;
+    --roll-beat: #3b424e;
+    --roll-bar: #5a6475;
+    --key-white: #d9dee7;
+    --key-black: #262a32;
+    --dim: #5b6372;
+    --warn-bg: #3e3526;
+    --warn-ink: #ffd894;
+    --lcd-bg: #9bbc0f;
+    --lcd-ink: #0f380f;
+    --danger: #ff8f8f;
+    color-scheme: dark;
+}
+
+[hidden] {
+    display: none !important;
+}
+
 * {
     box-sizing: border-box;
 }

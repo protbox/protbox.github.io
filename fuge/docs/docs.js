@@ -23,6 +23,7 @@
 
     const saved = stored();
     if (saved === "light" || saved === "dark") root.dataset.theme = saved;
+    if (saved === "slate") root.dataset.theme = "dark";
 
     document.addEventListener("DOMContentLoaded", () => {
         const links = [...document.querySelectorAll(".nav a[href^='#']")];

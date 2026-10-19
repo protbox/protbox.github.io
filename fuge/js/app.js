@@ -3539,6 +3539,17 @@
         }
     }
 
+    function exportMidi() {
+        try {
+            const res = MIDI.fromSong(state.song);
+            const name = slug(state.song.name) + ".mid";
+            deliver(name, res.bytes, "audio/midi", "Exported " + name + ": " + res.report.notes + " notes on 4 tracks (Pulse 1, Pulse 2, Wave, and Noise on the drum channel).");
+            if (res.report.subs.length) toast("MIDI has each note's pitch, length, volume, slides and swells, but not instrument subpatterns (arpeggios, vibrato, pitch drops), so " + res.report.subs.join(", ") + " play" + (res.report.subs.length === 1 ? "s" : "") + " plain notes.");
+        } catch (err) {
+            toast("MIDI export failed: " + err.message);
+        }
+    }
+
     function exportUge() {
         try {
             const res = UGE.exportSong(state.song);
@@ -3712,7 +3723,9 @@
             showMenu(anchor($("btnExport")), [
                 { label: "Song as .uge (hUGETracker, GB Studio)", kbd: "Ctrl+E", action: exportUge },
                 { label: "Song as .wav", action: () => exportWav() },
-                { label: "Song as .wav, looped", action: () => exportWav(undefined, 2) }
+                { label: "Song as .wav, looped", action: () => exportWav(undefined, 2) },
+                { sep: true },
+                { label: "Song as .mid (MIDI)", action: exportMidi }
             ]);
         }
     }
@@ -4739,11 +4752,16 @@
         renderAll();
     }
 
+    const THEMES = [["", "Match system"], ["light", "Light"], ["dark", "Dark"], ["slate", "Slate"]];
+
+    function setTheme(t) {
+        storeSet(THEME_KEY, t);
+        applyTheme(t);
+    }
+
     function toggleTheme() {
-        const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-        const next = dark ? "light" : "dark";
-        storeSet(THEME_KEY, next);
-        applyTheme(next);
+        const cur = document.documentElement.dataset.theme || "";
+        ownMenu($("btnTheme"), () => showMenu(anchor($("btnTheme")), [{ head: "Theme" }].concat(THEMES.map(([v, label]) => ({ label, checked: v === cur, action: () => setTheme(v) })))));
     }
 
     const TEXT_TYPES = ["text", "number", "search", "email", "url", "password", "tel"];
@@ -5353,7 +5371,7 @@
 
     function init() {
         const theme = storeGet(THEME_KEY);
-        if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+        if (theme === "light" || theme === "dark" || theme === "slate") document.documentElement.dataset.theme = theme;
         let song = null;
         const saved = storeGet(STORE_KEY);
         if (saved) {
