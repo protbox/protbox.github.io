@@ -92,21 +92,6 @@
       }
     },
     {
-      "id": "midpbrightlead",
-      "type": "pulse",
-      "name": "Bright Lead",
-      "length": 0,
-      "vol": 12,
-      "envDir": "up",
-      "envPace": 2,
-      "fadeTo": 15,
-      "duty": 2,
-      "sweepTime": 0,
-      "sweepDir": "down",
-      "sweepShift": 0,
-      "sub": null
-    },
-    {
       "id": "22fbg8y1",
       "type": "pulse",
       "name": "Pluck",

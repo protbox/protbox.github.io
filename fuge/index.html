@@ -44,7 +44,10 @@
         <aside class="sidebar" aria-label="Instruments">
             <div class="side-head">
                 <p class="label">Instruments</p>
-                <button class="btn small" id="btnPresets" type="button">Presets…</button>
+                <div class="side-btns">
+                    <button class="btn small" id="btnClean" type="button" title="Remove the instruments that no note uses">Clean up</button>
+                    <button class="btn small" id="btnPresets" type="button">Presets…</button>
+                </div>
             </div>
             <div class="inst-list" id="instList"></div>
             <div class="editor" id="instEditor"></div>

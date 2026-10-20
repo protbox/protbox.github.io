@@ -24,21 +24,6 @@
       "sub": null
     },
     {
-      "id": "midpbrightlead",
-      "type": "pulse",
-      "name": "Bright Lead",
-      "length": 0,
-      "vol": 12,
-      "envDir": "down",
-      "envPace": 0,
-      "fadeTo": 15,
-      "duty": 1,
-      "sweepTime": 0,
-      "sweepDir": "down",
-      "sweepShift": 0,
-      "sub": null
-    },
-    {
       "id": "gozki0ua",
       "type": "pulse",
       "name": "Square Lead 2",

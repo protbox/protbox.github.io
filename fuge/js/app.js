@@ -414,6 +414,7 @@
         autosaveTimer = setTimeout(() => {
             storeSet(STORE_KEY, JSON.stringify(state.song));
             storeSet(PATH_KEY, state.filePath || "");
+            refreshUnused();
         }, 400);
         schedulePush();
     }
@@ -548,6 +549,50 @@
     const curPat = () => patAt(state.track, state.ord);
     const effFx = n => n.fx || null;
     const fxLabel = fx => fx ? hex(fx.code, 1) + hex(fx.param, 2) + " " + ((FX.find(f => f.code === fx.code) || { name: "" }).name) : "";
+
+    function usedInstIds() {
+        const ids = new Set();
+        for (const t of state.song.tracks) for (const p of t.patterns) for (const n of p.notes) ids.add(n.inst);
+        return ids;
+    }
+
+    function unusedInsts() {
+        const used = usedInstIds();
+        return state.song.instruments.filter(i => !used.has(i.id));
+    }
+
+    function refreshUnused() {
+        const unused = new Set(unusedInsts().map(i => i.id));
+        for (const b of document.querySelectorAll("#instList .inst")) {
+            const off = unused.has(b.dataset.id);
+            const tag = b.querySelector(".unused-tag");
+            if (off && !tag) b.querySelector(".name").insertAdjacentHTML("beforeend", "<span class=\"unused-tag\" title=\"No notes use this instrument\">unused</span>");
+            if (!off && tag) tag.remove();
+        }
+        $("btnClean").disabled = !unused.size;
+        $("btnClean").title = unused.size ? "Remove " + unused.size + " instrument" + (unused.size === 1 ? "" : "s") + " that no note uses" : "Every instrument is used by at least one note";
+    }
+
+    function cleanUp() {
+        const list = unusedInsts();
+        if (!list.length) {
+            status("Nothing to clean up: every instrument is used by at least one note.");
+            return;
+        }
+        const names = list.map(i => i.name);
+        const shown = names.length > 8 ? names.slice(0, 8).join(", ") + " and " + (names.length - 8) + " more" : names.join(", ");
+        Desktop.ask("Remove " + list.length + " unused instrument" + (list.length === 1 ? "" : "s") + "? " + shown + ". No notes use " + (list.length === 1 ? "it" : "them") + ", and you can undo this.").then(ok => {
+            if (!ok) return;
+            checkpoint();
+            const gone = new Set(list.map(i => i.id));
+            state.song.instruments = state.song.instruments.filter(i => !gone.has(i.id));
+            for (const k of Object.keys(state.lastInst)) if (gone.has(state.lastInst[k])) state.lastInst[k] = null;
+            if (gone.has(state.inst)) state.inst = null;
+            syncInstToTrack();
+            renderAll();
+            status("Removed " + list.length + " unused instrument" + (list.length === 1 ? "" : "s") + ": " + shown + ". Undo brings " + (list.length === 1 ? "it" : "them") + " back.");
+        });
+    }
 
     function instUseCount(id) {
         let c = 0;
@@ -778,6 +823,7 @@
             el.appendChild(g);
         }
         el.scrollTop = scroll;
+        refreshUnused();
     }
 
     function seg(name, options, current) {
@@ -2977,7 +3023,8 @@
             return;
         }
         if (e.target.closest("#instList")) {
-            showMenu(e, [{ head: "Instruments" }].concat(pasteItems(null), [{ sep: true }, { label: "Presets…", action: () => openPresets() }]));
+            const n = unusedInsts().length;
+            showMenu(e, [{ head: "Instruments" }].concat(pasteItems(null), [{ sep: true }, { label: "Presets…", action: () => openPresets() }, { label: "Remove unused instruments" + (n ? " (" + n + ")" : ""), disabled: !n, action: cleanUp }]));
             return;
         }
         hideMenu();
@@ -5131,6 +5178,7 @@
         };
         GBAudio.on(onAudio);
         $("btnTheme").onclick = toggleTheme;
+        $("btnClean").onclick = cleanUp;
         $("btnHelp").onclick = () => Desktop.openDocs();
         $("speed").onchange = e => {
             checkpoint();

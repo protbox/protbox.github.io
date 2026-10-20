@@ -9,36 +9,6 @@
   "beatsPerBar": 4,
   "instruments": [
     {
-      "id": "midpsquarelead",
-      "type": "pulse",
-      "name": "Square Lead",
-      "length": 0,
-      "vol": 13,
-      "envDir": "down",
-      "envPace": 0,
-      "fadeTo": 15,
-      "duty": 2,
-      "sweepTime": 0,
-      "sweepDir": "down",
-      "sweepShift": 0,
-      "sub": null
-    },
-    {
-      "id": "midpbrightlead",
-      "type": "pulse",
-      "name": "Bright Lead",
-      "length": 0,
-      "vol": 13,
-      "envDir": "down",
-      "envPace": 0,
-      "fadeTo": 15,
-      "duty": 1,
-      "sweepTime": 0,
-      "sweepDir": "down",
-      "sweepShift": 0,
-      "sub": null
-    },
-    {
       "id": "32dcvb65",
       "type": "pulse",
       "name": "Pluck",

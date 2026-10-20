@@ -1756,3 +1756,19 @@ input[type="range"] {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
 }
+
+.side-btns {
+    display: flex;
+    gap: 6px;
+}
+
+.inst .unused-tag {
+    font-family: var(--f-mono);
+    font-size: 9.5px;
+    color: var(--muted);
+    border: 1px dashed var(--line-strong);
+    border-radius: 3px;
+    padding: 0 3px;
+    vertical-align: 1px;
+    margin-left: 4px;
+}

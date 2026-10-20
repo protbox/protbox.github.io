@@ -39,163 +39,6 @@
       "sub": null
     },
     {
-      "id": "eggwr526",
-      "type": "pulse",
-      "name": "Swell Arp",
-      "length": 0,
-      "vol": 0,
-      "envDir": "up",
-      "envPace": 2,
-      "fadeTo": 15,
-      "duty": 1,
-      "sweepTime": 0,
-      "sweepDir": "down",
-      "sweepShift": 0,
-      "sub": {
-        "name": "Swell arp",
-        "loop": 29,
-        "rows": [
-          {
-            "note": 0,
-            "fx": {
-              "code": 12,
-              "param": 160
-            }
-          },
-          {
-            "note": 4,
-            "fx": null
-          },
-          {
-            "note": 7,
-            "fx": null
-          },
-          {
-            "note": 0,
-            "fx": null
-          },
-          {
-            "note": 4,
-            "fx": null
-          },
-          {
-            "note": 7,
-            "fx": null
-          },
-          {
-            "note": 0,
-            "fx": null
-          },
-          {
-            "note": 4,
-            "fx": null
-          },
-          {
-            "note": 7,
-            "fx": null
-          },
-          {
-            "note": 0,
-            "fx": null
-          },
-          {
-            "note": 4,
-            "fx": null
-          },
-          {
-            "note": 7,
-            "fx": null
-          },
-          {
-            "note": 0,
-            "fx": null
-          },
-          {
-            "note": 4,
-            "fx": null
-          },
-          {
-            "note": 7,
-            "fx": null
-          },
-          {
-            "note": 0,
-            "fx": null
-          },
-          {
-            "note": 4,
-            "fx": null
-          },
-          {
-            "note": 7,
-            "fx": null
-          },
-          {
-            "note": 0,
-            "fx": null
-          },
-          {
-            "note": 4,
-            "fx": null
-          },
-          {
-            "note": 7,
-            "fx": null
-          },
-          {
-            "note": 0,
-            "fx": null
-          },
-          {
-            "note": 4,
-            "fx": null
-          },
-          {
-            "note": 7,
-            "fx": null
-          },
-          {
-            "note": 0,
-            "fx": null
-          },
-          {
-            "note": 4,
-            "fx": null
-          },
-          {
-            "note": 7,
-            "fx": null
-          },
-          {
-            "note": 0,
-            "fx": {
-              "code": 10,
-              "param": 224
-            }
-          },
-          {
-            "note": 4,
-            "fx": {
-              "code": 12,
-              "param": 46
-            }
-          },
-          {
-            "note": 7,
-            "fx": null
-          },
-          {
-            "note": 0,
-            "fx": null
-          },
-          {
-            "note": 4,
-            "fx": null
-          }
-        ]
-      }
-    },
-    {
       "id": "p8ka5gv6",
       "type": "pulse",
       "name": "Arp Pluck",
@@ -232,79 +75,49 @@
       }
     },
     {
-      "type": "pulse",
-      "name": "Pluck",
-      "duty": 1,
-      "vol": 15,
-      "envDir": "down",
-      "envPace": 1,
-      "fadeTo": 15,
-      "length": 0,
-      "sweepTime": 0,
-      "sweepDir": "down",
-      "sweepShift": 0,
-      "sub": null,
-      "id": "mrwj6qbe"
-    },
-    {
-      "type": "pulse",
-      "name": "Square Lead echo",
-      "duty": 0,
-      "vol": 7,
-      "envDir": "down",
-      "envPace": 0,
-      "fadeTo": 15,
-      "length": 0,
-      "sweepTime": 0,
-      "sweepDir": "down",
-      "sweepShift": 0,
-      "sub": null,
-      "id": "lpvab8zm"
-    },
-    {
+      "id": "lm1i19dk",
       "type": "pulse",
       "name": "Bright Lead echo",
-      "duty": 1,
+      "length": 0,
       "vol": 6,
       "envDir": "down",
       "envPace": 0,
       "fadeTo": 15,
-      "length": 0,
+      "duty": 1,
       "sweepTime": 0,
       "sweepDir": "down",
       "sweepShift": 0,
-      "sub": null,
-      "id": "lm1i19dk"
+      "sub": null
     },
     {
+      "id": "pylkcmi0",
       "type": "pulse",
       "name": "Pulse 8",
-      "duty": 2,
+      "length": 0,
       "vol": 14,
       "envDir": "down",
       "envPace": 0,
       "fadeTo": 15,
-      "length": 0,
+      "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
       "sweepShift": 0,
-      "sub": null,
-      "id": "pylkcmi0"
+      "sub": null
     },
     {
+      "id": "0ytqh2ta",
       "type": "pulse",
       "name": "Pulse 8 echo",
-      "duty": 2,
+      "length": 0,
       "vol": 8,
       "envDir": "down",
       "envPace": 0,
       "fadeTo": 15,
-      "length": 0,
+      "duty": 2,
       "sweepTime": 0,
       "sweepDir": "down",
       "sweepShift": 0,
-      "sub": null,
-      "id": "0ytqh2ta"
+      "sub": null
     },
     {
       "id": "midwtrianglebass",

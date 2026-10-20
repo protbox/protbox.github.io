@@ -39,21 +39,6 @@
       "sub": null
     },
     {
-      "type": "pulse",
-      "name": "Soft Pluck",
-      "duty": 1,
-      "vol": 11,
-      "envDir": "down",
-      "envPace": 5,
-      "fadeTo": 15,
-      "length": 0,
-      "sweepTime": 0,
-      "sweepDir": "down",
-      "sweepShift": 0,
-      "sub": null,
-      "id": "75k6dm43"
-    },
-    {
       "id": "midwtrianglebass",
       "type": "wave",
       "name": "Triangle Bass",
